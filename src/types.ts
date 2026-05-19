@@ -11,13 +11,15 @@ export const STORES: { id: Store; label: string; kind: 'grocery' | 'drugstore' }
 
 export type Category =
   | 'obst-gemuese'
-  | 'milch'
-  | 'fleisch'
-  | 'brot'
-  | 'getraenke'
+  | 'brot-gebaeck'
+  | 'milch-eier'
+  | 'fleisch-fisch'
   | 'tiefkuehl'
-  | 'trocken'
-  | 'suesses'
+  | 'vorrat'
+  | 'gewuerze-saucen'
+  | 'fruehstueck-aufstrich'
+  | 'suesses-knabberei'
+  | 'getraenke'
   | 'koerperpflege'
   | 'haushalt'
   | 'baby'
@@ -25,35 +27,89 @@ export type Category =
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   'obst-gemuese': 'Obst & Gemüse',
-  milch: 'Milchprodukte',
-  fleisch: 'Fleisch & Wurst',
-  brot: 'Brot & Backwaren',
-  getraenke: 'Getränke',
+  'brot-gebaeck': 'Brot & Gebäck',
+  'milch-eier': 'Milchprodukte & Eier',
+  'fleisch-fisch': 'Fleisch & Fisch',
   tiefkuehl: 'Tiefkühl',
-  trocken: 'Trockenwaren',
-  suesses: 'Süßes & Snacks',
+  vorrat: 'Vorrat & Konserven',
+  'gewuerze-saucen': 'Gewürze, Öle & Saucen',
+  'fruehstueck-aufstrich': 'Frühstück & Aufstrich',
+  'suesses-knabberei': 'Süßes & Knabberei',
+  getraenke: 'Getränke',
   koerperpflege: 'Körperpflege',
   haushalt: 'Haushalt',
   baby: 'Baby',
   sonstiges: 'Sonstiges',
 };
 
+/**
+ * Order categories follow the typical German supermarket walk: enter through
+ * fresh produce, work past the bakery and chilled aisles, then frozen, then
+ * shelf-stable, end on non-food. Items group under headers in this order so
+ * the list mirrors the route you actually take.
+ */
+export const CATEGORY_ORDER: Category[] = [
+  'obst-gemuese',
+  'brot-gebaeck',
+  'milch-eier',
+  'fleisch-fisch',
+  'tiefkuehl',
+  'vorrat',
+  'gewuerze-saucen',
+  'fruehstueck-aufstrich',
+  'suesses-knabberei',
+  'getraenke',
+  'koerperpflege',
+  'haushalt',
+  'baby',
+  'sonstiges',
+];
+
 export type CategoryKind = 'grocery' | 'drugstore';
 
 export const CATEGORY_KIND: Record<Category, CategoryKind> = {
   'obst-gemuese': 'grocery',
-  milch: 'grocery',
-  fleisch: 'grocery',
-  brot: 'grocery',
-  getraenke: 'grocery',
+  'brot-gebaeck': 'grocery',
+  'milch-eier': 'grocery',
+  'fleisch-fisch': 'grocery',
   tiefkuehl: 'grocery',
-  trocken: 'grocery',
-  suesses: 'grocery',
+  vorrat: 'grocery',
+  'gewuerze-saucen': 'grocery',
+  'fruehstueck-aufstrich': 'grocery',
+  'suesses-knabberei': 'grocery',
+  getraenke: 'grocery',
   koerperpflege: 'drugstore',
   haushalt: 'drugstore',
   baby: 'drugstore',
   sonstiges: 'grocery',
 };
+
+/**
+ * Legacy → current category mapping for items stored under the old 12-cat
+ * scheme. Used by the Dexie v2 upgrade and the snapshot loader.
+ */
+export const LEGACY_CATEGORY_MAP: Record<string, Category> = {
+  // unchanged
+  'obst-gemuese': 'obst-gemuese',
+  tiefkuehl: 'tiefkuehl',
+  getraenke: 'getraenke',
+  koerperpflege: 'koerperpflege',
+  haushalt: 'haushalt',
+  baby: 'baby',
+  sonstiges: 'sonstiges',
+  // renamed
+  brot: 'brot-gebaeck',
+  milch: 'milch-eier',
+  fleisch: 'fleisch-fisch',
+  suesses: 'suesses-knabberei',
+  // split — bulk-assign to the largest target; users can re-bucket per item
+  trocken: 'vorrat',
+};
+
+export function migrateCategory(c: string | Category): Category {
+  if ((c as Category) in CATEGORY_LABELS) return c as Category;
+  return LEGACY_CATEGORY_MAP[c] ?? 'sonstiges';
+}
 
 export interface Product {
   /** Stable identifier — barcode if available, else "local:<slug>" */

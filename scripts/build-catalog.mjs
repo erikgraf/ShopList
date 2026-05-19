@@ -9,30 +9,92 @@
 //
 // Source can be an http(s) URL or a local .jsonl.gz path.
 
-import { createReadStream } from 'node:fs';
+import { createReadStream, existsSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createGunzip } from 'node:zlib';
 import readline from 'node:readline';
-import { Readable } from 'node:stream';
+import { spawn } from 'node:child_process';
+import { tmpdir } from 'node:os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
 const DEFAULT_SOURCE = 'https://static.openfoodfacts.org/data/openfoodfacts-products.jsonl.gz';
 const DEFAULT_LIMIT = 20000;
+const DEFAULT_CACHE_PATH = join(tmpdir(), 'shoplist-off-dump.jsonl.gz');
 const OUTPUT_PATH = join(ROOT, 'public', 'off-de-snapshot.json');
 
 function parseArgs() {
-  const out = { limit: DEFAULT_LIMIT, source: DEFAULT_SOURCE };
+  const out = {
+    limit: DEFAULT_LIMIT,
+    source: DEFAULT_SOURCE,
+    cache: DEFAULT_CACHE_PATH,
+    forceDownload: false,
+  };
   for (const a of process.argv.slice(2)) {
     const m = /^--([^=]+)(?:=(.*))?$/.exec(a);
     if (!m) continue;
     if (m[1] === 'limit') out.limit = Number(m[2]);
     else if (m[1] === 'source') out.source = m[2];
+    else if (m[1] === 'cache') out.cache = m[2];
+    else if (m[1] === 'force-download') out.forceDownload = true;
   }
   return out;
+}
+
+/**
+ * Download an HTTPS resource to a local file using curl, with resume + retry.
+ * Streams from Node's fetch are fragile over 30-60 min runs against the OFF
+ * CDN — ECONNRESET kills the run with no recovery. curl's `--continue-at -`
+ * + `--retry-all-errors` resumes cleanly and is the canonical tool for this
+ * job. We shell out rather than reimplement.
+ */
+async function downloadWithResume(url, dest, { force = false } = {}) {
+  await mkdir(dirname(dest), { recursive: true });
+
+  // If we already have the file and HEAD says the size matches, skip the download.
+  if (!force && existsSync(dest)) {
+    try {
+      const head = await fetch(url, { method: 'HEAD', redirect: 'follow' });
+      const remoteSize = Number(head.headers.get('content-length') || 0);
+      const localSize = statSync(dest).size;
+      if (remoteSize > 0 && localSize === remoteSize) {
+        console.log(`[build-catalog] cache hit: ${dest} (${(localSize / 1024 / 1024).toFixed(0)} MB)`);
+        return dest;
+      }
+      console.log(
+        `[build-catalog] cache size ${localSize} differs from remote ${remoteSize} — resuming download`,
+      );
+    } catch (e) {
+      console.warn('[build-catalog] HEAD check failed, will resume anyway:', e.message);
+    }
+  }
+
+  console.log(`[build-catalog] downloading ${url} → ${dest} (resume + retry)`);
+  await new Promise((resolve, reject) => {
+    const args = [
+      '-L', // follow redirects
+      '--retry', '8',
+      '--retry-all-errors',
+      '--retry-delay', '5',
+      '--continue-at', '-',
+      '--max-time', '7200',
+      '-o', dest,
+      url,
+    ];
+    const child = spawn('curl', args, { stdio: 'inherit' });
+    child.on('error', reject);
+    child.on('exit', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`curl exited with code ${code}`));
+    });
+  });
+  console.log(
+    `[build-catalog] download done: ${(statSync(dest).size / 1024 / 1024).toFixed(0)} MB`,
+  );
+  return dest;
 }
 
 /** Quick prefilter on the raw JSON string — avoid JSON.parse for non-German lines. */
@@ -49,27 +111,64 @@ function passesPrefilter(line) {
 // A product's tags include the full ancestry chain (e.g. en:chocolate-spreads
 // implies en:sweet-spreads implies en:spreads), so exact OR prefix-with-dash matches.
 const CATEGORY_TAG_RULES = [
+  // Non-food first — these are the most specific
   ['baby', ['en:baby-foods', 'en:baby-products', 'en:infant-foods', 'en:infant-milks']],
   ['koerperpflege', ['en:cosmetics', 'en:hygiene-products', 'en:personal-care', 'en:body-care', 'en:hair-care', 'en:oral-care']],
   ['haushalt', ['en:household-products', 'en:detergents', 'en:cleaning-products', 'en:dishwashing']],
-  ['tiefkuehl', ['en:frozen-foods', 'en:frozen-desserts']],
-  ['suesses', [
-    'en:chocolates', 'en:candies', 'en:cookies', 'en:biscuits', 'en:sweet-spreads',
-    'en:chocolate-spreads', 'en:hazelnut-spreads', 'en:cocoa-and-hazelnuts-spreads',
+  // Frozen wins before anything food-shaped — TK-Pizza, TK-Eis, TK-Gemüse all belong here
+  ['tiefkuehl', ['en:frozen-foods', 'en:frozen-desserts', 'en:frozen-meals']],
+  // Fresh produce — but watch out: "canned-vegetables" should sit in Vorrat
+  ['obst-gemuese', [
+    'en:fruits', 'en:vegetables', 'en:fresh-vegetables', 'en:fresh-fruits',
+    'en:salads', 'en:mushrooms', 'en:roots', 'en:tubers',
+  ]],
+  ['brot-gebaeck', [
+    'en:breads', 'en:bread-products', 'en:rusks', 'en:crackers', 'en:toasts',
+    'en:flat-breads', 'en:viennoiseries',
+  ]],
+  ['milch-eier', [
+    'en:dairies', 'en:milks', 'en:cheeses', 'en:yogurts', 'en:creams',
+    'en:fermented-milk-products', 'en:plant-based-milks', 'en:eggs', 'en:butters',
+  ]],
+  ['fleisch-fisch', [
+    'en:meats', 'en:fishes', 'en:seafood', 'en:sausages', 'en:hams', 'en:salamis',
+    'en:cooked-meats', 'en:charcuterie', 'en:poultries', 'en:beef', 'en:pork',
+  ]],
+  // Breakfast & spreads — Nutella, Müsli, Marmelade, Honig live here
+  ['fruehstueck-aufstrich', [
+    'en:breakfast-cereals', 'en:mueslis', 'en:granolas',
+    'en:spreads', 'en:sweet-spreads', 'en:chocolate-spreads', 'en:hazelnut-spreads',
+    'en:cocoa-and-hazelnuts-spreads', 'en:nut-butters', 'en:peanut-butters',
+    'en:jams', 'en:marmalades', 'en:fruit-spreads',
+    'en:honeys', 'en:honey', 'en:syrups',
+  ]],
+  // Spices, oils, vinegars, sauces, condiments
+  ['gewuerze-saucen', [
+    'en:spices', 'en:salts', 'en:peppers',
+    'en:oils', 'en:olive-oils', 'en:vegetable-oils', 'en:cooking-oils',
+    'en:vinegars',
+    'en:condiments', 'en:sauces', 'en:dressings', 'en:ketchups', 'en:mustards',
+    'en:mayonnaises', 'en:soy-sauces', 'en:hot-sauces',
+  ]],
+  // Sweets / savory snacks. Order matters: tested AFTER breakfast spreads so
+  // Nutella doesn't get pulled here by the generic "sweet-spreads" tag.
+  ['suesses-knabberei', [
+    'en:chocolates', 'en:candies', 'en:cookies', 'en:biscuits',
     'en:snacks', 'en:sweet-snacks', 'en:salty-snacks', 'en:chips', 'en:crisps',
     'en:cakes', 'en:desserts', 'en:ice-creams', 'en:confectioneries', 'en:bars',
     'en:nuts', 'en:dried-fruits', 'en:gums', 'en:lollipops',
   ]],
-  ['brot', ['en:breads', 'en:bread-products', 'en:rusks', 'en:crackers', 'en:toasts', 'en:flat-breads', 'en:viennoiseries']],
-  ['milch', ['en:dairies', 'en:milks', 'en:cheeses', 'en:yogurts', 'en:butters', 'en:creams', 'en:eggs', 'en:fermented-milk-products', 'en:plant-based-milks']],
-  ['fleisch', ['en:meats', 'en:fishes', 'en:seafood', 'en:sausages', 'en:hams', 'en:salamis', 'en:cooked-meats', 'en:charcuterie', 'en:poultries', 'en:beef', 'en:pork']],
-  ['obst-gemuese', ['en:fruits', 'en:vegetables', 'en:fresh-vegetables', 'en:fresh-fruits', 'en:salads', 'en:legumes', 'en:mushrooms', 'en:roots', 'en:tubers', 'en:dried-fruits', 'en:canned-fruits', 'en:canned-vegetables']],
-  ['getraenke', ['en:beverages', 'en:waters', 'en:juices', 'en:teas', 'en:coffees', 'en:beers', 'en:wines', 'en:spirits', 'en:soft-drinks', 'en:colas', 'en:syrups', 'en:hot-beverages', 'en:cold-beverages', 'en:non-alcoholic-beverages', 'en:alcoholic-beverages']],
-  ['trocken', [
-    'en:pastas', 'en:cereals', 'en:rice', 'en:flours', 'en:sugars', 'en:oils', 'en:olive-oils',
-    'en:vegetable-oils', 'en:condiments', 'en:sauces', 'en:spices', 'en:salts', 'en:vinegars',
-    'en:honey', 'en:syrups', 'en:dressings', 'en:soups', 'en:canned-foods', 'en:preserves',
-    'en:breakfast-cereals', 'en:mueslis', 'en:granolas', 'en:ready-meals', 'en:prepared-meals',
+  ['getraenke', [
+    'en:beverages', 'en:waters', 'en:juices', 'en:teas', 'en:coffees',
+    'en:beers', 'en:wines', 'en:spirits', 'en:soft-drinks', 'en:colas',
+    'en:hot-beverages', 'en:cold-beverages',
+    'en:non-alcoholic-beverages', 'en:alcoholic-beverages',
+  ]],
+  // Pantry catch-all for shelf-stable staples
+  ['vorrat', [
+    'en:pastas', 'en:cereals', 'en:rice', 'en:flours', 'en:sugars',
+    'en:legumes', 'en:canned-foods', 'en:canned-fruits', 'en:canned-vegetables',
+    'en:preserves', 'en:soups', 'en:ready-meals', 'en:prepared-meals',
   ]],
 ];
 
@@ -174,10 +273,19 @@ function trim(p, imageUrl) {
 }
 
 async function main() {
-  const { limit, source } = parseArgs();
+  const { limit, source, cache, forceDownload } = parseArgs();
   console.log(`[build-catalog] limit=${limit} source=${source}`);
 
   await mkdir(dirname(OUTPUT_PATH), { recursive: true });
+
+  // Resolve to a local file: HTTPS sources go through curl-with-resume into a
+  // cache file. Local paths are read directly.
+  let localPath;
+  if (source.startsWith('http://') || source.startsWith('https://')) {
+    localPath = await downloadWithResume(source, cache, { force: forceDownload });
+  } else {
+    localPath = source;
+  }
 
   const gunzip = createGunzip();
   // Truncated/partial gz inputs throw Z_BUF_ERROR at end-of-stream — log and
@@ -190,13 +298,7 @@ async function main() {
       gunzip.destroy();
     }
   });
-  if (source.startsWith('http://') || source.startsWith('https://')) {
-    const res = await fetch(source, { redirect: 'follow' });
-    if (!res.ok || !res.body) throw new Error(`fetch failed: ${res.status}`);
-    Readable.fromWeb(res.body).pipe(gunzip);
-  } else {
-    createReadStream(source).pipe(gunzip);
-  }
+  createReadStream(localPath).pipe(gunzip);
 
   const rl = readline.createInterface({ input: gunzip, crlfDelay: Infinity });
   rl.on('error', (err) => {

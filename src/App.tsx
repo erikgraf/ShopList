@@ -3,8 +3,10 @@ import { SearchBar } from './components/SearchBar';
 import { ItemRow } from './components/ItemRow';
 import { ActiveFilters } from './components/ActiveFilters';
 import { FilterSheet } from './components/FilterSheet';
+import { StoreChips } from './components/StoreChips';
 import { applyFilter, computeFacets, emptyFilter } from './facets';
 import { clearChecked, useItems } from './store';
+import { CATEGORY_LABELS, CATEGORY_ORDER, type Category, type Item } from './types';
 
 const Scanner = lazy(() => import('./components/Scanner').then((m) => ({ default: m.Scanner })));
 
@@ -20,6 +22,8 @@ export default function App() {
   const open = filtered.filter((it) => !it.checked);
   const done = filtered.filter((it) => it.checked);
 
+  const grouped = useMemo(() => groupByCategory(open), [open]);
+
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       <header className="safe-top sticky top-0 z-20 space-y-3 bg-[var(--color-bg)]/90 px-4 pt-4 pb-3 backdrop-blur-md">
@@ -32,33 +36,45 @@ export default function App() {
           </span>
         </div>
         <SearchBar onScanClick={() => setScanOpen(true)} />
+        <StoreChips filter={filter} facets={facets} onChange={setFilter} />
         <ActiveFilters filter={filter} onChange={setFilter} onOpenSheet={() => setSheetOpen(true)} />
       </header>
 
-      <main className="flex-1 space-y-2 px-4 pt-2 pb-32">
-        {open.length === 0 && done.length === 0 && (
-          <EmptyState filtered={items.length > 0} />
-        )}
-        {open.map((it) => (
-          <ItemRow key={it.id} item={it} />
+      <main className="flex-1 px-4 pt-2 pb-32">
+        {open.length === 0 && done.length === 0 && <EmptyState filtered={items.length > 0} />}
+
+        {grouped.map(([category, rows], i) => (
+          <section key={category} className={i === 0 ? '' : 'mt-5'}>
+            <CategoryHeader category={category} count={rows.length} />
+            <div className="space-y-2">
+              {rows.map((it) => (
+                <ItemRow key={it.id} item={it} />
+              ))}
+            </div>
+          </section>
         ))}
+
         {done.length > 0 && (
-          <div className="flex items-center justify-between pt-6 pb-1.5">
-            <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
-              Erledigt
-            </h2>
-            <button
-              type="button"
-              onClick={() => clearChecked()}
-              className="rounded-full px-2 py-1 text-xs font-medium text-[var(--color-muted)] active:bg-[var(--color-surface-2)] active:text-[var(--color-text)]"
-            >
-              Alle entfernen
-            </button>
-          </div>
+          <section className={grouped.length > 0 ? 'mt-7' : ''}>
+            <div className="mb-2 flex items-center justify-between px-1">
+              <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+                Erledigt
+              </h2>
+              <button
+                type="button"
+                onClick={() => clearChecked()}
+                className="rounded-full px-2 py-1 text-xs font-medium text-[var(--color-muted)] active:bg-[var(--color-surface-2)] active:text-[var(--color-text)]"
+              >
+                Alle entfernen
+              </button>
+            </div>
+            <div className="space-y-2">
+              {done.map((it) => (
+                <ItemRow key={it.id} item={it} />
+              ))}
+            </div>
+          </section>
         )}
-        {done.map((it) => (
-          <ItemRow key={it.id} item={it} />
-        ))}
       </main>
 
       <FilterSheet
@@ -76,6 +92,38 @@ export default function App() {
       )}
     </div>
   );
+}
+
+function CategoryHeader({ category, count }: { category: Category; count: number }) {
+  return (
+    <div className="mb-2 flex items-baseline justify-between px-1">
+      <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+        {CATEGORY_LABELS[category]}
+      </h2>
+      <span className="text-[11px] font-medium tabular-nums text-[var(--color-muted)]">{count}</span>
+    </div>
+  );
+}
+
+/**
+ * Sort items into supermarket-walk order. Items within a category keep their
+ * existing relative order (position / addedAt — already applied upstream by
+ * the items store).
+ */
+function groupByCategory(items: Item[]): Array<[Category, Item[]]> {
+  if (items.length === 0) return [];
+  const buckets = new Map<Category, Item[]>();
+  for (const it of items) {
+    const list = buckets.get(it.category);
+    if (list) list.push(it);
+    else buckets.set(it.category, [it]);
+  }
+  const out: Array<[Category, Item[]]> = [];
+  for (const cat of CATEGORY_ORDER) {
+    const list = buckets.get(cat);
+    if (list && list.length > 0) out.push([cat, list]);
+  }
+  return out;
 }
 
 function EmptyState({ filtered }: { filtered: boolean }) {

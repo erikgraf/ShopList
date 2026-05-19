@@ -32,16 +32,18 @@ function mapCategory(tags: string[] | undefined): Category {
   if (!tags) return 'sonstiges';
   const t = tags.join(' ');
   if (/fruits|vegetables|obst|gemuese|gemüse/i.test(t)) return 'obst-gemuese';
-  if (/dairies|milk|cheese|yogurt|milch|kaese|käse|joghurt/i.test(t)) return 'milch';
-  if (/meat|fish|fleisch|wurst|sausage|seafood/i.test(t)) return 'fleisch';
-  if (/breads|bread|brot|broetchen|brötchen|baker/i.test(t)) return 'brot';
-  if (/beverages|drinks|getraenke|getränke|water|juice|beer|wine|coffee|tee|tea/i.test(t)) return 'getraenke';
-  if (/frozen|tiefkuehl|tiefkühl/i.test(t)) return 'tiefkuehl';
-  if (/snacks|chocolat|candy|sweet|bonbon|suess|süß/i.test(t)) return 'suesses';
-  if (/cereals|pasta|rice|nudeln|reis|mehl|trocken/i.test(t)) return 'trocken';
   if (/baby/i.test(t)) return 'baby';
   if (/hygiene|cosmetics|koerperpflege|körperpflege/i.test(t)) return 'koerperpflege';
-  if (/cleaning|haushalt/i.test(t)) return 'haushalt';
+  if (/cleaning|haushalt|detergent/i.test(t)) return 'haushalt';
+  if (/frozen|tiefkuehl|tiefkühl/i.test(t)) return 'tiefkuehl';
+  if (/breads|bread|brot|broetchen|brötchen|baker|gebaeck|gebäck|rusks|crackers|toasts/i.test(t)) return 'brot-gebaeck';
+  if (/dairies|milk|cheese|yogurt|milch|kaese|käse|joghurt|eggs|eier/i.test(t)) return 'milch-eier';
+  if (/meat|fish|fleisch|wurst|sausage|seafood|hams|salamis|poultries/i.test(t)) return 'fleisch-fisch';
+  if (/spreads|jams|honey|honig|marmelade|mueslis|granolas|breakfast-cereals|aufstrich/i.test(t)) return 'fruehstueck-aufstrich';
+  if (/oils|öle|vinegar|essig|spices|gewuerze|gewürze|condiments|sauces|saucen|salts|salz/i.test(t)) return 'gewuerze-saucen';
+  if (/snacks|chocolat|candy|sweet|bonbon|suess|süß|cookies|biscuits|chips|crisps|knabberei|confectioneries|gums|lollipops/i.test(t)) return 'suesses-knabberei';
+  if (/beverages|drinks|getraenke|getränke|water|juice|beer|wine|coffee|tee|tea|cola|saft/i.test(t)) return 'getraenke';
+  if (/pastas|cereals|rice|nudeln|reis|mehl|flours|sugars|legumes|canned|preserves|prepared-meals|ready-meals/i.test(t)) return 'vorrat';
   return 'sonstiges';
 }
 
@@ -49,7 +51,8 @@ const GROCERY_STORES: Store[] = ['rewe', 'edeka', 'aldi', 'lidl'];
 const DRUGSTORE_STORES: Store[] = ['dm', 'rossmann'];
 
 export function defaultStoresForCategory(c: Category): Store[] {
-  if (c === 'koerperpflege' || c === 'haushalt' || c === 'baby') return [...DRUGSTORE_STORES, 'rewe', 'edeka'];
+  if (c === 'koerperpflege' || c === 'baby') return [...DRUGSTORE_STORES, 'rewe', 'edeka'];
+  if (c === 'haushalt') return [...DRUGSTORE_STORES, ...GROCERY_STORES];
   return GROCERY_STORES;
 }
 
