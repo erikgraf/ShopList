@@ -8,6 +8,7 @@ interface RawRow {
   b: string; // brand
   i: string; // image
   k: Category; // category
+  s?: string; // comma-separated store IDs from Open Food Facts stores_tags (optional)
 }
 
 interface SnapshotFile {
@@ -43,8 +44,17 @@ function norm(s: string): string {
     .trim();
 }
 
+const KNOWN_STORES: Set<string> = new Set(['aldi', 'lidl', 'rewe', 'edeka', 'dm', 'rossmann']);
+
+function parseStores(s: string | undefined, category: Category): Store[] {
+  if (s) {
+    const parsed = s.split(',').filter((t) => KNOWN_STORES.has(t)) as Store[];
+    if (parsed.length) return parsed;
+  }
+  return defaultStoresForCategory(category);
+}
+
 function toProduct(r: RawRow): Product {
-  const stores: Store[] = defaultStoresForCategory(r.k);
   return {
     id: r.c || `off:${r.n}`,
     name: r.n,
@@ -52,7 +62,7 @@ function toProduct(r: RawRow): Product {
     image: r.i || undefined,
     category: r.k,
     barcode: r.c || undefined,
-    stores,
+    stores: parseStores(r.s, r.k),
   };
 }
 

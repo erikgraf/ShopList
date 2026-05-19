@@ -47,17 +47,24 @@ export function ProductImage({
   src,
   category,
   size = 44,
+  eager = false,
 }: {
   src?: string;
   category: Category;
   size?: number;
+  /** Set when the image is in the immediate viewport — disables lazy heuristic. */
+  eager?: boolean;
 }) {
   if (src) {
     return (
       <img
         src={src}
         alt=""
-        loading="lazy"
+        width={size}
+        height={size}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchPriority={eager ? 'high' : 'auto'}
         className="shrink-0 rounded-xl object-cover"
         style={{ width: size, height: size, background: '#1e293b' }}
         onError={(e) => {

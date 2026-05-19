@@ -1,16 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0f172a;
-  --color-surface: #1e293b;
-  --color-surface-2: #334155;
-  --color-border: #475569;
-  --color-text: #f8fafc;
-  --color-muted: #94a3b8;
-  --color-accent: #22d3ee;
-  --color-accent-soft: #155e75;
-  --color-danger: #ef4444;
-  --color-success: #22c55e;
+  /* Surface — warm off-white that feels like real paper, not a stark white */
+  --color-bg: #f7f5f0;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1ede4;
+  --color-surface-hover: #f7f5f0;
+
+  /* Borders — warm, low-contrast; we lean on shadows instead */
+  --color-border: #e6e1d4;
+  --color-border-strong: #d4cfc1;
+
+  /* Text — warm near-black, never pure #000 */
+  --color-text: #1f1c16;
+  --color-text-strong: #100e09;
+  --color-muted: #6b6759;
+  --color-muted-strong: #4a4738;
+
+  /* Accent — forest green, fresh and trustworthy. Pairs well with cream. */
+  --color-accent: #2d6a4f;
+  --color-accent-hover: #245940;
+  --color-accent-soft: #e3ece6;
+  --color-accent-soft-hover: #d4e2da;
+  --color-accent-strong: #1b4332;
+
+  /* Status */
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-success: #15803d;
+  --color-warning: #b45309;
+
+  /* Shadows — soft, layered, never sharp */
+  --shadow-sm: 0 1px 2px rgba(31, 28, 22, 0.04), 0 0 0 1px rgba(31, 28, 22, 0.04);
+  --shadow-md: 0 2px 4px rgba(31, 28, 22, 0.04), 0 4px 12px rgba(31, 28, 22, 0.06);
+  --shadow-lg: 0 4px 8px rgba(31, 28, 22, 0.04), 0 12px 32px rgba(31, 28, 22, 0.08);
+  --shadow-ring-accent: 0 0 0 3px rgba(45, 106, 79, 0.18);
 }
 
 html, body, #root {
@@ -20,8 +44,14 @@ html, body, #root {
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont,
+    "SF Pro Text", "SF Pro Display", "Inter",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  letter-spacing: -0.005em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
   margin: 0;
 }
@@ -32,5 +62,20 @@ body {
 }
 
 button { -webkit-tap-highlight-color: transparent; }
-input { -webkit-appearance: none; appearance: none; background: transparent; color: inherit; outline: none; border: none; }
+
+input {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  outline: none;
+  border: none;
+  letter-spacing: inherit;
+}
 input::placeholder { color: var(--color-muted); }
+
+/* Subtle, joyful transition primitives that don't read as gimmicky */
+.transition-press {
+  transition: transform 120ms ease-out, background-color 120ms ease-out;
+}
+.transition-press:active { transform: scale(0.97); }

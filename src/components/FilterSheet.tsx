@@ -46,14 +46,21 @@ export function FilterSheet({ open, filter, facets, onChange, onClose }: Props) 
         type="button"
         aria-label="Schließen"
         onClick={onClose}
-        className="flex-1 bg-black/60 backdrop-blur-sm"
+        className="flex-1 bg-black/30 backdrop-blur-sm"
       />
-      <div className="safe-bottom max-h-[80vh] overflow-y-auto rounded-t-3xl bg-[var(--color-surface)] shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3">
-          <h2 className="text-base font-semibold">
-            Filter {countFilters(filter) > 0 && <span className="text-[var(--color-muted)]">({countFilters(filter)})</span>}
+      <div
+        className="safe-bottom max-h-[80vh] overflow-y-auto rounded-t-3xl bg-[var(--color-surface)]"
+        style={{ boxShadow: 'var(--shadow-lg)' }}
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-[var(--color-surface)] px-5 pt-4 pb-3">
+          <div className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-[var(--color-border-strong)]" />
+          <h2 className="pt-2 text-base font-semibold text-[var(--color-text-strong)]">
+            Filter{' '}
+            {countFilters(filter) > 0 && (
+              <span className="font-normal text-[var(--color-muted)]">({countFilters(filter)})</span>
+            )}
           </h2>
-          <div className="flex gap-3 text-sm">
+          <div className="flex gap-4 pt-2 text-sm">
             <button
               type="button"
               onClick={() => onChange(emptyFilter())}
@@ -71,7 +78,7 @@ export function FilterSheet({ open, filter, facets, onChange, onClose }: Props) 
           </div>
         </div>
 
-        <div className="space-y-5 p-4">
+        <div className="space-y-6 px-5 pb-6 pt-2">
           <Section title="Status">
             <ChipGroup>
               {(['open', 'done'] as Status[]).map((s) => (
@@ -141,7 +148,6 @@ export function FilterSheet({ open, filter, facets, onChange, onClose }: Props) 
               </ChipGroup>
             </Section>
           )}
-
         </div>
       </div>
     </div>
@@ -151,7 +157,9 @@ export function FilterSheet({ open, filter, facets, onChange, onClose }: Props) 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="mb-2 text-xs uppercase tracking-wide text-[var(--color-muted)]">{title}</h3>
+      <h3 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+        {title}
+      </h3>
       {children}
     </div>
   );
@@ -176,16 +184,16 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ${
+      className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-press ${
         active
-          ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-bg)]'
-          : 'border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text)]'
+          ? 'bg-[var(--color-accent)] text-white'
+          : 'bg-[var(--color-surface-2)] text-[var(--color-text)] active:bg-[var(--color-border)]'
       }`}
     >
       <span>{children}</span>
       <span
-        className={`min-w-[1.25rem] rounded-full px-1.5 py-0.5 text-center text-[11px] tabular-nums ${
-          active ? 'bg-black/20' : 'bg-[var(--color-bg)] text-[var(--color-muted)]'
+        className={`min-w-[1.25rem] rounded-full px-1.5 text-center text-[11px] font-semibold tabular-nums ${
+          active ? 'bg-white/25 text-white' : 'bg-[var(--color-surface)] text-[var(--color-muted)]'
         }`}
       >
         {count}

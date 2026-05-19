@@ -20,11 +20,14 @@ export function ActiveFilters({ filter, onChange, onOpenSheet }: Props) {
           type="button"
           onClick={onOpenSheet}
           aria-label="Filter öffnen"
-          className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${
+          className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-press ${
             total > 0
-              ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-bg)]'
-              : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)]'
+              ? 'bg-[var(--color-accent)] text-white'
+              : 'bg-[var(--color-surface)] text-[var(--color-text)]'
           }`}
+          style={{
+            boxShadow: total > 0 ? '0 1px 2px rgba(45,106,79,0.25)' : 'var(--shadow-sm)',
+          }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 6h18" />
@@ -33,7 +36,7 @@ export function ActiveFilters({ filter, onChange, onOpenSheet }: Props) {
           </svg>
           <span>Filter</span>
           {total > 0 && (
-            <span className="min-w-[1.25rem] rounded-full bg-black/20 px-1.5 text-center text-[11px] tabular-nums">
+            <span className="min-w-[1.2rem] rounded-full bg-white/25 px-1.5 text-center text-[11px] font-semibold tabular-nums">
               {total}
             </span>
           )}
@@ -77,10 +80,10 @@ function RemovableChip({ label, onRemove }: { label: string; onRemove: () => voi
     <button
       type="button"
       onClick={onRemove}
-      className="flex shrink-0 items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-2)] py-1.5 pr-2 pl-3 text-sm"
+      className="flex shrink-0 items-center gap-1 rounded-full bg-[var(--color-accent-soft)] py-1.5 pl-3 pr-2 text-sm font-medium text-[var(--color-accent-strong)] transition-press active:bg-[var(--color-accent-soft-hover)]"
     >
       <span>{label}</span>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
         <path d="M6 6l12 12" />
         <path d="M18 6L6 18" />
       </svg>

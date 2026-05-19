@@ -3,11 +3,11 @@ import type { Product } from './types';
 /**
  * Curated German staples — drugstore items where Open Food Facts coverage is thin,
  * plus common branded products that users frequently type by brand name (Nutella,
- * Tempo, Haribo…). Items here always rank above OFF results in suggestions and
- * remain available offline / when OFF rate-limits us.
+ * Tempo, Haribo…). Items here always rank above Open Food Facts results in
+ * suggestions and remain available offline / when Open Food Facts rate-limits us.
  */
 export const CURATED_CATALOG: Product[] = [
-  // Branded staples — searchable by brand name even without OFF
+  // Branded staples — searchable by brand name even without Open Food Facts
   { id: 'local:brand:nutella', name: 'Nutella', brand: 'Ferrero', category: 'trocken', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:brand:tempo', name: 'Tempo Taschentücher', brand: 'Tempo', category: 'koerperpflege', stores: ['dm', 'rossmann', 'rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:brand:haribo', name: 'Haribo Goldbären', brand: 'Haribo', category: 'suesses', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },

@@ -22,10 +22,12 @@ export default function App() {
 
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
-      <header className="safe-top sticky top-0 z-20 space-y-3 bg-[var(--color-bg)]/95 px-4 pt-3 pb-3 backdrop-blur">
+      <header className="safe-top sticky top-0 z-20 space-y-3 bg-[var(--color-bg)]/90 px-4 pt-4 pb-3 backdrop-blur-md">
         <div className="flex items-baseline justify-between">
-          <h1 className="text-xl font-semibold tracking-tight">Einkaufsliste</h1>
-          <span className="text-xs text-[var(--color-muted)]">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text-strong)]">
+            Einkaufsliste
+          </h1>
+          <span className="text-xs font-medium text-[var(--color-muted)]">
             {open.length} offen{done.length > 0 ? ` · ${done.length} erledigt` : ''}
           </span>
         </div>
@@ -41,14 +43,16 @@ export default function App() {
           <ItemRow key={it.id} item={it} />
         ))}
         {done.length > 0 && (
-          <div className="flex items-center justify-between pt-4 pb-1">
-            <h2 className="text-xs uppercase tracking-wide text-[var(--color-muted)]">Erledigt</h2>
+          <div className="flex items-center justify-between pt-6 pb-1.5">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+              Erledigt
+            </h2>
             <button
               type="button"
               onClick={() => clearChecked()}
-              className="text-xs text-[var(--color-muted)] underline-offset-2 active:underline"
+              className="rounded-full px-2 py-1 text-xs font-medium text-[var(--color-muted)] active:bg-[var(--color-surface-2)] active:text-[var(--color-text)]"
             >
-              Entfernen
+              Alle entfernen
             </button>
           </div>
         )}
@@ -76,11 +80,21 @@ export default function App() {
 
 function EmptyState({ filtered }: { filtered: boolean }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--color-border)] p-8 text-center text-sm text-[var(--color-muted)]">
-      {filtered ? (
-        <>Mit diesen Filtern steht nichts auf der Liste.</>
-      ) : (
-        <>Tippe oben, um Produkte hinzuzufügen — oder scanne einen Barcode.</>
+    <div className="mt-12 rounded-3xl bg-[var(--color-surface)] p-8 text-center" style={{ boxShadow: 'var(--shadow-sm)' }}>
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-accent-soft)]">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--color-accent)]">
+          <path d="M3 4h2l2.5 12h11l2-9H7" />
+          <circle cx="9" cy="20" r="1.5" fill="currentColor" />
+          <circle cx="17" cy="20" r="1.5" fill="currentColor" />
+        </svg>
+      </div>
+      <p className="text-base font-medium text-[var(--color-text)]">
+        {filtered ? 'Mit diesen Filtern steht nichts auf der Liste.' : 'Deine Liste ist noch leer.'}
+      </p>
+      {!filtered && (
+        <p className="mt-2 text-sm text-[var(--color-muted)]">
+          Tippe oben, um Produkte hinzuzufügen — oder scanne einen Barcode.
+        </p>
       )}
     </div>
   );

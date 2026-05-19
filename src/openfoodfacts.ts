@@ -1,7 +1,19 @@
 import type { Category, Product, Store } from './types';
 
 const SEARCH_URL = 'https://world.openfoodfacts.org/cgi/search.pl';
-const PRODUCT_URL = 'https://world.openfoodfacts.org/api/v2/product';
+
+/**
+ * Open Food Facts splits products across sibling databases by type. A code
+ * registered in one is returned with status=0 + a "different product type"
+ * hint by the others, so a single barcode scanner needs to ask each in turn
+ * until one says yes.
+ */
+const PRODUCT_DB_URLS = [
+  'https://world.openfoodfacts.org/api/v2/product',     // groceries
+  'https://world.openbeautyfacts.org/api/v2/product',   // cosmetics, drugstore
+  'https://world.openproductsfacts.org/api/v2/product', // household, misc
+  'https://world.openpetfoodfacts.org/api/v2/product',  // pet food
+];
 
 interface OFFProduct {
   code?: string;
@@ -120,21 +132,23 @@ async function doSearch(q: string): Promise<Product[]> {
     }
     return mapped;
   } catch (e) {
-    console.warn('OFF search failed', e);
+    console.warn('Open Food Facts search failed', e);
     return [];
   }
 }
 
 export async function lookupBarcode(barcode: string): Promise<Product | null> {
-  const url = `${PRODUCT_URL}/${encodeURIComponent(barcode)}.json?lc=de&fields=code,product_name,product_name_de,generic_name_de,brands,image_front_small_url,image_front_thumb_url,image_small_url,image_thumb_url,categories_tags`;
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.status !== 1 || !data.product) return null;
-    return mapProduct(data.product);
-  } catch (e) {
-    console.warn('OFF barcode lookup failed', e);
-    return null;
+  const path = `${encodeURIComponent(barcode)}.json?lc=de&fields=code,product_name,product_name_de,generic_name_de,brands,image_front_small_url,image_front_thumb_url,image_small_url,image_thumb_url,categories_tags`;
+  for (const base of PRODUCT_DB_URLS) {
+    try {
+      const res = await fetch(`${base}/${path}`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.status === 1 && data.product) return mapProduct(data.product);
+      // status 0 means "not in this DB" — try the next one.
+    } catch (e) {
+      console.warn('Open Food Facts barcode lookup failed', base, e);
+    }
   }
+  return null;
 }

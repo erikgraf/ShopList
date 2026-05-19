@@ -134,7 +134,14 @@ export function SearchBar({ onScanClick }: { onScanClick: () => void }) {
 
   return (
     <div className="relative">
-      <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
+      <div
+        className={`flex items-center gap-2 rounded-2xl bg-[var(--color-surface)] px-3 py-2 transition-shadow ${
+          focused ? '' : ''
+        }`}
+        style={{
+          boxShadow: focused ? 'var(--shadow-md), var(--shadow-ring-accent)' : 'var(--shadow-sm)',
+        }}
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--color-muted)]">
           <circle cx="11" cy="11" r="7" />
           <path d="m20 20-3.5-3.5" />
@@ -162,7 +169,8 @@ export function SearchBar({ onScanClick }: { onScanClick: () => void }) {
           type="button"
           onClick={onScanClick}
           aria-label="Barcode scannen"
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-accent-soft)] text-[var(--color-accent)] active:scale-95"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-accent)] text-white transition-press"
+          style={{ boxShadow: '0 1px 2px rgba(45,106,79,0.25)' }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 7V5a2 2 0 0 1 2-2h2" />
@@ -175,9 +183,12 @@ export function SearchBar({ onScanClick }: { onScanClick: () => void }) {
       </div>
 
       {showSuggestions && (
-        <div className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl">
+        <div
+          className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl bg-[var(--color-surface)]"
+          style={{ boxShadow: 'var(--shadow-lg)' }}
+        >
           {categoryCounts.length > 1 && (
-            <div className="overflow-x-auto border-b border-[var(--color-border)]">
+            <div className="overflow-x-auto border-b border-[var(--color-surface-2)]">
               <div
                 className="flex gap-1.5 px-3 py-2"
                 onMouseDown={(e) => e.preventDefault()}
@@ -229,7 +240,7 @@ export function SearchBar({ onScanClick }: { onScanClick: () => void }) {
                   onClick={() => pick(s)}
                   className="flex w-full items-center gap-3 px-3 py-2.5 text-left active:bg-[var(--color-surface-2)]"
                 >
-                  <ProductImage src={s.image} category={s.category} size={40} />
+                  <ProductImage src={s.image} category={s.category} size={40} eager />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-base">{s.name}</div>
                     <div className="truncate text-xs text-[var(--color-muted)]">
@@ -263,16 +274,16 @@ function CategoryChip({
       type="button"
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
-      className={`flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-xs ${
+      className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-press ${
         active
-          ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-bg)]'
-          : 'border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text)]'
+          ? 'bg-[var(--color-accent)] text-white'
+          : 'bg-[var(--color-surface-2)] text-[var(--color-text)]'
       }`}
     >
       <span>{children}</span>
       <span
-        className={`min-w-[1rem] rounded-full px-1 text-center text-[10px] tabular-nums ${
-          active ? 'bg-black/20' : 'bg-[var(--color-bg)] text-[var(--color-muted)]'
+        className={`min-w-[1.1rem] rounded-full px-1.5 text-center text-[10px] font-semibold tabular-nums ${
+          active ? 'bg-white/25 text-white' : 'bg-[var(--color-surface)] text-[var(--color-muted)]'
         }`}
       >
         {count}

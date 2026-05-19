@@ -92,7 +92,7 @@ function mapCategory(tags) {
 const CODE_GROUP_RE = /^(\d{3})(\d{3})(\d{3})(\d+)$/;
 function formatCode(code) {
   if (!code) return null;
-  // OFF normalises codes to leading zeros up to 13. Anything shorter is stored as-is.
+  // Open Food Facts normalises codes to leading zeros up to 13. Anything shorter is stored as-is.
   if (code.length < 9) return null;
   const padded = code.padStart(13, '0');
   const m = CODE_GROUP_RE.exec(padded);
@@ -100,6 +100,32 @@ function formatCode(code) {
 }
 
 const FRONT_LANG_PREFERENCE = ['de', 'en', 'fr', 'it', 'es', 'nl', 'pt'];
+
+// Map Open Food Facts' user-contributed stores_tags to our six known store IDs.
+// Tags come in a few flavours: "aldi", "aldi-nord", "aldi-sud", "dm-drogeriemarkt",
+// sometimes prefixed with a locale ("de:aldi"). We normalise then match.
+const STORE_TAG_MAP = [
+  ['aldi', /^(de:)?aldi(-(nord|sud|sued|sü?d))?$/i],
+  ['lidl', /^(de:)?lidl$/i],
+  ['rewe', /^(de:)?rewe(-(center|to-go|markt|city))?$/i],
+  ['edeka', /^(de:)?edeka(-.*)?$/i],
+  ['dm', /^(de:)?dm(-?drogerie(-?markt)?)?$/i],
+  ['rossmann', /^(de:)?rossmann$/i],
+];
+
+function mapStores(rawTags) {
+  if (!rawTags || !rawTags.length) return [];
+  const out = new Set();
+  for (const t of rawTags) {
+    for (const [storeId, re] of STORE_TAG_MAP) {
+      if (re.test(t)) {
+        out.add(storeId);
+        break;
+      }
+    }
+  }
+  return [...out];
+}
 
 function pickFrontImage(p) {
   const code = p.code;
@@ -118,7 +144,7 @@ function pickFrontImage(p) {
   return `https://images.openfoodfacts.org/images/products/${formatted}/front_${langKey}.${rev}.200.jpg`;
 }
 
-function scoreProduct(p, name, imageUrl) {
+function scoreProduct(p, name, imageUrl, storesCount) {
   let s = 0;
   if (p.product_name_de && p.product_name_de.length >= 3) s += 5;
   if (name && name.length >= 3) s += 2;
@@ -126,6 +152,7 @@ function scoreProduct(p, name, imageUrl) {
   if (imageUrl) s += 6;
   if (p.categories_tags && p.categories_tags.length) s += 2;
   if (p.countries_tags && p.countries_tags.includes('en:germany')) s += 3;
+  if (storesCount > 0) s += 2;
   if (p.completeness && typeof p.completeness === 'number') s += Math.min(5, Math.round(p.completeness * 5));
   if (p.popularity_key && typeof p.popularity_key === 'number') s += Math.min(5, Math.log10(Math.max(1, p.popularity_key)) | 0);
   return s;
@@ -135,12 +162,14 @@ function trim(p, imageUrl) {
   const name = p.product_name_de || p.product_name || p.generic_name_de || '';
   const brand = (p.brands || '').split(',')[0]?.trim() || '';
   const category = mapCategory(p.categories_tags);
+  const stores = mapStores(p.stores_tags);
   return {
     c: p.code || '',
     n: name.trim(),
     b: brand,
     i: imageUrl || '',
     k: category,
+    ...(stores.length ? { s: stores.join(',') } : {}),
   };
 }
 
@@ -241,8 +270,9 @@ async function main() {
     const imageUrl = pickFrontImage(p);
     const isDE = p.countries_tags && p.countries_tags.includes('en:germany');
     if (!imageUrl && !isDE) continue;
+    const storeIds = mapStores(p.stores_tags);
 
-    const score = scoreProduct(p, name, imageUrl);
+    const score = scoreProduct(p, name, imageUrl, storeIds.length);
     if (kept.length >= KEEP_THRESHOLD && score <= minKeptScore) continue;
 
     qualified++;
