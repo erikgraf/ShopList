@@ -1,16 +1,26 @@
 import Dexie, { type Table } from 'dexie';
-import { migrateCategory, type Item, type RecentProduct } from './types';
+import {
+  migrateCategory,
+  DEFAULT_LIST_ID,
+  DEFAULT_LIST_NAME,
+  type Item,
+  type RecentProduct,
+  type ShopList,
+} from './types';
 
 class ShopListDB extends Dexie {
   items!: Table<Item, string>;
   recent!: Table<RecentProduct, string>;
+  lists!: Table<ShopList, string>;
 
   constructor() {
     super('shoplist');
+
     this.version(1).stores({
       items: 'id, position, addedAt',
       recent: 'id, lastUsedAt, useCount',
     });
+
     // v2: 14-category revamp. Remap legacy categories on existing items
     // (`milch` → `milch-eier`, `trocken` → `vorrat`, etc.) so users coming
     // back to the app see their list under the new headers.
@@ -31,6 +41,29 @@ class ShopListDB extends Dexie {
           .toCollection()
           .modify((row) => {
             row.category = migrateCategory(row.category);
+          });
+      });
+
+    // v3: multi-list support. New `lists` table; existing items belong to a
+    // default list whose id matches `DEFAULT_LIST_ID`.
+    this.version(3)
+      .stores({
+        items: 'id, position, addedAt, listId',
+        recent: 'id, lastUsedAt, useCount',
+        lists: 'id, position',
+      })
+      .upgrade(async (tx) => {
+        await tx.table('lists').put({
+          id: DEFAULT_LIST_ID,
+          name: DEFAULT_LIST_NAME,
+          createdAt: Date.now(),
+          position: 0,
+        });
+        await tx
+          .table('items')
+          .toCollection()
+          .modify((row) => {
+            if (!row.listId) row.listId = DEFAULT_LIST_ID;
           });
       });
   }

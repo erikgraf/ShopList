@@ -4,17 +4,25 @@ import { ItemRow } from './components/ItemRow';
 import { ActiveFilters } from './components/ActiveFilters';
 import { FilterSheet } from './components/FilterSheet';
 import { StoreChips } from './components/StoreChips';
+import { ListSwitcher } from './components/ListSwitcher';
 import { applyFilter, computeFacets, emptyFilter } from './facets';
-import { clearChecked, useItems } from './store';
+import { clearChecked, setActiveListId, useActiveListId, useItems, useLists } from './store';
 import { CATEGORY_LABELS, CATEGORY_ORDER, type Category, type Item } from './types';
+
+const NewListSheet = lazy(() =>
+  import('./components/NewListSheet').then((m) => ({ default: m.NewListSheet })),
+);
 
 const Scanner = lazy(() => import('./components/Scanner').then((m) => ({ default: m.Scanner })));
 
 export default function App() {
   const items = useItems();
+  const lists = useLists();
+  const activeListId = useActiveListId();
   const [filter, setFilter] = useState(emptyFilter);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
+  const [newListOpen, setNewListOpen] = useState(false);
 
   const facets = useMemo(() => computeFacets(items, filter), [items, filter]);
   const filtered = useMemo(() => applyFilter(items, filter), [items, filter]);
@@ -27,13 +35,14 @@ export default function App() {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       <header className="safe-top sticky top-0 z-20 space-y-3 bg-[var(--color-bg)]/90 px-4 pt-4 pb-3 backdrop-blur-md">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text-strong)]">
-            Einkaufsliste
-          </h1>
-          <span className="text-xs font-medium text-[var(--color-muted)]">
-            {open.length} offen{done.length > 0 ? ` · ${done.length} erledigt` : ''}
-          </span>
+        <ListSwitcher
+          lists={lists}
+          activeListId={activeListId}
+          onSwitch={setActiveListId}
+          onCreateNew={() => setNewListOpen(true)}
+        />
+        <div className="text-center text-xs font-medium text-[var(--color-muted)]">
+          {open.length} offen{done.length > 0 ? ` · ${done.length} erledigt` : ''}
         </div>
         <SearchBar onScanClick={() => setScanOpen(true)} />
         <StoreChips filter={filter} facets={facets} onChange={setFilter} />
@@ -48,7 +57,7 @@ export default function App() {
             <CategoryHeader category={category} count={rows.length} />
             <div className="space-y-2">
               {rows.map((it) => (
-                <ItemRow key={it.id} item={it} />
+                <ItemRow key={it.id} item={it} activeStores={[...filter.stores]} />
               ))}
             </div>
           </section>
@@ -70,7 +79,7 @@ export default function App() {
             </div>
             <div className="space-y-2">
               {done.map((it) => (
-                <ItemRow key={it.id} item={it} />
+                <ItemRow key={it.id} item={it} activeStores={[...filter.stores]} />
               ))}
             </div>
           </section>
@@ -88,6 +97,12 @@ export default function App() {
       {scanOpen && (
         <Suspense fallback={null}>
           <Scanner onClose={() => setScanOpen(false)} />
+        </Suspense>
+      )}
+
+      {newListOpen && (
+        <Suspense fallback={null}>
+          <NewListSheet onClose={() => setNewListOpen(false)} />
         </Suspense>
       )}
     </div>

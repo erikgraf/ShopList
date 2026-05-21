@@ -121,10 +121,18 @@ export interface Product {
   barcode?: string;
   /** Stores where this is typically bought; empty = inferred from category */
   stores?: Store[];
+  /** Optional reference into `icons-library.tsx` ICONS map */
+  icon?: string;
+  /** Common pack sizes shown as quick-pick chips in the quantity sheet.
+   *  e.g. Bier → [1, 6, 12, 24] (single bottle, sixpack, 12er, Kasten). */
+  sizes?: number[];
 }
 
 export interface Item {
   id: string;
+  /** Which shopping list this item belongs to. Backfilled to "default" by the
+   *  Dexie v3 upgrade for items added before multi-list existed. */
+  listId: string;
   productId: string;
   name: string;
   brand?: string;
@@ -137,7 +145,21 @@ export interface Item {
   checked: boolean;
   addedAt: number;
   position: number;
+  icon?: string;
+  sizes?: number[];
 }
+
+export interface ShopList {
+  id: string;
+  name: string;
+  createdAt: number;
+  /** Order in the list-switcher wheel (low number = leftmost). */
+  position: number;
+}
+
+/** The id of the always-present default list. */
+export const DEFAULT_LIST_ID = 'default';
+export const DEFAULT_LIST_NAME = 'Einkaufsliste';
 
 export interface RecentProduct extends Product {
   lastUsedAt: number;

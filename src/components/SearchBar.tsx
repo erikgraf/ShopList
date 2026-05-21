@@ -240,13 +240,12 @@ export function SearchBar({ onScanClick }: { onScanClick: () => void }) {
                   onClick={() => pick(s)}
                   className="flex w-full items-center gap-3 px-3 py-2.5 text-left active:bg-[var(--color-surface-2)]"
                 >
-                  <ProductImage src={s.image} category={s.category} size={40} eager />
+                  <ProductImage src={s.image} category={s.category} iconName={s.icon} size={40} eager />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-base">{s.name}</div>
-                    <div className="truncate text-xs text-[var(--color-muted)]">
-                      {s.brand ? `${s.brand} · ` : ''}
-                      {labelForSource(s.source)}
-                    </div>
+                    {s.brand && (
+                      <div className="truncate text-xs text-[var(--color-muted)]">{s.brand}</div>
+                    )}
                   </div>
                 </button>
               </li>
@@ -292,15 +291,3 @@ function CategoryChip({
   );
 }
 
-function labelForSource(s: Suggestion['source']): string {
-  switch (s) {
-    case 'recent':
-      return 'Zuletzt verwendet';
-    case 'catalog':
-      return 'Vorschlag';
-    case 'snapshot':
-      return 'Katalog';
-    case 'off':
-      return 'Open Food Facts';
-  }
-}

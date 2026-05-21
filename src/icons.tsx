@@ -1,4 +1,5 @@
 import type { Category } from './types';
+import { ICONS, hasIcon } from './icons-library';
 
 const COLORS: Record<Category, [string, string]> = {
   'obst-gemuese': ['#16a34a', '#dcfce7'],
@@ -34,15 +35,63 @@ const GLYPH: Record<Category, string> = {
   sonstiges: '🛒',
 };
 
-export function CategoryAvatar({ category, size = 44 }: { category: Category; size?: number }) {
+/** Map each category to a default catalog icon name, used when the item itself
+ *  doesn't specify one. The library has these registered. Categories without
+ *  a default fall back to the emoji glyph. */
+const CATEGORY_DEFAULT_ICON: Partial<Record<Category, string>> = {
+  'obst-gemuese': 'apfel',
+  'brot-gebaeck': 'brot',
+  'milch-eier': 'milch',
+  'fleisch-fisch': 'fisch',
+  tiefkuehl: 'pizza',
+  // Most other categories fall through to the category emoji because their
+  // items are too varied (koerperpflege spans toothpaste/shampoo/deo — no
+  // single icon represents them all).
+};
+
+function CatalogIcon({ name, size = 26 }: { name: string; size?: number }) {
+  const Renderer = ICONS[name];
+  if (!Renderer) return null;
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={size}
+      height={size}
+    >
+      <Renderer />
+    </svg>
+  );
+}
+
+export function CategoryAvatar({
+  category,
+  iconName,
+  size = 44,
+}: {
+  category: Category;
+  iconName?: string;
+  size?: number;
+}) {
   const [fg, bg] = COLORS[category];
+  const effectiveIcon = iconName && hasIcon(iconName) ? iconName : CATEGORY_DEFAULT_ICON[category];
+
   return (
     <div
-      className="flex shrink-0 items-center justify-center rounded-xl text-xl"
+      className="flex shrink-0 items-center justify-center rounded-xl"
       style={{ width: size, height: size, background: bg, color: fg }}
       aria-hidden
     >
-      <span style={{ fontSize: size * 0.55, lineHeight: 1 }}>{GLYPH[category]}</span>
+      {effectiveIcon ? (
+        <CatalogIcon name={effectiveIcon} size={Math.round(size * 0.6)} />
+      ) : (
+        <span style={{ fontSize: size * 0.55, lineHeight: 1 }}>{GLYPH[category]}</span>
+      )}
     </div>
   );
 }
@@ -50,11 +99,13 @@ export function CategoryAvatar({ category, size = 44 }: { category: Category; si
 export function ProductImage({
   src,
   category,
+  iconName,
   size = 44,
   eager = false,
 }: {
   src?: string;
   category: Category;
+  iconName?: string;
   size?: number;
   eager?: boolean;
 }) {
@@ -76,5 +127,5 @@ export function ProductImage({
       />
     );
   }
-  return <CategoryAvatar category={category} size={size} />;
+  return <CategoryAvatar category={category} iconName={iconName} size={size} />;
 }
