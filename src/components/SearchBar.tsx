@@ -3,7 +3,7 @@ import { searchCatalog } from '../catalog';
 import { searchProducts } from '../openfoodfacts';
 import { searchSnapshot } from '../snapshot';
 import { addItemFromProduct, useRecent } from '../store';
-import { CATEGORY_LABELS, type Category, type Product } from '../types';
+import { CATEGORY_LABELS, type Category, type Product, type Store } from '../types';
 import { ProductImage } from '../icons';
 
 interface Suggestion extends Product {
@@ -12,7 +12,15 @@ interface Suggestion extends Product {
 
 const MAX_SHOWN = 12;
 
-export function SearchBar({ onScanClick }: { onScanClick: () => void }) {
+export function SearchBar({
+  onScanClick,
+  onShopModeClick,
+  pinToStore,
+}: {
+  onScanClick: () => void;
+  onShopModeClick: () => void;
+  pinToStore?: Store;
+}) {
   const [query, setQuery] = useState('');
   const [snapshotResults, setSnapshotResults] = useState<Product[]>([]);
   const [offResults, setOffResults] = useState<Product[]>([]);
@@ -114,20 +122,23 @@ export function SearchBar({ onScanClick }: { onScanClick: () => void }) {
     if (!name) return;
     const top = filteredSuggestions[0] ?? allSuggestions[0];
     if (top) {
-      await addItemFromProduct(top);
+      await addItemFromProduct(top, { pinToStore });
     } else {
-      await addItemFromProduct({
-        id: `local:custom:${name.toLowerCase()}`,
-        name,
-        category: 'sonstiges',
-      });
+      await addItemFromProduct(
+        {
+          id: `local:custom:${name.toLowerCase()}`,
+          name,
+          category: 'sonstiges',
+        },
+        { pinToStore },
+      );
     }
     setQuery('');
     inputRef.current?.focus();
   };
 
   const pick = async (p: Product) => {
-    await addItemFromProduct(p);
+    await addItemFromProduct(p, { pinToStore });
     setQuery('');
     inputRef.current?.focus();
   };
@@ -165,6 +176,22 @@ export function SearchBar({ onScanClick }: { onScanClick: () => void }) {
           autoCapitalize="sentences"
           lang="de"
         />
+        <button
+          type="button"
+          onClick={onShopModeClick}
+          aria-label="Shop-Modus starten"
+          title="Shop-Modus"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-surface-2)] text-[var(--color-text)] transition-press active:bg-[var(--color-border)]"
+        >
+          {/* Shopping bag with a barcode line — distinct from single-shot scan icon */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 8 H19 L18 20 H6 Z" />
+            <path d="M9 8 V6 a3 3 0 0 1 6 0 V8" />
+            <path d="M9 13 V16" />
+            <path d="M12 13 V16" />
+            <path d="M15 13 V16" />
+          </svg>
+        </button>
         <button
           type="button"
           onClick={onScanClick}

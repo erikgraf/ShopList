@@ -1,5 +1,4 @@
 import type { FacetCounts, FilterState } from '../facets';
-import { toggleInSet } from '../facets';
 import { STORES, type Store } from '../types';
 
 interface Props {
@@ -9,7 +8,13 @@ interface Props {
 }
 
 export function StoreChips({ filter, facets, onChange }: Props) {
-  const toggle = (s: Store) => onChange({ ...filter, stores: toggleInSet(filter.stores, s) });
+  // Store filter is exclusive: only one store can be active at a time. Tapping
+  // the active one again clears the filter (show all stores).
+  const select = (s: Store) => {
+    const next = new Set<Store>();
+    if (!filter.stores.has(s) || filter.stores.size !== 1) next.add(s);
+    onChange({ ...filter, stores: next });
+  };
 
   return (
     <div className="-mx-4 overflow-x-auto px-4">
@@ -21,7 +26,7 @@ export function StoreChips({ filter, facets, onChange }: Props) {
             <button
               key={s.id}
               type="button"
-              onClick={() => toggle(s.id)}
+              onClick={() => select(s.id)}
               className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-press ${
                 active
                   ? 'bg-[var(--color-accent)] text-white'

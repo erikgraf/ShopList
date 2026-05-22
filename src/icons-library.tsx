@@ -438,6 +438,136 @@ export const ICONS: Record<string, () => ReactNode> = {
       <path d="M9 15 H15" />
     </>
   ),
+  seife: () => (
+    <>
+      <rect x="3" y="11" width="14" height="7.5" rx="2" />
+      <path d="M6 14.5 H14" />
+      <circle cx="17.5" cy="8.5" r="1.3" />
+      <circle cx="20" cy="6.5" r="0.9" />
+      <circle cx="20.5" cy="10.5" r="0.7" />
+      <circle cx="14" cy="6" r="0.6" />
+    </>
+  ),
+  deo: () => (
+    <>
+      <ellipse cx="12" cy="4.5" rx="2.5" ry="1.2" />
+      <path d="M9.5 4.5 V8 H14.5 V4.5" />
+      <path d="M9.5 8 H14.5 V20 H9.5 Z" />
+      <path d="M10.5 12 H13.5" />
+      <path d="M10.5 15 H13.5" />
+    </>
+  ),
+
+  // --- Haushalt ---
+  sprayflasche: () => (
+    <>
+      <path d="M9 4 H13 V6 H9 Z" />
+      <path d="M11 6 V9" />
+      <path d="M8 9 H16 V20 H8 Z" />
+      <path d="M8 12 L5.5 13 V16 L8 17" />
+      <path d="M10 14 H14" />
+      <path d="M10 17 H14" />
+      <path d="M13.5 4 L15.5 3" />
+      <path d="M14 5 L16 5" />
+      <path d="M13.5 6 L15.5 7" />
+    </>
+  ),
+  waschmittel: () => (
+    <>
+      <path d="M10 4 H14 V8 H10 Z" />
+      <path d="M7 8 H17 V20 H7 Z" />
+      <path d="M17 11 C19.2 11 19.2 14 17 14" />
+      <path d="M9 11 H15" />
+      <path d="M9 14 H15" />
+      <path d="M9 17 H15" />
+    </>
+  ),
+  klopapier: () => (
+    <>
+      <ellipse cx="12" cy="6.5" rx="6" ry="1.7" />
+      <ellipse cx="12" cy="6.5" rx="1.6" ry="0.5" />
+      <path d="M6 6.5 V18 C6 19 8.7 19.8 12 19.8 C15.3 19.8 18 19 18 18 V6.5" />
+      <path d="M18 13 C19 13 19.5 14 19 15 L17.5 17" />
+    </>
+  ),
+
+  // --- Baby ---
+  babyflasche: () => (
+    <>
+      <path d="M10.5 4.5 C10.5 3 13.5 3 13.5 4.5" />
+      <path d="M9.5 4.5 H14.5 V6.5 H9.5 Z" />
+      <path d="M8.5 6.5 V19 C8.5 20 9.5 20.5 10.5 20.5 H13.5 C14.5 20.5 15.5 20 15.5 19 V6.5 Z" />
+      <path d="M10 10 H11" />
+      <path d="M10 13 H11" />
+      <path d="M10 16 H11" />
+    </>
+  ),
+
+  // --- Vorrat ---
+  konserve: () => (
+    <>
+      <ellipse cx="12" cy="6.5" rx="6" ry="1.7" />
+      <path d="M6 6.5 V18 C6 19 8.7 19.8 12 19.8 C15.3 19.8 18 19 18 18 V6.5" />
+      <path d="M6 8.7 C7.5 9.6 16.5 9.6 18 8.7" />
+      <path d="M8 13 H16" />
+      <path d="M9 16 H15" />
+    </>
+  ),
+
+  // --- Getränke (extras) ---
+  saft: () => (
+    <>
+      <path d="M7 8 V20 H17 V8 L14.5 4.5 H9.5 Z" />
+      <path d="M7 8 H17" />
+      <path d="M9.5 4.5 V8" />
+      <path d="M14.5 4.5 V8" />
+      <path d="M11.5 3 H13 V4.5 H11.5 Z" />
+      <path d="M9 13 H15" />
+      <path d="M9 16 H13" />
+    </>
+  ),
+  cola: () => (
+    <>
+      <path d="M8 6 H16 V8 H8 Z" />
+      <path d="M8 8 H16 V19 C16 20 15 20.5 14 20.5 H10 C9 20.5 8 20 8 19 Z" />
+      <path d="M8 11 H16" />
+      <path d="M9 15 C10 14.5 14 14.5 15 15" />
+    </>
+  ),
+
+  // --- Gewürze, Öle & Saucen (extras) ---
+  senf: () => (
+    <>
+      <path d="M10.5 3.5 H13.5 V6 H10.5 Z" />
+      <path d="M11 6 H13 V8" />
+      <path d="M8 8.5 C8 7.5 16 7.5 16 8.5 V19 C16 20 14.5 20.5 12 20.5 C9.5 20.5 8 20 8 19 Z" />
+      <path d="M9 12 H15" />
+      <path d="M9 15.5 H15" />
+    </>
+  ),
+
+  // --- Süßes & Knabberei (extras) ---
+  chips: () => (
+    <>
+      <path d="M6 5 L18 5 L17 20 L7 20 Z" />
+      <path d="M6 5 L18 5" />
+      <path d="M6 7 L18 7" />
+      <path d="M8 11 L10 13" />
+      <path d="M13 12 L15 14" />
+      <path d="M9 16 L11 18" />
+      <path d="M14 17 L15.5 18.5" />
+    </>
+  ),
+  keks: () => (
+    <>
+      <circle cx="12" cy="12" r="7.5" />
+      <circle cx="9" cy="10" r="0.7" />
+      <circle cx="14" cy="9" r="0.6" />
+      <circle cx="15" cy="13" r="0.7" />
+      <circle cx="10" cy="14" r="0.6" />
+      <circle cx="13" cy="15" r="0.5" />
+    </>
+  ),
 };
 
 export function hasIcon(name: string): boolean {

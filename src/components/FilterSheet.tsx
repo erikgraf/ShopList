@@ -7,6 +7,14 @@ import {
   emptyFilter,
   toggleInSet,
 } from '../facets';
+import { CatalogIcon } from '../icons';
+import {
+  setIconStyle,
+  setPreferences,
+  useIconStyle,
+  usePreferences,
+  type IconStyle,
+} from '../store';
 import { CATEGORY_LABELS, STORES, type Category, type Store } from '../types';
 
 interface Props {
@@ -20,6 +28,8 @@ interface Props {
 const STATUS_LABEL: Record<Status, string> = { open: 'Offen', done: 'Erledigt' };
 
 export function FilterSheet({ open, filter, facets, onChange, onClose }: Props) {
+  const iconStyle = useIconStyle();
+  const prefs = usePreferences();
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -31,7 +41,12 @@ export function FilterSheet({ open, filter, facets, onChange, onClose }: Props) 
 
   if (!open) return null;
 
-  const toggleStore = (s: Store) => onChange({ ...filter, stores: toggleInSet(filter.stores, s) });
+  // Stores are exclusive — picking one replaces any current selection.
+  const toggleStore = (s: Store) => {
+    const next = new Set<Store>();
+    if (!filter.stores.has(s) || filter.stores.size !== 1) next.add(s);
+    onChange({ ...filter, stores: next });
+  };
   const toggleCategory = (c: Category) =>
     onChange({ ...filter, categories: toggleInSet(filter.categories, c) });
   const toggleBrand = (b: string) => onChange({ ...filter, brands: toggleInSet(filter.brands, b) });
@@ -148,6 +163,36 @@ export function FilterSheet({ open, filter, facets, onChange, onClose }: Props) 
               </ChipGroup>
             </Section>
           )}
+
+          <Section title="Vorlieben">
+            <p className="mb-2 text-xs text-[var(--color-muted)]">
+              Steuert Marken-Vorschläge. Wenn du nichts ausgewählt hast, schlagen wir die
+              Eigenmarke des aktiven Ladens vor.
+            </p>
+            <Toggle
+              label="Bio bevorzugen"
+              hint="Wenn der Laden eine Bio-Linie hat (z. B. dmBio, GUT BIO), wird sie vorgeschlagen."
+              active={prefs.preferBio}
+              onToggle={() => setPreferences({ preferBio: !prefs.preferBio })}
+            />
+          </Section>
+
+          <Section title="Symbolstil">
+            <div className="grid grid-cols-2 gap-3">
+              <StyleTile
+                style="line"
+                label="Linien"
+                active={iconStyle === 'line'}
+                onSelect={() => setIconStyle('line')}
+              />
+              <StyleTile
+                style="doodle"
+                label="Gezeichnet"
+                active={iconStyle === 'doodle'}
+                onSelect={() => setIconStyle('doodle')}
+              />
+            </div>
+          </Section>
         </div>
       </div>
     </div>
@@ -167,6 +212,83 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function ChipGroup({ children }: { children: React.ReactNode }) {
   return <div className="flex flex-wrap gap-2">{children}</div>;
+}
+
+function Toggle({
+  label,
+  hint,
+  active,
+  onToggle,
+}: {
+  label: string;
+  hint?: string;
+  active: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition-press ${
+        active
+          ? 'bg-[var(--color-accent-soft)]'
+          : 'bg-[var(--color-surface-2)] active:bg-[var(--color-border)]'
+      }`}
+    >
+      <span className="min-w-0 flex-1 pr-3">
+        <span className="block text-sm font-medium text-[var(--color-text)]">{label}</span>
+        {hint && <span className="block text-xs text-[var(--color-muted)]">{hint}</span>}
+      </span>
+      <span
+        className={`relative h-6 w-10 shrink-0 rounded-full transition-colors ${
+          active ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-border)]'
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            active ? 'left-[1.125rem]' : 'left-0.5'
+          }`}
+        />
+      </span>
+    </button>
+  );
+}
+
+function StyleTile({
+  style,
+  label,
+  active,
+  onSelect,
+}: {
+  style: IconStyle;
+  label: string;
+  active: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`flex items-center gap-3 rounded-2xl border-2 px-3 py-3 text-left transition-press ${
+        active
+          ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]'
+          : 'border-transparent bg-[var(--color-surface-2)] active:bg-[var(--color-border)]'
+      }`}
+    >
+      <span
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white"
+        style={{ color: 'var(--color-accent)' }}
+      >
+        <CatalogIcon name="apfel" size={28} style={style} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-[var(--color-text)]">{label}</span>
+        <span className="block text-xs text-[var(--color-muted)]">
+          {style === 'line' ? 'Klare Liniengrafik' : 'Lockerer Stil'}
+        </span>
+      </span>
+    </button>
+  );
 }
 
 function Chip({

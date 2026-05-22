@@ -28,21 +28,24 @@ interface OFFProduct {
   categories_tags?: string[];
 }
 
-function mapCategory(tags: string[] | undefined): Category {
-  if (!tags) return 'sonstiges';
-  const t = tags.join(' ');
+function mapCategory(tags: string[] | undefined, name?: string): Category {
+  const t = (tags?.join(' ') ?? '') + ' ' + (name ?? '');
+  // Beverages first: mineral waters / sparkling waters often carry few tags
+  // and the strongest signal is the product name itself ("Mineralwasser").
+  if (/beverages|drinks|getraenke|getränke|waters|water|mineralwasser|tafelwasser|sprudel|stilles|juice|saft|beer|bier|wine|wein|coffee|kaffee|tee|tea|cola|limonade|brause|schorle|smoothie/i.test(t))
+    return 'getraenke';
   if (/fruits|vegetables|obst|gemuese|gemüse/i.test(t)) return 'obst-gemuese';
   if (/baby/i.test(t)) return 'baby';
-  if (/hygiene|cosmetics|koerperpflege|körperpflege/i.test(t)) return 'koerperpflege';
-  if (/cleaning|haushalt|detergent/i.test(t)) return 'haushalt';
+  if (/hygiene|cosmetics|koerperpflege|körperpflege|toothpaste|zahnpasta|shampoo|deodorant|deo|soap|seife|cream|creams|creme|crème|handcreme|handcrème|lotion|balm|balsam|skin-care|hautpflege|sonnencreme|sunscreen|lippenpflege|labello|haarpflege/i.test(t))
+    return 'koerperpflege';
+  if (/cleaning|haushalt|detergent|laundry|waschmittel|reiniger|spülmittel|spuelmittel|household/i.test(t)) return 'haushalt';
   if (/frozen|tiefkuehl|tiefkühl/i.test(t)) return 'tiefkuehl';
   if (/breads|bread|brot|broetchen|brötchen|baker|gebaeck|gebäck|rusks|crackers|toasts/i.test(t)) return 'brot-gebaeck';
   if (/dairies|milk|cheese|yogurt|milch|kaese|käse|joghurt|eggs|eier/i.test(t)) return 'milch-eier';
   if (/meat|fish|fleisch|wurst|sausage|seafood|hams|salamis|poultries/i.test(t)) return 'fleisch-fisch';
   if (/spreads|jams|honey|honig|marmelade|mueslis|granolas|breakfast-cereals|aufstrich/i.test(t)) return 'fruehstueck-aufstrich';
-  if (/oils|öle|vinegar|essig|spices|gewuerze|gewürze|condiments|sauces|saucen|salts|salz/i.test(t)) return 'gewuerze-saucen';
+  if (/oils|öle|vinegar|essig|spices|gewuerze|gewürze|condiments|sauces|saucen|salts|salz|senf|ketchup/i.test(t)) return 'gewuerze-saucen';
   if (/snacks|chocolat|candy|sweet|bonbon|suess|süß|cookies|biscuits|chips|crisps|knabberei|confectioneries|gums|lollipops/i.test(t)) return 'suesses-knabberei';
-  if (/beverages|drinks|getraenke|getränke|water|juice|beer|wine|coffee|tee|tea|cola|saft/i.test(t)) return 'getraenke';
   if (/pastas|cereals|rice|nudeln|reis|mehl|flours|sugars|legumes|canned|preserves|prepared-meals|ready-meals/i.test(t)) return 'vorrat';
   return 'sonstiges';
 }
@@ -56,10 +59,26 @@ export function defaultStoresForCategory(c: Category): Store[] {
   return GROCERY_STORES;
 }
 
-function mapProduct(p: OFFProduct): Product | null {
+function fallbackCategoryForSource(source: string | undefined): Category | null {
+  if (!source) return null;
+  if (source.includes('openbeautyfacts')) return 'koerperpflege';
+  if (source.includes('openproductsfacts')) return 'haushalt';
+  return null;
+}
+
+function mapProduct(p: OFFProduct, source?: string): Product | null {
   const name = p.product_name_de || p.product_name || p.generic_name_de;
   if (!name) return null;
-  const category = mapCategory(p.categories_tags);
+  let category = mapCategory(p.categories_tags, name);
+  // Open Beauty Facts and Open Products Facts catalogue cosmetics and
+  // household items respectively. When their tags are sparse and we'd
+  // otherwise fall to `sonstiges`, the source DB itself is a strong category
+  // signal — Kamill Handcreme returns barely any tags but unambiguously
+  // belongs in `koerperpflege` so DM/Rossmann show up in the filter.
+  if (category === 'sonstiges') {
+    const fb = fallbackCategoryForSource(source);
+    if (fb) category = fb;
+  }
   return {
     id: p.code ? p.code : `off:${name}`,
     name: name.trim(),
@@ -147,7 +166,7 @@ export async function lookupBarcode(barcode: string): Promise<Product | null> {
       const res = await fetch(`${base}/${path}`);
       if (!res.ok) continue;
       const data = await res.json();
-      if (data.status === 1 && data.product) return mapProduct(data.product);
+      if (data.status === 1 && data.product) return mapProduct(data.product, base);
       // status 0 means "not in this DB" — try the next one.
     } catch (e) {
       console.warn('Open Food Facts barcode lookup failed', base, e);

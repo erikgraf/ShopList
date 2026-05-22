@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react';
 import { db, emitChange, onChange } from './db';
 import { defaultStoresForCategory } from './openfoodfacts';
-import { DEFAULT_LIST_ID, type Item, type Product, type RecentProduct, type ShopList } from './types';
+import { DEFAULT_PREFERENCES, type Preferences } from './store-brands';
+import {
+  DEFAULT_LIST_ID,
+  DEFAULT_LIST_NAME,
+  type Item,
+  type Product,
+  type RecentProduct,
+  type ShopList,
+  type Store,
+} from './types';
 
 const ACTIVE_LIST_KEY = 'shoplist.activeListId';
 
@@ -11,6 +20,77 @@ export function getActiveListId(): string {
 
 export function setActiveListId(id: string): void {
   localStorage.setItem(ACTIVE_LIST_KEY, id);
+  emitChange();
+}
+
+export type IconStyle = 'line' | 'doodle';
+const ICON_STYLE_KEY = 'shoplist.iconStyle';
+
+export function getIconStyle(): IconStyle {
+  return localStorage.getItem(ICON_STYLE_KEY) === 'doodle' ? 'doodle' : 'line';
+}
+
+export function setIconStyle(style: IconStyle): void {
+  localStorage.setItem(ICON_STYLE_KEY, style);
+  emitChange();
+}
+
+export function useIconStyle(): IconStyle {
+  const [style, setStyle] = useState<IconStyle>(() => getIconStyle());
+  useEffect(() => {
+    const refresh = () => setStyle(getIconStyle());
+    refresh();
+    return onChange(refresh);
+  }, []);
+  return style;
+}
+
+const PREFS_KEY = 'shoplist.preferences';
+
+export function getPreferences(): Preferences {
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    if (!raw) return DEFAULT_PREFERENCES;
+    const parsed = JSON.parse(raw) as Partial<Preferences>;
+    return { ...DEFAULT_PREFERENCES, ...parsed };
+  } catch {
+    return DEFAULT_PREFERENCES;
+  }
+}
+
+export function setPreferences(p: Partial<Preferences>): void {
+  const next = { ...getPreferences(), ...p };
+  localStorage.setItem(PREFS_KEY, JSON.stringify(next));
+  emitChange();
+}
+
+export function usePreferences(): Preferences {
+  const [p, setP] = useState<Preferences>(() => getPreferences());
+  useEffect(() => {
+    const refresh = () => setP(getPreferences());
+    refresh();
+    return onChange(refresh);
+  }, []);
+  return p;
+}
+
+/**
+ * Make sure the default list always exists. Called on app start: if a user
+ * somehow ends up without one (cleared a partial install, manual DB edits, an
+ * older bug), the leftmost wheel slot reappears as "Einkaufsliste" instead of
+ * stranding them with only secondary lists.
+ */
+export async function ensureDefaultList(): Promise<void> {
+  const existing = await db.lists.get(DEFAULT_LIST_ID);
+  if (existing) return;
+  const all = await db.lists.toArray();
+  const minPos = all.reduce((m, l) => Math.min(m, l.position), 0);
+  await db.lists.put({
+    id: DEFAULT_LIST_ID,
+    name: DEFAULT_LIST_NAME,
+    createdAt: Date.now(),
+    position: all.length > 0 ? minPos - 1 : 0,
+  });
   emitChange();
 }
 
@@ -72,7 +152,11 @@ function uid(): string {
   return `id_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export async function addItemFromProduct(p: Product, quantity = 1): Promise<Item> {
+export async function addItemFromProduct(
+  p: Product,
+  opts: { quantity?: number; pinToStore?: Store } = {},
+): Promise<Item> {
+  const { quantity = 1, pinToStore } = opts;
   const activeList = getActiveListId();
   const all = await db.items.where('listId').equals(activeList).toArray();
   const open = all.filter((it) => !it.checked);
@@ -87,11 +171,23 @@ export async function addItemFromProduct(p: Product, quantity = 1): Promise<Item
   );
   if (dup) {
     const next = { ...dup, quantity: dup.quantity + quantity };
+    // If we're at a specific store and the duplicate doesn't yet have a
+    // per-store brand recorded for it, pin this brand to that store.
+    if (pinToStore && p.brand && !dup.brandByStore?.[pinToStore]) {
+      next.brandByStore = { ...(dup.brandByStore ?? {}), [pinToStore]: p.brand };
+    }
     await db.items.put(next);
     await bumpRecent(p);
     emitChange();
     return next;
   }
+
+  // When a single store filter is active at add-time, also pin the scanned
+  // brand to that store. That way scanning Kamill at DM lights up at DM and
+  // switching to Aldi falls back to a suggestion (Lacura) instead of
+  // misrepresenting Kamill as the Aldi pick.
+  const brandByStore =
+    pinToStore && p.brand ? ({ [pinToStore]: p.brand } as Partial<Record<Store, string>>) : undefined;
 
   const item: Item = {
     id: uid(),
@@ -99,6 +195,7 @@ export async function addItemFromProduct(p: Product, quantity = 1): Promise<Item
     productId: p.id,
     name: p.name,
     brand: p.brand,
+    brandByStore,
     image: p.image,
     category: p.category,
     barcode: p.barcode,
@@ -143,10 +240,30 @@ export async function setQuantity(id: string, value: number): Promise<void> {
   emitChange();
 }
 
-export async function setBrand(id: string, brand: string | null): Promise<void> {
+/**
+ * Pick a brand for an item. With no `store`, this updates the global brand
+ * (what we show when no store filter is active). With a `store`, it writes
+ * to that slot in `brandByStore` so switching store chips swaps brands. We
+ * also opportunistically backfill the global `brand` if the item never had
+ * one — first pick anywhere becomes the global fallback too.
+ */
+export async function setBrand(
+  id: string,
+  brand: string | null,
+  store?: Store,
+): Promise<void> {
   const it = await db.items.get(id);
   if (!it) return;
-  await db.items.update(id, { brand: brand ?? undefined });
+  if (store) {
+    const next = { ...(it.brandByStore ?? {}) } as Partial<Record<Store, string>>;
+    if (brand) next[store] = brand;
+    else delete next[store];
+    const patch: Partial<Item> = { brandByStore: next };
+    if (brand && !it.brand) patch.brand = brand;
+    await db.items.update(id, patch);
+  } else {
+    await db.items.update(id, { brand: brand ?? undefined });
+  }
   emitChange();
 }
 

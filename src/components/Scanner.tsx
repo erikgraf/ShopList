@@ -3,12 +3,19 @@ import { listCameras, startScanner, type BarcodeController, type CameraDevice } 
 import { lookupBarcode } from '../openfoodfacts';
 import { lookupBarcodeInSnapshot } from '../snapshot';
 import { addItemFromProduct } from '../store';
+import type { Store } from '../types';
 
 type Status = 'starting' | 'scanning' | 'looking-up' | 'unknown' | 'error';
 
 const STORED_CAM_KEY = 'shoplist.cameraId';
 
-export function Scanner({ onClose }: { onClose: () => void }) {
+export function Scanner({
+  onClose,
+  pinToStore,
+}: {
+  onClose: () => void;
+  pinToStore?: Store;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [status, setStatus] = useState<Status>('starting');
   const [error, setError] = useState<string>('');
@@ -82,7 +89,7 @@ export function Scanner({ onClose }: { onClose: () => void }) {
     setStatus('looking-up');
     const product = (await lookupBarcodeInSnapshot(code)) ?? (await lookupBarcode(code));
     if (product) {
-      await addItemFromProduct(product);
+      await addItemFromProduct(product, { pinToStore });
       onClose();
     } else {
       setStatus('unknown');
@@ -91,12 +98,15 @@ export function Scanner({ onClose }: { onClose: () => void }) {
 
   const addUnknown = async () => {
     if (!lastCode) return;
-    await addItemFromProduct({
-      id: lastCode,
-      name: `Artikel ${lastCode}`,
-      category: 'sonstiges',
-      barcode: lastCode,
-    });
+    await addItemFromProduct(
+      {
+        id: lastCode,
+        name: `Artikel ${lastCode}`,
+        category: 'sonstiges',
+        barcode: lastCode,
+      },
+      { pinToStore },
+    );
     onClose();
   };
 

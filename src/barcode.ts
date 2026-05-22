@@ -68,6 +68,9 @@ export async function startScanner(
   onError?: (err: Error) => void,
   onTick?: () => void,
   preferredDeviceId?: string,
+  /** When true, the scanner keeps running after a successful decode (shop
+   *  mode). Defaults to false: the one-shot scanner stops on first hit. */
+  continuous = false,
 ): Promise<BarcodeController> {
   if (!navigator.mediaDevices?.getUserMedia) {
     onError?.(
@@ -92,7 +95,7 @@ export async function startScanner(
         if (result) {
           const text = result.getText();
           if (text) {
-            ctl.stop();
+            if (!continuous) ctl.stop();
             onResult(text);
           }
         }

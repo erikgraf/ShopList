@@ -1,5 +1,7 @@
 import type { Category } from './types';
 import { ICONS, hasIcon } from './icons-library';
+import { DOODLE_ICONS } from './icons-library-doodle';
+import { useIconStyle, type IconStyle } from './store';
 
 const COLORS: Record<Category, [string, string]> = {
   'obst-gemuese': ['#16a34a', '#dcfce7'],
@@ -44,21 +46,42 @@ const CATEGORY_DEFAULT_ICON: Partial<Record<Category, string>> = {
   'milch-eier': 'milch',
   'fleisch-fisch': 'fisch',
   tiefkuehl: 'pizza',
-  // Most other categories fall through to the category emoji because their
-  // items are too varied (koerperpflege spans toothpaste/shampoo/deo — no
-  // single icon represents them all).
+  vorrat: 'konserve',
+  'gewuerze-saucen': 'salz',
+  'fruehstueck-aufstrich': 'honig',
+  'suesses-knabberei': 'schokolade',
+  getraenke: 'wasser',
+  koerperpflege: 'seife',
+  haushalt: 'sprayflasche',
+  baby: 'babyflasche',
+  // sonstiges intentionally falls through to the shopping-cart emoji glyph.
 };
 
-function CatalogIcon({ name, size = 26 }: { name: string; size?: number }) {
-  const Renderer = ICONS[name];
+export function CatalogIcon({
+  name,
+  size = 26,
+  style,
+}: {
+  name: string;
+  size?: number;
+  /** Force a specific icon style (used by previews). Defaults to the user's
+   *  active style from the store. */
+  style?: IconStyle;
+}) {
+  const active = useIconStyle();
+  const resolved = style ?? active;
+  // Doodle set is a subset — fall back to line if it doesn't have this name.
+  const Renderer =
+    resolved === 'doodle' && DOODLE_ICONS[name] ? DOODLE_ICONS[name] : ICONS[name];
   if (!Renderer) return null;
+  const isDoodle = resolved === 'doodle' && !!DOODLE_ICONS[name];
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.5}
+      strokeWidth={isDoodle ? 1.8 : 1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
       width={size}

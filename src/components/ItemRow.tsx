@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
-import { toggleChecked } from '../store';
+import { toggleChecked, usePreferences } from '../store';
+import { suggestBrand } from '../store-brands';
 import { catalogIconFor } from '../catalog';
 import type { Item, Store } from '../types';
 import { ProductImage } from '../icons';
@@ -13,8 +14,36 @@ const BrandSheet = lazy(() =>
 
 export function ItemRow({ item, activeStores }: { item: Item; activeStores: Store[] }) {
   const iconName = item.icon ?? catalogIconFor(item.productId);
+  const prefs = usePreferences();
   const [qtyOpen, setQtyOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
+
+  // Resolve the brand to display:
+  //   - With one store filter active: per-store manual pick → suggestion for
+  //     that store under current prefs → global brand → empty.
+  //     Suggestion is shown muted/italic so the user knows it's a default they
+  //     haven't confirmed.
+  //   - With no store filter: just the global brand.
+  // Multiple active stores aren't possible with the exclusive store filter.
+  const singleStore = activeStores.length === 1 ? activeStores[0] : undefined;
+  let displayBrand: string | undefined;
+  let displaySuggested = false;
+  if (singleStore) {
+    const pinned = item.brandByStore?.[singleStore];
+    if (pinned) {
+      displayBrand = pinned;
+    } else {
+      const sug = suggestBrand(item.name, singleStore, prefs);
+      if (sug) {
+        displayBrand = sug.brand;
+        displaySuggested = true;
+      } else if (item.brand) {
+        displayBrand = item.brand;
+      }
+    }
+  } else {
+    displayBrand = item.brand;
+  }
 
   return (
     <>
@@ -37,7 +66,7 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
         </button>
 
         <div
-          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl bg-[var(--color-surface)] p-2.5"
+          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl bg-[var(--color-surface)] px-2.5 py-[18px]"
           style={{ boxShadow: 'var(--shadow-sm)' }}
         >
           <ProductImage src={item.image} category={item.category} iconName={iconName} size={40} />
@@ -65,9 +94,13 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
             type="button"
             onClick={() => setBrandOpen(true)}
             aria-label="Marke wählen"
-            className="flex shrink-0 max-w-[5.5rem] items-center gap-1 rounded-full bg-[var(--color-surface-2)] px-2 py-1.5 text-[11px] font-medium text-[var(--color-muted-strong)] active:bg-[var(--color-border)] transition-press"
+            className={`flex shrink-0 max-w-[5.5rem] items-center gap-1 rounded-full bg-[var(--color-surface-2)] px-2 py-1.5 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
+              displaySuggested
+                ? 'italic text-[var(--color-muted)]'
+                : 'text-[var(--color-muted-strong)]'
+            }`}
           >
-            <span className="truncate">{item.brand ?? 'Marke'}</span>
+            <span className="truncate">{displayBrand ?? 'Marke'}</span>
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="m6 9 6 6 6-6" />
             </svg>

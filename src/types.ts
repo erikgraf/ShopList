@@ -135,7 +135,14 @@ export interface Item {
   listId: string;
   productId: string;
   name: string;
+  /** Global/default brand — what to show when no store filter is active, and
+   *  the last-resort fallback when neither a per-store pick nor a suggestion
+   *  exists. */
   brand?: string;
+  /** Per-store brand overrides. When a single store chip is active, this map
+   *  wins over `brand` so that switching from DM to Aldi swaps Kamill for
+   *  Lacura on the same logical "Handcreme" item. */
+  brandByStore?: Partial<Record<Store, string>>;
   image?: string;
   category: Category;
   barcode?: string;
