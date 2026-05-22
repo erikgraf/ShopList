@@ -1,4 +1,6 @@
 import Dexie, { type Table } from 'dexie';
+import { availableStores } from './store-brands';
+import { defaultStoresForCategory } from './openfoodfacts';
 import {
   migrateCategory,
   DEFAULT_LIST_ID,
@@ -90,6 +92,31 @@ class ShopListDB extends Dexie {
           .toCollection()
           .modify((row) => {
             if (typeof row.updatedAt !== 'number') row.updatedAt = row.createdAt ?? Date.now();
+          });
+      });
+
+    // v5: broaden `item.stores` to include every chain that sells this
+    // generic — items added before this change have whatever narrow set
+    // the product blob happened to claim (e.g. Kamill Handcreme came in
+    // as `['dm']` only), which hid them when the user filtered to Aldi
+    // or Lidl. Schema is identical to v4; this version only runs the
+    // backfill.
+    this.version(5)
+      .stores({
+        items: 'id, position, addedAt, listId, updatedAt',
+        recent: 'id, lastUsedAt, useCount',
+        lists: 'id, position, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table('items')
+          .toCollection()
+          .modify((row) => {
+            const fallback =
+              Array.isArray(row.stores) && row.stores.length > 0
+                ? row.stores
+                : defaultStoresForCategory(row.category);
+            row.stores = availableStores(row.name, fallback);
           });
       });
   }

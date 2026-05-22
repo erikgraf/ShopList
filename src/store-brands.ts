@@ -252,6 +252,27 @@ export function genericName(rawName: string): string {
   return rawName;
 }
 
+/**
+ * Union of the chains the user can buy this item at: everything we have
+ * a brand-map entry for at the item's generic name, plus whatever the
+ * caller already had (catalog data, defaultStoresForCategory, etc.).
+ * Centralises the rule that "if Lacura sells Handcreme at Aldi and Balea
+ * sells Handcreme at DM, the Handcreme item belongs in both store filters
+ * regardless of which one the user happens to have pinned a brand for".
+ */
+export function availableStores(name: string, fallback: Store[]): Store[] {
+  const stores = new Set<Store>(fallback);
+  const key = matchItemKey(name);
+  if (key) {
+    const entry = STORE_BRAND_MAP[key];
+    if (entry) {
+      for (const s of Object.keys(entry.default) as Store[]) stores.add(s);
+      if (entry.bio) for (const s of Object.keys(entry.bio) as Store[]) stores.add(s);
+    }
+  }
+  return [...stores];
+}
+
 export interface Preferences {
   preferBio: boolean;
 }

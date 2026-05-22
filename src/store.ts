@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db, emitChange, onChange } from './db';
 import { defaultStoresForCategory } from './openfoodfacts';
-import { DEFAULT_PREFERENCES, genericName, type Preferences } from './store-brands';
+import { availableStores, DEFAULT_PREFERENCES, genericName, type Preferences } from './store-brands';
 import {
   DEFAULT_LIST_ID,
   DEFAULT_LIST_NAME,
@@ -189,7 +189,6 @@ export async function addItemFromProduct(
   const all = await db.items.where('listId').equals(activeList).toArray();
   const open = all.filter((it) => !it.checked);
   const max = all.reduce((m, it) => Math.max(m, it.position), -1);
-  const stores = p.stores && p.stores.length ? p.stores : defaultStoresForCategory(p.category);
 
   // Barcode scans hand us verbose OFF product names like "Kamill Hand- &
   // Nagelcreme classic". Collapse those to a generic noun ("Handcreme") so
@@ -197,6 +196,14 @@ export async function addItemFromProduct(
   // the right of the row to identify which variant it is. Typed/searched
   // items keep their literal name because the user already chose it.
   const displayName = p.barcode ? genericName(p.name) : p.name;
+
+  // Stores the item could be bought at: start from the product's own
+  // claim (or the category default) and union in every chain that has a
+  // STORE_BRAND_MAP entry for this generic name. "Handcreme" then shows
+  // up under both Aldi (with Lacura) and DM (with Balea) filters even
+  // though the user only scanned the Kamill variant once.
+  const baseStores = p.stores && p.stores.length ? p.stores : defaultStoresForCategory(p.category);
+  const stores = availableStores(displayName, baseStores);
 
   const dup = open.find(
     (it) =>
