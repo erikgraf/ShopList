@@ -45,16 +45,24 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
     displayBrand = item.brand;
   }
 
-  // Barcode scans give us both a brand and a real OFF product image. Show the
-  // generic icon on the left of the row (cleaner visual identity for the
-  // category), and tuck the product image inside the brand pill on the right
-  // so the row clearly says "Handcreme" / "Kamill" with the Kamill jar
-  // thumbnail next to the brand name. For typed/searched items (no barcode),
-  // the image stays on the left as before — that's the catalogued visual.
-  const isScanned = !!item.barcode;
-  const hasBrandThumb =
-    isScanned && !!item.image && !!displayBrand && !displaySuggested && displayBrand === item.brand;
-  const leftSrc = isScanned ? undefined : item.image;
+  // Two-line card layout with a dedicated brand column on the right:
+  //   - Left: 44 px category-icon tile.
+  //   - Centre (flex-1, 2 lines): name on top, quantity pill below — name
+  //     gets the full middle width on its own line so things like
+  //     "Mineralwasser" or "Hackfleisch" stop truncating to "Mineralw..."
+  //   - Right: brand stack — product image on top of the brand name
+  //     (vertical) when we have both, else just a small "Marke" / brand-name
+  //     pill. Suggestions render in italic without the thumb because the
+  //     thumb represents a real picked product, not a default guess.
+  // Image moves to the brand stack whenever there's a brand to pair it
+  // with; the left tile reverts to the category icon. Items that have only
+  // an image (no brand) keep the image on the left as before.
+  const hasBrandWithImage =
+    !!item.image &&
+    !!displayBrand &&
+    !displaySuggested &&
+    displayBrand === item.brand;
+  const leftSrc = hasBrandWithImage ? undefined : item.image;
 
   return (
     <>
@@ -77,12 +85,12 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
         </button>
 
         <div
-          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl bg-[var(--color-surface)] px-2.5 py-[18px]"
+          className="flex min-h-[80px] min-w-0 flex-1 items-center gap-3 rounded-2xl bg-[var(--color-surface)] px-3 py-3"
           style={{ boxShadow: 'var(--shadow-sm)' }}
         >
-          <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={40} />
+          <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={44} />
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 flex flex-col gap-1.5">
             <div
               className={`truncate text-[15px] font-medium leading-tight ${
                 item.checked ? 'line-through' : ''
@@ -90,45 +98,53 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
             >
               {item.name}
             </div>
+            <button
+              type="button"
+              onClick={() => setQtyOpen(true)}
+              aria-label="Menge ändern"
+              className="self-start inline-flex items-center rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--color-text)] active:bg-[var(--color-border)] transition-press"
+            >
+              ×{item.quantity}
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setQtyOpen(true)}
-            aria-label="Menge ändern"
-            className="flex shrink-0 items-center rounded-full bg-[var(--color-surface-2)] px-3 py-1.5 text-sm font-semibold tabular-nums text-[var(--color-text)] active:bg-[var(--color-border)] transition-press"
-          >
-            ×{item.quantity}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setBrandOpen(true)}
-            aria-label="Marke wählen"
-            className={`flex shrink-0 items-center gap-1 rounded-full bg-[var(--color-surface-2)] py-1.5 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
-              hasBrandThumb ? 'max-w-[7.5rem] pl-1 pr-2' : 'max-w-[5.5rem] px-2'
-            } ${
-              displaySuggested
-                ? 'italic text-[var(--color-muted)]'
-                : 'text-[var(--color-muted-strong)]'
-            }`}
-          >
-            {hasBrandThumb && item.image && (
+          {hasBrandWithImage && item.image ? (
+            <button
+              type="button"
+              onClick={() => setBrandOpen(true)}
+              aria-label="Marke wählen"
+              className="shrink-0 flex flex-col items-center gap-1 max-w-[5.5rem] active:opacity-70 transition-press"
+            >
               <img
                 src={item.image}
                 alt=""
-                className="h-6 w-6 shrink-0 rounded-full object-cover"
+                className="h-9 w-9 shrink-0 rounded-full object-cover"
                 style={{ background: '#f1ede4' }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-            )}
-            <span className="truncate">{displayBrand ?? 'Marke'}</span>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </button>
+              <span className="truncate w-full text-center text-[10px] font-medium leading-tight text-[var(--color-muted-strong)]">
+                {displayBrand}
+              </span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setBrandOpen(true)}
+              aria-label="Marke wählen"
+              className={`shrink-0 self-center inline-flex max-w-[5.5rem] items-center gap-1 rounded-full bg-[var(--color-surface-2)] px-2 py-1.5 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
+                displaySuggested
+                  ? 'italic text-[var(--color-muted)]'
+                  : 'text-[var(--color-muted-strong)]'
+              }`}
+            >
+              <span className="truncate">{displayBrand ?? 'Marke'}</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+          )}
         </div>
 
         <button
