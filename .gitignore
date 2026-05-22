@@ -26,10 +26,3 @@ dist-ssr
 # Claude Code local state (keep launch.json shared)
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
-
-# wrangler files
-.wrangler
-.dev.vars*
-!.dev.vars.example
-.env*
-!.env.example
