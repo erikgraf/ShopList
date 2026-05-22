@@ -6,18 +6,25 @@ interface Props {
   activeListId: string;
   onSwitch: (id: string) => void;
   onCreateNew: () => void;
+  /** Tap-and-hold a list title for ~500 ms to open its action sheet
+   *  (Umbenennen / Teilen / Löschen). Optional. */
+  onLongPress?: (id: string) => void;
 }
+
+const LONG_PRESS_MS = 500;
+const LONG_PRESS_MOVE_TOLERANCE = 8;
 
 /**
  * Horizontal wheel of list titles. Center item is the active list.
  * - Tap an inactive list → switches to it.
  * - Tap the active (centered) title → opens "new list" sheet.
  * - Scroll horizontally → snaps to the next list (which becomes active).
+ * - Long-press any list title → fires `onLongPress(id)` (action sheet).
  *
  * Spacers at start and end let the first/last list center properly even though
  * the snap container is wider than the viewport.
  */
-export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew }: Props) {
+export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew, onLongPress }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const lastReportedRef = useRef<string>(activeListId);
@@ -72,7 +79,46 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew }: Pro
     };
   }, [onSwitch, lists]);
 
+  // Long-press machinery. Pointer events start a 500 ms timer; if the pointer
+  // moves more than 8 px before it fires we cancel — treat that as scroll
+  // intent so the horizontal wheel still works. When the timer fires, we set
+  // a flag that the click handler reads to swallow the upcoming tap.
+  const longPressTimer = useRef<number | null>(null);
+  const longPressFired = useRef(false);
+  const longPressStart = useRef({ x: 0, y: 0 });
+
+  const cancelLongPress = () => {
+    if (longPressTimer.current) {
+      window.clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const startLongPress = (id: string, x: number, y: number) => {
+    if (!onLongPress) return;
+    cancelLongPress();
+    longPressStart.current = { x, y };
+    longPressTimer.current = window.setTimeout(() => {
+      longPressFired.current = true;
+      longPressTimer.current = null;
+      if ('vibrate' in navigator) navigator.vibrate(20);
+      onLongPress(id);
+    }, LONG_PRESS_MS);
+  };
+
+  const moveLongPress = (x: number, y: number) => {
+    const dx = Math.abs(x - longPressStart.current.x);
+    const dy = Math.abs(y - longPressStart.current.y);
+    if (dx > LONG_PRESS_MOVE_TOLERANCE || dy > LONG_PRESS_MOVE_TOLERANCE) {
+      cancelLongPress();
+    }
+  };
+
   const handleTap = (id: string) => {
+    if (longPressFired.current) {
+      longPressFired.current = false;
+      return;
+    }
     if (id === activeListId) {
       onCreateNew();
     } else {
@@ -99,6 +145,16 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew }: Pro
               }}
               type="button"
               onClick={() => handleTap(l.id)}
+              onPointerDown={(e) => startLongPress(l.id, e.clientX, e.clientY)}
+              onPointerMove={(e) => moveLongPress(e.clientX, e.clientY)}
+              onPointerUp={cancelLongPress}
+              onPointerCancel={cancelLongPress}
+              onPointerLeave={cancelLongPress}
+              onContextMenu={(e) => {
+                // Suppress the browser's default long-press context menu so
+                // ours is the only thing the user sees.
+                if (onLongPress) e.preventDefault();
+              }}
               className="shrink-0 whitespace-nowrap py-1 transition-all"
               style={{ scrollSnapAlign: 'center', scrollSnapStop: 'always' }}
             >

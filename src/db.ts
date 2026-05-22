@@ -66,6 +66,32 @@ class ShopListDB extends Dexie {
             if (!row.listId) row.listId = DEFAULT_LIST_ID;
           });
       });
+
+    // v4: prep for shared-list sync. Adds `updatedAt` (last-write timestamp)
+    // to items and lists, plus an `updatedAt` index so the sync loop can ask
+    // "items changed since I last pulled" efficiently. Existing rows are
+    // backfilled from `addedAt` (items) / `createdAt` (lists). No `deletedAt`
+    // index — tombstones are rare enough to scan.
+    this.version(4)
+      .stores({
+        items: 'id, position, addedAt, listId, updatedAt',
+        recent: 'id, lastUsedAt, useCount',
+        lists: 'id, position, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table('items')
+          .toCollection()
+          .modify((row) => {
+            if (typeof row.updatedAt !== 'number') row.updatedAt = row.addedAt ?? Date.now();
+          });
+        await tx
+          .table('lists')
+          .toCollection()
+          .modify((row) => {
+            if (typeof row.updatedAt !== 'number') row.updatedAt = row.createdAt ?? Date.now();
+          });
+      });
   }
 }
 

@@ -14,6 +14,7 @@ import {
   useItems,
   useLists,
 } from './store';
+import { startSyncLoop } from './sync';
 import { CATEGORY_LABELS, CATEGORY_ORDER, type Category, type Item } from './types';
 
 const NewListSheet = lazy(() =>
@@ -26,6 +27,14 @@ const ShopMode = lazy(() =>
   import('./components/ShopMode').then((m) => ({ default: m.ShopMode })),
 );
 
+const ListActionSheet = lazy(() =>
+  import('./components/ListActionSheet').then((m) => ({ default: m.ListActionSheet })),
+);
+
+const JoinShareSheet = lazy(() =>
+  import('./components/JoinShareSheet').then((m) => ({ default: m.JoinShareSheet })),
+);
+
 export default function App() {
   const items = useItems();
   const lists = useLists();
@@ -35,10 +44,37 @@ export default function App() {
   const [scanOpen, setScanOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [newListOpen, setNewListOpen] = useState(false);
+  const [actionListId, setActionListId] = useState<string | null>(null);
+  const [joinCloudId, setJoinCloudId] = useState<string | null>(null);
 
   useEffect(() => {
     void ensureDefaultList();
+    // Sync loop is a no-op for the user until they tap "Teilen" on a list —
+    // it iterates shared lists only. Cheap to keep running unconditionally.
+    return startSyncLoop();
   }, []);
+
+  // Pick up `#share=<cloudId>` magic-link fragments. Strip the fragment on
+  // mount so a reload doesn't re-trigger the join sheet, and trigger again
+  // if the hash changes during the session (deep-link from another tab).
+  useEffect(() => {
+    const read = () => {
+      const m = location.hash.match(/^#share=([^&]+)/);
+      if (!m) return;
+      try {
+        const id = decodeURIComponent(m[1]);
+        if (id) setJoinCloudId(id);
+      } catch {
+        // Malformed fragment — ignore.
+      }
+      history.replaceState(null, '', location.pathname + location.search);
+    };
+    read();
+    window.addEventListener('hashchange', read);
+    return () => window.removeEventListener('hashchange', read);
+  }, []);
+
+  const actionList = actionListId ? lists.find((l) => l.id === actionListId) : null;
 
   const facets = useMemo(() => computeFacets(items, filter), [items, filter]);
   const filtered = useMemo(() => applyFilter(items, filter), [items, filter]);
@@ -59,6 +95,7 @@ export default function App() {
           activeListId={activeListId}
           onSwitch={setActiveListId}
           onCreateNew={() => setNewListOpen(true)}
+          onLongPress={setActionListId}
         />
         <div className="text-center text-xs font-medium text-[var(--color-muted)]">
           {open.length} offen{done.length > 0 ? ` · ${done.length} erledigt` : ''}
@@ -136,6 +173,18 @@ export default function App() {
       {newListOpen && (
         <Suspense fallback={null}>
           <NewListSheet onClose={() => setNewListOpen(false)} />
+        </Suspense>
+      )}
+
+      {actionList && (
+        <Suspense fallback={null}>
+          <ListActionSheet list={actionList} onClose={() => setActionListId(null)} />
+        </Suspense>
+      )}
+
+      {joinCloudId && (
+        <Suspense fallback={null}>
+          <JoinShareSheet cloudId={joinCloudId} onClose={() => setJoinCloudId(null)} />
         </Suspense>
       )}
     </div>

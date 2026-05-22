@@ -1,0 +1,23 @@
+# Cloudflare Pages config — declares bindings the Pages Functions runtime gets at
+# request time. The static build itself (`npm run build` → `dist/`) is configured
+# by the Pages project, not here; this file's job is just to keep KV (and any
+# future bindings) declared in source.
+#
+# One-time setup before the first deploy with sharing enabled:
+#
+#   wrangler kv:namespace create SHARED_LISTS              # → prints "id"
+#   wrangler kv:namespace create SHARED_LISTS --preview    # → prints "preview_id"
+#
+# Paste the printed IDs below. Alternatively, the same binding can be created
+# entirely from the Cloudflare dashboard:
+#   Pages → <project> → Settings → Functions → KV namespace bindings → Add
+# with binding name `SHARED_LISTS`. In that case this file is optional, but it
+# documents the intent in source.
+name = "shoplist"
+compatibility_date = "2025-10-01"
+pages_build_output_dir = "./dist"
+
+[[kv_namespaces]]
+binding = "SHARED_LISTS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"

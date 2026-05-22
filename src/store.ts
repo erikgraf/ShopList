@@ -80,15 +80,30 @@ export function usePreferences(): Preferences {
  * older bug), the leftmost wheel slot reappears as "Einkaufsliste" instead of
  * stranding them with only secondary lists.
  */
+/**
+ * Patch an item and stamp `updatedAt`. Every mutation goes through this so
+ * the field is reliable for last-writer-wins merging when the list is shared.
+ */
+async function touchItem(id: string, patch: Partial<Item>): Promise<void> {
+  await db.items.update(id, { ...patch, updatedAt: Date.now() });
+}
+
+/** Same as `touchItem` but for `ShopList` rows. */
+async function touchList(id: string, patch: Partial<ShopList>): Promise<void> {
+  await db.lists.update(id, { ...patch, updatedAt: Date.now() });
+}
+
 export async function ensureDefaultList(): Promise<void> {
   const existing = await db.lists.get(DEFAULT_LIST_ID);
   if (existing) return;
   const all = await db.lists.toArray();
   const minPos = all.reduce((m, l) => Math.min(m, l.position), 0);
+  const now = Date.now();
   await db.lists.put({
     id: DEFAULT_LIST_ID,
     name: DEFAULT_LIST_NAME,
-    createdAt: Date.now(),
+    createdAt: now,
+    updatedAt: now,
     position: all.length > 0 ? minPos - 1 : 0,
   });
   emitChange();
@@ -97,10 +112,12 @@ export async function ensureDefaultList(): Promise<void> {
 export async function createList(name: string): Promise<ShopList> {
   const all = await db.lists.toArray();
   const max = all.reduce((m, l) => Math.max(m, l.position), -1);
+  const now = Date.now();
   const list: ShopList = {
     id: uid(),
     name: name.trim() || 'Neue Liste',
-    createdAt: Date.now(),
+    createdAt: now,
+    updatedAt: now,
     position: max + 1,
   };
   await db.lists.put(list);
@@ -109,12 +126,23 @@ export async function createList(name: string): Promise<ShopList> {
 }
 
 export async function renameList(id: string, name: string): Promise<void> {
-  await db.lists.update(id, { name: name.trim() });
+  await touchList(id, { name: name.trim() });
   emitChange();
 }
 
 export async function deleteList(id: string): Promise<void> {
   if (id === DEFAULT_LIST_ID) return; // protect the default list
+  // If the list was shared, revoke the cloud copy too. Best effort — local
+  // delete proceeds even if the network call fails (we'd rather lose the
+  // share record on the server than block the user's delete).
+  const list = await db.lists.get(id);
+  if (list?.cloud) {
+    try {
+      await fetch(`/api/sync/${list.cloud.id}`, { method: 'DELETE' });
+    } catch {
+      // ignore
+    }
+  }
   const items = await db.items.where('listId').equals(id).primaryKeys();
   await db.items.bulkDelete(items as string[]);
   await db.lists.delete(id);
@@ -170,7 +198,11 @@ export async function addItemFromProduct(
         (it.brand ?? '').toLowerCase() === (p.brand ?? '').toLowerCase()),
   );
   if (dup) {
-    const next = { ...dup, quantity: dup.quantity + quantity };
+    const next: Item = {
+      ...dup,
+      quantity: dup.quantity + quantity,
+      updatedAt: Date.now(),
+    };
     // If we're at a specific store and the duplicate doesn't yet have a
     // per-store brand recorded for it, pin this brand to that store.
     if (pinToStore && p.brand && !dup.brandByStore?.[pinToStore]) {
@@ -189,6 +221,7 @@ export async function addItemFromProduct(
   const brandByStore =
     pinToStore && p.brand ? ({ [pinToStore]: p.brand } as Partial<Record<Store, string>>) : undefined;
 
+  const now = Date.now();
   const item: Item = {
     id: uid(),
     listId: activeList,
@@ -203,7 +236,8 @@ export async function addItemFromProduct(
     quantity,
     unit: 'Stk',
     checked: false,
-    addedAt: Date.now(),
+    addedAt: now,
+    updatedAt: now,
     position: max + 1,
     icon: p.icon,
     sizes: p.sizes,
@@ -228,7 +262,7 @@ export async function updateQuantity(id: string, delta: number): Promise<void> {
   const it = await db.items.get(id);
   if (!it) return;
   const q = Math.max(1, it.quantity + delta);
-  await db.items.update(id, { quantity: q });
+  await touchItem(id, { quantity: q });
   emitChange();
 }
 
@@ -236,7 +270,7 @@ export async function setQuantity(id: string, value: number): Promise<void> {
   const it = await db.items.get(id);
   if (!it) return;
   const q = Math.max(1, Math.min(999, Math.round(value)));
-  await db.items.update(id, { quantity: q });
+  await touchItem(id, { quantity: q });
   emitChange();
 }
 
@@ -260,9 +294,9 @@ export async function setBrand(
     else delete next[store];
     const patch: Partial<Item> = { brandByStore: next };
     if (brand && !it.brand) patch.brand = brand;
-    await db.items.update(id, patch);
+    await touchItem(id, patch);
   } else {
-    await db.items.update(id, { brand: brand ?? undefined });
+    await touchItem(id, { brand: brand ?? undefined });
   }
   emitChange();
 }
@@ -270,7 +304,7 @@ export async function setBrand(
 export async function toggleChecked(id: string): Promise<void> {
   const it = await db.items.get(id);
   if (!it) return;
-  await db.items.update(id, { checked: !it.checked });
+  await touchItem(id, { checked: !it.checked });
   emitChange();
 }
 

@@ -151,6 +151,14 @@ export interface Item {
   unit: string;
   checked: boolean;
   addedAt: number;
+  /** Last-write timestamp (ms epoch). Set on every mutation; drives last-
+   *  writer-wins merging when a list is shared with another device. Backfilled
+   *  from `addedAt` for items created before sync existed (Dexie v4). */
+  updatedAt: number;
+  /** Soft-delete tombstone (ms epoch). Hard-delete stays the default for
+   *  local-only lists; when sync lands, deletes inside a shared list write
+   *  this field instead so the deletion can propagate to the partner. */
+  deletedAt?: number;
   position: number;
   icon?: string;
   sizes?: number[];
@@ -160,8 +168,22 @@ export interface ShopList {
   id: string;
   name: string;
   createdAt: number;
+  /** Last-write timestamp for list metadata (currently just `name`). Same role
+   *  as `Item.updatedAt` — backfilled from `createdAt` by the Dexie v4
+   *  migration for lists created before sync. */
+  updatedAt: number;
   /** Order in the list-switcher wheel (low number = leftmost). */
   position: number;
+  /** Cloud-sync metadata. Present iff the user has explicitly shared this
+   *  list. The `id` doubles as the magic-URL secret — possession grants
+   *  read/write. `lastPulledVersion` is the highest server `version` we've
+   *  already merged into this device, used by the poll loop to skip noop
+   *  responses. */
+  cloud?: {
+    id: string;
+    lastPulledVersion: number;
+    lastSyncedAt: number;
+  };
 }
 
 /** The id of the always-present default list. */
