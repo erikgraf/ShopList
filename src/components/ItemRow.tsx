@@ -45,24 +45,29 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
     displayBrand = item.brand;
   }
 
-  // Two-line card layout with a dedicated brand column on the right:
-  //   - Left: 44 px category-icon tile.
-  //   - Centre (flex-1, 2 lines): name on top, quantity pill below — name
-  //     gets the full middle width on its own line so things like
-  //     "Mineralwasser" or "Hackfleisch" stop truncating to "Mineralw..."
-  //   - Right: brand stack — product image on top of the brand name
-  //     (vertical) when we have both, else just a small "Marke" / brand-name
-  //     pill. Suggestions render in italic without the thumb because the
-  //     thumb represents a real picked product, not a default guess.
-  // Image moves to the brand stack whenever there's a brand to pair it
-  // with; the left tile reverts to the category icon. Items that have only
-  // an image (no brand) keep the image on the left as before.
+  // Layout: name gets line 1 with the full middle width; qty pill + brand
+  // pill share line 2. The image-on-top-of-brand vertical stack was
+  // eating ~90 px from the name area, which truncated long German
+  // compounds like "Hackfleisch gemischt" — putting them on separate
+  // rows buys back the room. The brand pill still carries a small
+  // product thumb when one exists, just inline left of the brand label.
+  //
+  // The outer "%" button got dropped: it was a placeholder for the
+  // offers/Reduktion feature parked in NextSteps. Reclaiming that 36 px
+  // of right-edge width is what makes "Mineralwasser" / "Spülmittel"
+  // breathe. The feature can come back as a chip in the brand row or a
+  // long-press menu when we actually have price data to show.
   const hasBrandWithImage =
     !!item.image &&
     !!displayBrand &&
     !displaySuggested &&
     displayBrand === item.brand;
-  const leftSrc = hasBrandWithImage ? undefined : item.image;
+  // Real product image always lives in the brand chip on line 2 (paired
+  // with the brand name). The left tile stays as the generic category
+  // icon — except for items that have an image but no brand (rare:
+  // search hit with no brand info), where putting it on the left is
+  // still useful as a visual cue.
+  const leftSrc = hasBrandWithImage || displayBrand ? undefined : item.image;
 
   return (
     <>
@@ -85,7 +90,7 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
         </button>
 
         <div
-          className="flex min-h-[80px] min-w-0 flex-1 items-center gap-3 rounded-2xl bg-[var(--color-surface)] px-3 py-3"
+          className="flex min-h-[76px] min-w-0 flex-1 items-center gap-3 rounded-2xl bg-[var(--color-surface)] px-3 py-3"
           style={{ boxShadow: 'var(--shadow-sm)' }}
         >
           <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={44} />
@@ -98,65 +103,54 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
             >
               {item.name}
             </div>
-            <button
-              type="button"
-              onClick={() => setQtyOpen(true)}
-              aria-label="Menge ändern"
-              className="self-start inline-flex items-center rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--color-text)] active:bg-[var(--color-border)] transition-press"
-            >
-              ×{item.quantity}
-            </button>
+            <div className="flex min-w-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setQtyOpen(true)}
+                aria-label="Menge ändern"
+                className="shrink-0 inline-flex items-center rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--color-text)] active:bg-[var(--color-border)] transition-press"
+              >
+                ×{item.quantity}
+              </button>
+              <button
+                type="button"
+                onClick={() => setBrandOpen(true)}
+                aria-label="Marke wählen"
+                className={`min-w-0 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-surface-2)] py-1 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
+                  hasBrandWithImage ? 'pl-1 pr-2' : 'px-2.5'
+                } ${
+                  displaySuggested
+                    ? 'italic text-[var(--color-muted)]'
+                    : 'text-[var(--color-muted-strong)]'
+                }`}
+              >
+                {hasBrandWithImage && item.image && (
+                  <img
+                    src={item.image}
+                    alt=""
+                    className="h-5 w-5 shrink-0 rounded-full object-cover"
+                    style={{ background: '#f1ede4' }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                )}
+                <span className="truncate">{displayBrand ?? 'Marke'}</span>
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  className="shrink-0"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            </div>
           </div>
-
-          {hasBrandWithImage && item.image ? (
-            <button
-              type="button"
-              onClick={() => setBrandOpen(true)}
-              aria-label="Marke wählen"
-              className="shrink-0 flex flex-col items-center gap-1 max-w-[5.5rem] active:opacity-70 transition-press"
-            >
-              <img
-                src={item.image}
-                alt=""
-                className="h-9 w-9 shrink-0 rounded-full object-cover"
-                style={{ background: '#f1ede4' }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <span className="truncate w-full text-center text-[10px] font-medium leading-tight text-[var(--color-muted-strong)]">
-                {displayBrand}
-              </span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setBrandOpen(true)}
-              aria-label="Marke wählen"
-              className={`shrink-0 self-center inline-flex max-w-[5.5rem] items-center gap-1 rounded-full bg-[var(--color-surface-2)] px-2 py-1.5 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
-                displaySuggested
-                  ? 'italic text-[var(--color-muted)]'
-                  : 'text-[var(--color-muted-strong)]'
-              }`}
-            >
-              <span className="truncate">{displayBrand ?? 'Marke'}</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </button>
-          )}
         </div>
-
-        <button
-          type="button"
-          aria-label="Angebote"
-          onClick={() => {
-            // TODO: show offers / discounts (see NextSteps.md → Phase D)
-          }}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--color-border)] bg-transparent text-[var(--color-muted)] active:bg-[var(--color-surface-2)] transition-press"
-        >
-          <span className="text-[11px] font-semibold">%</span>
-        </button>
       </div>
 
       {qtyOpen && (
