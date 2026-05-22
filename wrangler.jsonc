@@ -1,14 +1,25 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "shoplist",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-05-22",
+  "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
   },
+  // The Vite-built static bundle lives in `dist/`. The Worker code at
+  // `main` is the dynamic side; it routes `/api/sync/*` to KV and falls
+  // through to ASSETS for everything else. SPA fallback (serving
+  // index.html for unknown paths) is handled by the bundle.
   "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application"
   },
-  "compatibility_flags": [
-    "nodejs_compat"
+  "kv_namespaces": [
+    {
+      "binding": "SHARED_LISTS",
+      "id": "ea14cba7a27d4038b18023667ea6a1db"
+    }
   ]
 }
