@@ -45,6 +45,17 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
     displayBrand = item.brand;
   }
 
+  // Barcode scans give us both a brand and a real OFF product image. Show the
+  // generic icon on the left of the row (cleaner visual identity for the
+  // category), and tuck the product image inside the brand pill on the right
+  // so the row clearly says "Handcreme" / "Kamill" with the Kamill jar
+  // thumbnail next to the brand name. For typed/searched items (no barcode),
+  // the image stays on the left as before — that's the catalogued visual.
+  const isScanned = !!item.barcode;
+  const hasBrandThumb =
+    isScanned && !!item.image && !!displayBrand && !displaySuggested && displayBrand === item.brand;
+  const leftSrc = isScanned ? undefined : item.image;
+
   return (
     <>
       <div className={`flex items-center gap-2 transition-opacity ${item.checked ? 'opacity-55' : ''}`}>
@@ -69,7 +80,7 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
           className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl bg-[var(--color-surface)] px-2.5 py-[18px]"
           style={{ boxShadow: 'var(--shadow-sm)' }}
         >
-          <ProductImage src={item.image} category={item.category} iconName={iconName} size={40} />
+          <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={40} />
 
           <div className="min-w-0 flex-1">
             <div
@@ -94,12 +105,25 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
             type="button"
             onClick={() => setBrandOpen(true)}
             aria-label="Marke wählen"
-            className={`flex shrink-0 max-w-[5.5rem] items-center gap-1 rounded-full bg-[var(--color-surface-2)] px-2 py-1.5 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
+            className={`flex shrink-0 items-center gap-1 rounded-full bg-[var(--color-surface-2)] py-1.5 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
+              hasBrandThumb ? 'max-w-[7.5rem] pl-1 pr-2' : 'max-w-[5.5rem] px-2'
+            } ${
               displaySuggested
                 ? 'italic text-[var(--color-muted)]'
                 : 'text-[var(--color-muted-strong)]'
             }`}
           >
+            {hasBrandThumb && item.image && (
+              <img
+                src={item.image}
+                alt=""
+                className="h-6 w-6 shrink-0 rounded-full object-cover"
+                style={{ background: '#f1ede4' }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
             <span className="truncate">{displayBrand ?? 'Marke'}</span>
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="m6 9 6 6 6-6" />

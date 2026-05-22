@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db, emitChange, onChange } from './db';
 import { defaultStoresForCategory } from './openfoodfacts';
-import { DEFAULT_PREFERENCES, type Preferences } from './store-brands';
+import { DEFAULT_PREFERENCES, genericName, type Preferences } from './store-brands';
 import {
   DEFAULT_LIST_ID,
   DEFAULT_LIST_NAME,
@@ -191,10 +191,17 @@ export async function addItemFromProduct(
   const max = all.reduce((m, it) => Math.max(m, it.position), -1);
   const stores = p.stores && p.stores.length ? p.stores : defaultStoresForCategory(p.category);
 
+  // Barcode scans hand us verbose OFF product names like "Kamill Hand- &
+  // Nagelcreme classic". Collapse those to a generic noun ("Handcreme") so
+  // the row reads cleanly — the brand + product image stay separately on
+  // the right of the row to identify which variant it is. Typed/searched
+  // items keep their literal name because the user already chose it.
+  const displayName = p.barcode ? genericName(p.name) : p.name;
+
   const dup = open.find(
     (it) =>
       it.productId === p.id ||
-      (it.name.toLowerCase() === p.name.toLowerCase() &&
+      (it.name.toLowerCase() === displayName.toLowerCase() &&
         (it.brand ?? '').toLowerCase() === (p.brand ?? '').toLowerCase()),
   );
   if (dup) {
@@ -226,7 +233,7 @@ export async function addItemFromProduct(
     id: uid(),
     listId: activeList,
     productId: p.id,
-    name: p.name,
+    name: displayName,
     brand: p.brand,
     brandByStore,
     image: p.image,

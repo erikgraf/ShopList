@@ -166,6 +166,92 @@ export function matchItemKey(name: string): string | null {
   return null;
 }
 
+/**
+ * Display labels for each STORE_BRAND_MAP key. Used to clean up wordy
+ * Open-Food-Facts product names into a single generic noun on the item row.
+ * Example: `Kamill Hand- & Nagelcreme classic` becomes `Handcreme` because
+ * `matchItemKey` resolves to `handcreme` and `KEY_LABELS.handcreme` is
+ * `"Handcreme"`. The brand stays separately on the right.
+ */
+export const KEY_LABELS: Record<string, string> = {
+  handcreme: 'Handcreme',
+  bodylotion: 'Bodylotion',
+  gesichtscreme: 'Gesichtscreme',
+  sonnencreme: 'Sonnencreme',
+  trockenshampoo: 'Trockenshampoo',
+  shampoo: 'Shampoo',
+  spuelung: 'Spülung',
+  duschgel: 'Duschgel',
+  zahnpasta: 'Zahnpasta',
+  zahnbuerste: 'Zahnbürste',
+  mundwasser: 'Mundwasser',
+  deo: 'Deo',
+  rasierschaum: 'Rasierschaum',
+  rasierer: 'Rasierer',
+  seife: 'Seife',
+  damenbinde: 'Damenbinden',
+  tampons: 'Tampons',
+  taschentuecher: 'Taschentücher',
+  windel: 'Windeln',
+  waschmittel: 'Waschmittel',
+  weichspueler: 'Weichspüler',
+  spuelmittel: 'Spülmittel',
+  spuelmaschinentabs: 'Spülmaschinentabs',
+  allzweckreiniger: 'Allzweckreiniger',
+  badreiniger: 'Badreiniger',
+  glasreiniger: 'Glasreiniger',
+  wcreiniger: 'WC-Reiniger',
+  toilettenpapier: 'Toilettenpapier',
+  klopapier: 'Klopapier',
+  kuechenrolle: 'Küchenrolle',
+  muellbeutel: 'Müllbeutel',
+  alufolie: 'Alufolie',
+  backpapier: 'Backpapier',
+  milch: 'Milch',
+  butter: 'Butter',
+  joghurt: 'Joghurt',
+  kaese: 'Käse',
+  sahne: 'Sahne',
+  quark: 'Quark',
+  eier: 'Eier',
+  broetchen: 'Brötchen',
+  brot: 'Brot',
+  toast: 'Toast',
+  mehl: 'Mehl',
+  zucker: 'Zucker',
+  reis: 'Reis',
+  nudeln: 'Nudeln',
+  olivenoel: 'Olivenöl',
+  essig: 'Essig',
+  schokolade: 'Schokolade',
+  kekse: 'Kekse',
+  chips: 'Chips',
+  gummibaerchen: 'Gummibärchen',
+  marmelade: 'Marmelade',
+  honig: 'Honig',
+  kaffee: 'Kaffee',
+  tee: 'Tee',
+  saft: 'Saft',
+  wasser: 'Wasser',
+  mineralwasser: 'Mineralwasser',
+  cola: 'Cola',
+  limonade: 'Limonade',
+  bier: 'Bier',
+  wein: 'Wein',
+};
+
+/**
+ * Return a clean generic name if the raw product name matches a known
+ * category key, otherwise return the raw name unchanged. Only called from
+ * the barcode-scan add path — typed-or-searched items keep their literal
+ * name because the user typed exactly what they wanted.
+ */
+export function genericName(rawName: string): string {
+  const key = matchItemKey(rawName);
+  if (key && KEY_LABELS[key]) return KEY_LABELS[key];
+  return rawName;
+}
+
 export interface Preferences {
   preferBio: boolean;
 }
