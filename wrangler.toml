@@ -19,5 +19,8 @@ pages_build_output_dir = "./dist"
 
 [[kv_namespaces]]
 binding = "SHARED_LISTS"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+id = "ea14cba7a27d4038b18023667ea6a1db"
+# Re-use the same namespace for preview deployments. Solo dev — no need to
+# isolate preview data. Replace with a separate id later if you ever want
+# preview deploys to have their own KV state.
+preview_id = "ea14cba7a27d4038b18023667ea6a1db"
