@@ -119,6 +119,33 @@ class ShopListDB extends Dexie {
             row.stores = availableStores(row.name, fallback);
           });
       });
+
+    // v6: fix a bug in the v5 backfill. v5 kept whatever narrow `stores`
+    // a row already had as the fallback, which preserved bad add-time
+    // data — "Bananen" with stores=['rewe'] stayed narrow because no
+    // STORE_BRAND_MAP entry exists under any banana key to broaden it.
+    // Now we seed from defaultStoresForCategory (the per-category floor:
+    // any grocery item appears at every grocery chain, any drugstore
+    // item at both drugstores plus Rewe/Edeka, etc.) and then union in
+    // anything extra the row already had. Schema identical to v5.
+    this.version(6)
+      .stores({
+        items: 'id, position, addedAt, listId, updatedAt',
+        recent: 'id, lastUsedAt, useCount',
+        lists: 'id, position, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table('items')
+          .toCollection()
+          .modify((row) => {
+            const existing = Array.isArray(row.stores) ? row.stores : [];
+            const fallback = Array.from(
+              new Set([...defaultStoresForCategory(row.category), ...existing]),
+            );
+            row.stores = availableStores(row.name, fallback);
+          });
+      });
   }
 }
 

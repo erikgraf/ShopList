@@ -197,12 +197,17 @@ export async function addItemFromProduct(
   // items keep their literal name because the user already chose it.
   const displayName = p.barcode ? genericName(p.name) : p.name;
 
-  // Stores the item could be bought at: start from the product's own
-  // claim (or the category default) and union in every chain that has a
-  // STORE_BRAND_MAP entry for this generic name. "Handcreme" then shows
-  // up under both Aldi (with Lacura) and DM (with Balea) filters even
-  // though the user only scanned the Kamill variant once.
-  const baseStores = p.stores && p.stores.length ? p.stores : defaultStoresForCategory(p.category);
+  // Stores the item could be bought at: always seed from the category
+  // default (every chain that carries products in this category), then
+  // union in whatever the product blob claimed and every chain that has
+  // a STORE_BRAND_MAP entry for this generic name. Seeding from the
+  // category default — rather than from p.stores — keeps generic items
+  // like "Bananen" visible under every grocery filter (Aldi, Lidl, Rewe,
+  // Edeka) even when a particular product blob's `stores` field happened
+  // to be narrow or empty.
+  const baseStores = Array.from(
+    new Set([...defaultStoresForCategory(p.category), ...(p.stores ?? [])]),
+  );
   const stores = availableStores(displayName, baseStores);
 
   const dup = open.find(
