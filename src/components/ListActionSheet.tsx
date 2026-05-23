@@ -19,7 +19,7 @@ interface Props {
   onClose: () => void;
 }
 
-type Mode = 'menu' | 'rename' | 'delete' | 'share-fallback';
+type Mode = 'menu' | 'rename' | 'delete' | 'share';
 
 const SYNC_LABEL_FORMATTER = new Intl.RelativeTimeFormat('de', { numeric: 'auto' });
 
@@ -39,10 +39,13 @@ export function ListActionSheet({ list, onClose }: Props) {
   const [mode, setMode] = useState<Mode>('menu');
   const [name, setName] = useState(list.name);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [copyHint, setCopyHint] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isDefault = list.id === DEFAULT_LIST_ID;
   const isShared = !!list.cloud;
+  const canNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -62,41 +65,51 @@ export function ListActionSheet({ list, onClose }: Props) {
     setError(null);
     try {
       const { url } = await enableSharing(list.id);
-      const payload = {
-        title: list.name,
-        text: `Teile „${list.name}" mit mir`,
-        url,
-      };
-      // Web Share API where available — iOS Safari + Chrome Android pop the
-      // native share sheet (WhatsApp / iMessage / Mail / AirDrop / …).
-      if (typeof navigator.share === 'function') {
-        try {
-          await navigator.share(payload);
-          onClose();
-          return;
-        } catch (e) {
-          // User dismissed the share sheet — that's fine, just close.
-          if ((e as Error)?.name === 'AbortError') {
-            onClose();
-            return;
-          }
-          // Some browsers throw NotAllowedError when called from a non-user
-          // gesture context; fall through to the copy fallback.
-        }
-      }
-      // Fallback: copy to clipboard and show the URL with a "Kopieren"
-      // button so the user can paste it themselves.
-      try {
-        await navigator.clipboard.writeText(url);
-      } catch {
-        // ignore — we still show the URL in the sheet for manual copy
-      }
       setShareUrl(url);
-      setMode('share-fallback');
+      // Lazy-load qrcode so the ~12 KB gzip payload only downloads when
+      // the user actually opens the share flow.
+      const { default: QRCode } = await import('qrcode');
+      const dataUrl = await QRCode.toDataURL(url, {
+        width: 320,
+        margin: 1,
+        errorCorrectionLevel: 'M',
+        color: { dark: '#1f2937', light: '#ffffff' },
+      });
+      setQrDataUrl(dataUrl);
+      setMode('share');
     } catch (e) {
       setError((e as Error)?.message ?? 'Teilen fehlgeschlagen');
     } finally {
       setBusy(false);
+    }
+  };
+
+  const runNativeShare = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.share({
+        title: list.name,
+        text: `Teile „${list.name}" mit mir`,
+        url: shareUrl,
+      });
+      onClose();
+    } catch (e) {
+      // AbortError = user dismissed the OS sheet — leave our sheet open
+      // so they can try a different method. Other errors: same behaviour.
+      if ((e as Error)?.name !== 'AbortError') {
+        // No-op; could surface but the UI still shows QR + copy options.
+      }
+    }
+  };
+
+  const runCopy = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopyHint(true);
+      setTimeout(() => setCopyHint(false), 1500);
+    } catch {
+      // No-op — URL is visible in the sheet for manual select-and-copy.
     }
   };
 
@@ -251,37 +264,46 @@ export function ListActionSheet({ list, onClose }: Props) {
           </div>
         )}
 
-        {mode === 'share-fallback' && shareUrl && (
-          <div className="space-y-3 p-4">
-            <p className="text-sm text-[var(--color-text)]">
-              Hier ist die Teil-URL. Schicke sie an deinen Partner per WhatsApp,
-              Mail oder Kopier-Einfügen.
+        {mode === 'share' && shareUrl && qrDataUrl && (
+          <div className="space-y-4 p-4">
+            <p className="text-center text-sm text-[var(--color-text)]">
+              Lass deinen Partner den Code scannen — oder schicke die URL
+              direkt per Nachricht.
             </p>
-            <div className="rounded-2xl bg-[var(--color-surface-2)] px-4 py-3 text-xs text-[var(--color-text)] break-all">
+            <div className="mx-auto flex h-64 w-64 items-center justify-center rounded-2xl bg-white p-3 shadow-sm">
+              <img src={qrDataUrl} alt="QR-Code" className="h-full w-full" />
+            </div>
+            <div
+              className="rounded-2xl bg-[var(--color-surface-2)] px-4 py-2.5 text-center text-[11px] text-[var(--color-muted-strong)] break-all"
+              aria-label="Teil-URL"
+            >
               {shareUrl}
             </div>
-            <div className="flex gap-2">
+            <div className={canNativeShare ? 'grid grid-cols-2 gap-2' : 'space-y-2'}>
               <button
                 type="button"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(shareUrl);
-                  } catch {
-                    // No-op — URL is visible above for manual selection.
-                  }
-                }}
-                className="flex-1 rounded-full bg-[var(--color-surface-2)] px-4 py-3 text-sm font-medium text-[var(--color-text)]"
+                onClick={runCopy}
+                className="rounded-full bg-[var(--color-surface-2)] px-4 py-3 text-sm font-medium text-[var(--color-text)] active:bg-[var(--color-border)] transition-press"
               >
-                Erneut kopieren
+                {copyHint ? '✓ Kopiert' : 'URL kopieren'}
               </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 rounded-full bg-[var(--color-accent)] px-4 py-3 text-sm font-semibold text-white"
-              >
-                Fertig
-              </button>
+              {canNativeShare && (
+                <button
+                  type="button"
+                  onClick={runNativeShare}
+                  className="rounded-full bg-[var(--color-accent)] px-4 py-3 text-sm font-semibold text-white active:opacity-90 transition-press"
+                >
+                  Per Nachricht
+                </button>
+              )}
             </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full pt-1 text-sm text-[var(--color-muted)] active:text-[var(--color-text)]"
+            >
+              Fertig
+            </button>
           </div>
         )}
       </div>
