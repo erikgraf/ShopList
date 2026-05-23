@@ -115,15 +115,15 @@ export function ListActionSheet({ list, onClose }: Props) {
 
   /**
    * WhatsApp deep-link via wa.me — works on phones (opens the app with the
-   * message pre-filled) AND on desktops (opens WhatsApp Web). Universal
-   * fallback for sharing without depending on the Web Share API.
+   * message pre-filled) AND on desktops (opens WhatsApp Web). Built as a
+   * real anchor href in the JSX rather than `window.open`, because Safari
+   * and installed iOS PWAs silently block `window.open` calls that aren't
+   * inside a tightly-coupled click handler.
    */
-  const runWhatsApp = () => {
-    if (!shareUrl) return;
-    const text = `Teile „${list.name}" mit mir: ${shareUrl}`;
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  const whatsappHref =
+    shareUrl
+      ? `https://wa.me/?text=${encodeURIComponent(`Teile „${list.name}" mit mir: ${shareUrl}`)}`
+      : null;
 
   const runRename = async () => {
     const trimmed = name.trim();
@@ -292,14 +292,17 @@ export function ListActionSheet({ list, onClose }: Props) {
               {shareUrl}
             </div>
             <div className={canNativeShare ? 'grid grid-cols-2 gap-2' : 'space-y-2'}>
-              <button
-                type="button"
-                onClick={runWhatsApp}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white active:opacity-90 transition-press"
-              >
-                <WhatsAppIcon />
-                Per WhatsApp
-              </button>
+              {whatsappHref && (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white active:opacity-90 transition-press"
+                >
+                  <WhatsAppIcon />
+                  Per WhatsApp
+                </a>
+              )}
               {canNativeShare && (
                 <button
                   type="button"
