@@ -159,12 +159,13 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew, onLon
               style={{ scrollSnapAlign: 'center', scrollSnapStop: 'always' }}
             >
               <span
-                className={
+                className={`inline-flex items-baseline gap-1.5 ${
                   active
                     ? 'text-2xl font-semibold tracking-tight text-[var(--color-text-strong)]'
                     : 'text-base text-[var(--color-muted)]'
-                }
+                }`}
               >
+                <ShareIndicator shared={!!l.cloud} active={active} />
                 {l.name}
               </span>
             </button>
@@ -181,5 +182,35 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew, onLon
         <div className="shrink-0" style={{ minWidth: '50vw' }} aria-hidden />
       </div>
     </div>
+  );
+}
+
+/**
+ * Tiny visual cue next to each list title in the wheel: greyish when the
+ * list is local-only, accent-green when it's been shared via the cloud
+ * sync. Sits inline-baseline so it doesn't push the title around. Purely
+ * decorative — sharing is still triggered through the long-press action
+ * sheet on the title.
+ */
+function ShareIndicator({ shared, active }: { shared: boolean; active: boolean }) {
+  const size = active ? 16 : 12;
+  const color = shared ? 'var(--color-accent)' : 'var(--color-muted)';
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-label={shared ? 'Geteilt' : 'Nicht geteilt'}
+      style={{ flexShrink: 0, alignSelf: 'center' }}
+    >
+      <path d="M12 3v13" />
+      <path d="m8 7 4-4 4 4" />
+      <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
+    </svg>
   );
 }
