@@ -77,9 +77,12 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
         }`}
         style={{ boxShadow: 'var(--shadow-sm)' }}
       >
-        {/* Top row: check + category icon on the left, qty pill on the right */}
+        {/* Top row: check + category icon (+ optional product thumbnail) on
+            the left, qty pill aligned to the right edge. The product image,
+            when one exists, sits as a small tile next to the category icon
+            so the row reads "[category] [brand-product]" at a glance. */}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 items-center gap-1.5">
             <button
               type="button"
               onClick={() => toggleChecked(item.id)}
@@ -97,6 +100,17 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
               )}
             </button>
             <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={40} />
+            {hasBrandWithImage && item.image && (
+              <img
+                src={item.image}
+                alt=""
+                className="h-8 w-8 shrink-0 rounded-xl object-cover"
+                style={{ background: '#f1ede4' }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
           </div>
           <button
             type="button"
@@ -122,25 +136,12 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
             type="button"
             onClick={() => setBrandOpen(true)}
             aria-label="Marke wählen"
-            className={`mt-1.5 inline-flex max-w-full items-center gap-1 rounded-full bg-[var(--color-surface-2)] py-1 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
-              hasBrandWithImage ? 'pl-1 pr-2' : 'px-2.5'
-            } ${
+            className={`mt-1.5 inline-flex max-w-full items-center gap-1 rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
               displaySuggested
                 ? 'italic text-[var(--color-muted)]'
                 : 'text-[var(--color-muted-strong)]'
             }`}
           >
-            {hasBrandWithImage && item.image && (
-              <img
-                src={item.image}
-                alt=""
-                className="h-4 w-4 shrink-0 rounded-full object-cover"
-                style={{ background: '#f1ede4' }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            )}
             <span className="truncate">{displayBrand ?? 'Marke'}</span>
             <svg
               width="10"
