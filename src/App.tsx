@@ -90,13 +90,36 @@ export default function App() {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       <header className="safe-top sticky top-0 z-20 space-y-3 bg-[var(--color-bg)]/90 px-4 pt-4 pb-3 backdrop-blur-md">
-        <ListSwitcher
-          lists={lists}
-          activeListId={activeListId}
-          onSwitch={setActiveListId}
-          onCreateNew={() => setNewListOpen(true)}
-          onLongPress={setActionListId}
-        />
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <ListSwitcher
+              lists={lists}
+              activeListId={activeListId}
+              onSwitch={setActiveListId}
+              onLongPress={setActionListId}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setNewListOpen(true)}
+            aria-label="Neue Liste"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-white active:opacity-90 transition-press"
+            style={{ boxShadow: 'var(--shadow-md)' }}
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+            >
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+          </button>
+        </div>
         <div className="text-center text-xs font-medium text-[var(--color-muted)]">
           {open.length} offen{done.length > 0 ? ` · ${done.length} erledigt` : ''}
         </div>

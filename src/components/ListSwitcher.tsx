@@ -5,9 +5,10 @@ interface Props {
   lists: ShopList[];
   activeListId: string;
   onSwitch: (id: string) => void;
-  onCreateNew: () => void;
   /** Tap-and-hold a list title for ~500 ms to open its action sheet
-   *  (Umbenennen / Teilen / Löschen). Optional. */
+   *  (Umbenennen / Teilen / Löschen). Tapping the active title also fires
+   *  this, since the inline "Neue Liste" entry was moved to a dedicated
+   *  button outside the wheel. Optional. */
   onLongPress?: (id: string) => void;
 }
 
@@ -24,7 +25,7 @@ const LONG_PRESS_MOVE_TOLERANCE = 8;
  * Spacers at start and end let the first/last list center properly even though
  * the snap container is wider than the viewport.
  */
-export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew, onLongPress }: Props) {
+export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
   const lastReportedRef = useRef<string>(activeListId);
@@ -120,7 +121,9 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew, onLon
       return;
     }
     if (id === activeListId) {
-      onCreateNew();
+      // Tap on the active title opens its action sheet. New-list creation
+      // moved to a dedicated big-plus button outside the wheel.
+      onLongPress?.(id);
     } else {
       onSwitch(id);
     }
@@ -184,14 +187,6 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew, onLon
             </div>
           );
         })}
-        <button
-          type="button"
-          onClick={onCreateNew}
-          className="shrink-0 whitespace-nowrap py-1 text-base text-[var(--color-accent)]"
-          style={{ scrollSnapAlign: 'center' }}
-        >
-          + Neue Liste
-        </button>
         <div className="shrink-0" style={{ minWidth: '50vw' }} aria-hidden />
       </div>
     </div>
