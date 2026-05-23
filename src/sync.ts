@@ -26,7 +26,7 @@ import type { Item, ShopList } from './types';
  */
 
 const API_BASE = '/api/sync';
-const POLL_INTERVAL_MS = 5_000;
+const POLL_INTERVAL_MS = 20_000;
 const PUSH_DEBOUNCE_MS = 600;
 
 interface SyncedList {
