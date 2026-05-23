@@ -161,8 +161,18 @@ export function SearchBar({
           ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          // Some Android IMEs (GBoard predictive, Samsung keyboard) batch
+          // keystrokes through composition events and suppress `onChange`
+          // until composition ends. Mirror the value here so the dropdown
+          // populates even when the user hasn't tapped space yet.
+          onCompositionEnd={(e) => setQuery((e.target as HTMLInputElement).value)}
           onFocus={() => setFocused(true)}
-          onBlur={() => setTimeout(() => setFocused(false), 150)}
+          // 250 ms (was 150) gives Android's touch→click sequence enough
+          // room to register before the dropdown unmounts. The suggestion
+          // buttons also call preventDefault on pointerdown so focus is
+          // usually kept anyway; this is the belt-and-suspenders branch
+          // for slow devices and back-button-induced blurs.
+          onBlur={() => setTimeout(() => setFocused(false), 250)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
@@ -173,6 +183,11 @@ export function SearchBar({
           className="flex-1 py-2 text-base"
           enterKeyHint="done"
           autoCorrect="off"
+          // Android Chrome ignores autoCorrect; autoComplete=off + spellCheck=false
+          // are the equivalents that actually stop the keyboard from overlaying
+          // its own predictive-text strip on top of our suggestion dropdown.
+          autoComplete="off"
+          spellCheck={false}
           autoCapitalize="sentences"
           lang="de"
         />
@@ -218,7 +233,7 @@ export function SearchBar({
             <div className="overflow-x-auto border-b border-[var(--color-surface-2)]">
               <div
                 className="flex gap-1.5 px-3 py-2"
-                onMouseDown={(e) => e.preventDefault()}
+                onPointerDown={(e) => e.preventDefault()}
               >
                 <CategoryChip
                   active={selectedCategory === null}
@@ -244,7 +259,7 @@ export function SearchBar({
           {filteredSuggestions.length === 0 && !loading && (
             <button
               type="button"
-              onMouseDown={(e) => e.preventDefault()}
+              onPointerDown={(e) => e.preventDefault()}
               onClick={addLiteral}
               className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-[var(--color-surface-2)]"
             >
@@ -261,9 +276,17 @@ export function SearchBar({
           <ul className="max-h-[60vh] overflow-y-auto">
             {filteredSuggestions.map((s) => (
               <li key={`${s.source}:${s.id}`}>
+                {/* `onPointerDown` + preventDefault stops the input from
+                 *  losing focus when the user taps a suggestion. Using
+                 *  `onMouseDown` here (the previous approach) only worked
+                 *  on desktop — Android dispatches mouse events AFTER
+                 *  touch + click resolve, so by the time preventDefault
+                 *  ran, the input had already blurred and the dropdown
+                 *  had unmounted, eating the tap. Pointer events fire
+                 *  early on touch and cover both worlds. */}
                 <button
                   type="button"
-                  onMouseDown={(e) => e.preventDefault()}
+                  onPointerDown={(e) => e.preventDefault()}
                   onClick={() => pick(s)}
                   className="flex w-full items-center gap-3 px-3 py-2.5 text-left active:bg-[var(--color-surface-2)]"
                 >
@@ -299,7 +322,7 @@ function CategoryChip({
     <button
       type="button"
       onClick={onClick}
-      onMouseDown={(e) => e.preventDefault()}
+      onPointerDown={(e) => e.preventDefault()}
       className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-press ${
         active
           ? 'bg-[var(--color-accent)] text-white'
