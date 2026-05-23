@@ -221,6 +221,11 @@ const applyingRemote = new Set<string>();
 const pushTimers = new Map<string, number>();
 /** Per-list in-flight push lock so concurrent emitChange ticks don't stampede. */
 const pushing = new Set<string>();
+/** Per-list serialized body of the last *successful* push. Lets pushList
+ *  short-circuit when the would-be-sent state is byte-identical to what's
+ *  already on the server — no KV write, no round-trip. Crucial backstop
+ *  against bugs that accidentally trigger pushes of unchanged state. */
+const lastPushedBody = new Map<string, string>();
 
 async function applyRemote(localListId: string, blob: Blob): Promise<void> {
   applyingRemote.add(localListId);
@@ -265,12 +270,20 @@ async function pushList(localListId: string): Promise<void> {
       list: { id: list.cloud.id, name: list.name, updatedAt: list.updatedAt },
       items: stripListId(items),
     };
+    const serialized = JSON.stringify(body);
+    if (lastPushedBody.get(localListId) === serialized) {
+      // Nothing actually changed since our last push — skip the round-trip
+      // and the KV write. Cheap defence against bugs that wake the push
+      // path without real local mutations.
+      return;
+    }
     const res = await fetch(`${API_BASE}/${list.cloud.id}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
+      body: serialized,
     });
     if (!res.ok) return;
+    lastPushedBody.set(localListId, serialized);
     const merged = (await res.json()) as Blob;
     await applyRemote(localListId, merged);
   } catch {
@@ -319,10 +332,19 @@ export function startSyncLoop(): () => void {
   void tick();
 
   unsubscribe = onChange(() => {
+    // Snapshot the set synchronously, **before** any await. emitChange()
+    // fires while we're still inside applyRemote()'s try-block (so the
+    // intended "don't push back what we just pulled" gating is set), but
+    // the check below sits after an awaited `db.lists.toArray()` — by then
+    // applyRemote's finally has cleared the flag and the check would
+    // wrongly schedule a push. Capturing the snapshot up-front pins the
+    // state to the moment of the emit and breaks the pull→push storm
+    // that was burning ~720 KV writes/hour on the free tier.
+    const skipIds = new Set(applyingRemote);
     void (async () => {
       const lists = await db.lists.toArray();
       for (const l of lists) {
-        if (l.cloud && !applyingRemote.has(l.id)) schedulePush(l.id);
+        if (l.cloud && !skipIds.has(l.id)) schedulePush(l.id);
       }
     })();
   });
