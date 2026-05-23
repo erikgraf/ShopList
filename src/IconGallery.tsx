@@ -141,32 +141,6 @@ export function IconGallery() {
     };
   }, []);
 
-  const filt = (names: string[]) =>
-    q ? names.filter((n) => n.toLowerCase().includes(q.toLowerCase())) : names;
-
-  const Section = ({ title, names, tone }: { title: string; names: string[]; tone?: string }) => {
-    const shown = filt(names);
-    if (shown.length === 0) return null;
-    return (
-      <section style={{ marginTop: 28 }}>
-        <h2 style={{ fontSize: 15, fontWeight: 600, color: tone ?? '#2d2a24', margin: '0 0 12px' }}>
-          {title} <span style={{ opacity: 0.5, fontWeight: 400 }}>({shown.length})</span>
-        </h2>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-            gap: 10,
-          }}
-        >
-          {shown.map((n) => (
-            <Cell key={n} name={n} />
-          ))}
-        </div>
-      </section>
-    );
-  };
-
   return (
     <div
       style={{
@@ -196,9 +170,44 @@ export function IconGallery() {
           borderRadius: 10,
         }}
       />
-      <Section title="Line only — doodle missing" names={lineOnly} tone="#c8412e" />
-      <Section title="Doodle only — line missing" names={doodleOnly} tone="#c8412e" />
-      <Section title="Both styles" names={both} />
+      <Section title="Line only — doodle missing" names={lineOnly} query={q} tone="#c8412e" />
+      <Section title="Doodle only — line missing" names={doodleOnly} query={q} tone="#c8412e" />
+      <Section title="Both styles" names={both} query={q} />
     </div>
+  );
+}
+
+function Section({
+  title,
+  names,
+  query,
+  tone,
+}: {
+  title: string;
+  names: string[];
+  query: string;
+  tone?: string;
+}) {
+  const shown = query
+    ? names.filter((n) => n.toLowerCase().includes(query.toLowerCase()))
+    : names;
+  if (shown.length === 0) return null;
+  return (
+    <section style={{ marginTop: 28 }}>
+      <h2 style={{ fontSize: 15, fontWeight: 600, color: tone ?? '#2d2a24', margin: '0 0 12px' }}>
+        {title} <span style={{ opacity: 0.5, fontWeight: 400 }}>({shown.length})</span>
+      </h2>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+          gap: 10,
+        }}
+      >
+        {shown.map((n) => (
+          <Cell key={n} name={n} />
+        ))}
+      </div>
+    </section>
   );
 }
