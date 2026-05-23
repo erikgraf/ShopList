@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import './index.css';
 import App from './App.tsx';
+import { IconGallery } from './IconGallery.tsx';
 import { warmSnapshot } from './snapshot';
 
 if (import.meta.env.PROD) {
@@ -28,8 +29,17 @@ if (import.meta.env.PROD) {
 
 warmSnapshot();
 
+// Unlinked icon-review surface: open `#icons` to render every icon in both
+// styles. Kept out of the app's own routing so it ships harmlessly but
+// stays discoverable for review on any device.
+const isIconGallery = location.hash === '#icons';
+
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+  <StrictMode>{isIconGallery ? <IconGallery /> : <App />}</StrictMode>,
 );
+
+// Reload when toggling the #icons hash on/off so the root swaps cleanly
+// (the gallery vs. app choice is read once at mount).
+window.addEventListener('hashchange', () => {
+  if ((location.hash === '#icons') !== isIconGallery) location.reload();
+});
