@@ -327,16 +327,53 @@ export async function toggleChecked(id: string): Promise<void> {
   emitChange();
 }
 
+/**
+ * Soft-delete on shared lists, hard-delete on local-only lists.
+ *
+ * The sync push payload is built from `db.items.where(listId).toArray()`,
+ * so a hard delete on a *shared* list makes the row vanish from the
+ * payload entirely. The server's LWW merge only updates items that appear
+ * in `incoming.items`; items absent from the payload stay alive on the
+ * server. The next pull then re-creates them locally — zombie items.
+ *
+ * Writing a tombstone (`deletedAt` + bumped `updatedAt`) means the
+ * deletion *appears* in the next push payload, server LWW takes it (newer
+ * `updatedAt` wins), peers pull the tombstone and hard-delete their copy.
+ * `applyRemote` finally hard-deletes our local tombstone once the server
+ * has TTL-pruned it (30 days), so Dexie doesn't accumulate ghosts.
+ *
+ * Local-only lists don't need this dance — no peers, no resurrection
+ * vector — so we still hard-delete to keep IndexedDB lean.
+ */
 export async function deleteItem(id: string): Promise<void> {
-  await db.items.delete(id);
+  const item = await db.items.get(id);
+  if (!item) return;
+  const list = await db.lists.get(item.listId);
+  if (list?.cloud) {
+    const now = Date.now();
+    await db.items.update(id, { deletedAt: now, updatedAt: now });
+  } else {
+    await db.items.delete(id);
+  }
   emitChange();
 }
 
 export async function clearChecked(): Promise<void> {
   const activeList = getActiveListId();
+  const list = await db.lists.get(activeList);
   const all = await db.items.where('listId').equals(activeList).toArray();
-  const ids = all.filter((it) => it.checked).map((it) => it.id);
-  await db.items.bulkDelete(ids);
+  const checkedIds = all.filter((it) => it.checked).map((it) => it.id);
+  if (checkedIds.length === 0) return;
+  if (list?.cloud) {
+    // Tombstone each checked item with a fresh updatedAt so the LWW merge
+    // on the server accepts them. See deleteItem above for the full rationale.
+    const now = Date.now();
+    await Promise.all(
+      checkedIds.map((id) => db.items.update(id, { deletedAt: now, updatedAt: now })),
+    );
+  } else {
+    await db.items.bulkDelete(checkedIds);
+  }
   emitChange();
 }
 
@@ -352,13 +389,18 @@ export function useItems(): Item[] {
       const activeList = getActiveListId();
       const all = await db.items.where('listId').equals(activeList).toArray();
       if (!alive) return;
-      all.sort(
+      // Strip tombstones (rows with `deletedAt` set). On shared lists,
+      // deleteItem now soft-deletes so the deletion can sync to peers;
+      // those rows linger in Dexie until the server TTL-prunes them and
+      // applyRemote hard-deletes locally. They must never reach the UI.
+      const visible = all.filter((it) => !it.deletedAt);
+      visible.sort(
         (a, b) =>
           Number(a.checked) - Number(b.checked) ||
           a.position - b.position ||
           a.addedAt - b.addedAt,
       );
-      setItems(all);
+      setItems(visible);
     };
     refresh();
     return onChange(refresh);
