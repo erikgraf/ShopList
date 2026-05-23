@@ -115,7 +115,7 @@ export default function App() {
         {grouped.map(([category, rows], i) => (
           <section key={category} className={i === 0 ? '' : 'mt-5'}>
             <CategoryHeader category={category} count={rows.length} />
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               {rows.map((it) => (
                 <ItemRow key={it.id} item={it} activeStores={[...filter.stores]} />
               ))}
@@ -137,7 +137,7 @@ export default function App() {
                 Alle entfernen
               </button>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               {done.map((it) => (
                 <ItemRow key={it.id} item={it} activeStores={[...filter.stores]} />
               ))}

@@ -71,85 +71,89 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
 
   return (
     <>
-      <div className={`flex items-center gap-2 transition-opacity ${item.checked ? 'opacity-55' : ''}`}>
-        <button
-          type="button"
-          onClick={() => toggleChecked(item.id)}
-          aria-label={item.checked ? 'Wieder hinzufügen' : 'Erledigt'}
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-press ${
-            item.checked
-              ? 'border-[var(--color-success)] bg-[var(--color-success)] text-white'
-              : 'border-[var(--color-border-strong)] bg-transparent active:bg-[var(--color-surface-2)]'
-          }`}
-        >
-          {item.checked && (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-              <path d="m5 12 5 5L20 7" />
-            </svg>
-          )}
-        </button>
-
-        <div
-          className="flex min-h-[76px] min-w-0 flex-1 items-center gap-3 rounded-2xl bg-[var(--color-surface)] px-3 py-3"
-          style={{ boxShadow: 'var(--shadow-sm)' }}
-        >
-          <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={44} />
-
-          <div className="min-w-0 flex-1 flex flex-col gap-1.5">
-            <div
-              className={`truncate text-[15px] font-medium leading-tight ${
-                item.checked ? 'line-through' : ''
-              } text-[var(--color-text)]`}
+      <div
+        className={`flex min-h-[124px] min-w-0 flex-col gap-2.5 rounded-2xl bg-[var(--color-surface)] px-3 py-3 transition-opacity ${
+          item.checked ? 'opacity-55' : ''
+        }`}
+        style={{ boxShadow: 'var(--shadow-sm)' }}
+      >
+        {/* Top row: check + category icon on the left, qty pill on the right */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => toggleChecked(item.id)}
+              aria-label={item.checked ? 'Wieder hinzufügen' : 'Erledigt'}
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-press ${
+                item.checked
+                  ? 'border-[var(--color-success)] bg-[var(--color-success)] text-white'
+                  : 'border-[var(--color-border-strong)] bg-transparent active:bg-[var(--color-surface-2)]'
+              }`}
             >
-              {item.name}
-            </div>
-            <div className="flex min-w-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setQtyOpen(true)}
-                aria-label="Menge ändern"
-                className="shrink-0 inline-flex items-center rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--color-text)] active:bg-[var(--color-border)] transition-press"
-              >
-                ×{item.quantity}
-              </button>
-              <button
-                type="button"
-                onClick={() => setBrandOpen(true)}
-                aria-label="Marke wählen"
-                className={`min-w-0 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-surface-2)] py-1 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
-                  hasBrandWithImage ? 'pl-1 pr-2' : 'px-2.5'
-                } ${
-                  displaySuggested
-                    ? 'italic text-[var(--color-muted)]'
-                    : 'text-[var(--color-muted-strong)]'
-                }`}
-              >
-                {hasBrandWithImage && item.image && (
-                  <img
-                    src={item.image}
-                    alt=""
-                    className="h-5 w-5 shrink-0 rounded-full object-cover"
-                    style={{ background: '#f1ede4' }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                )}
-                <span className="truncate">{displayBrand ?? 'Marke'}</span>
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  className="shrink-0"
-                >
-                  <path d="m6 9 6 6 6-6" />
+              {item.checked && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path d="m5 12 5 5L20 7" />
                 </svg>
-              </button>
-            </div>
+              )}
+            </button>
+            <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={40} />
           </div>
+          <button
+            type="button"
+            onClick={() => setQtyOpen(true)}
+            aria-label="Menge ändern"
+            className="shrink-0 inline-flex items-center rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--color-text)] active:bg-[var(--color-border)] transition-press"
+          >
+            ×{item.quantity}
+          </button>
+        </div>
+
+        {/* Name + brand stacked below. Name allowed to wrap to 2 lines so
+            German compounds stay legible at half-width. */}
+        <div className="min-w-0">
+          <div
+            className={`text-[14px] font-medium leading-snug line-clamp-2 ${
+              item.checked ? 'line-through' : ''
+            } text-[var(--color-text)]`}
+          >
+            {item.name}
+          </div>
+          <button
+            type="button"
+            onClick={() => setBrandOpen(true)}
+            aria-label="Marke wählen"
+            className={`mt-1.5 inline-flex max-w-full items-center gap-1 rounded-full bg-[var(--color-surface-2)] py-1 text-[11px] font-medium active:bg-[var(--color-border)] transition-press ${
+              hasBrandWithImage ? 'pl-1 pr-2' : 'px-2.5'
+            } ${
+              displaySuggested
+                ? 'italic text-[var(--color-muted)]'
+                : 'text-[var(--color-muted-strong)]'
+            }`}
+          >
+            {hasBrandWithImage && item.image && (
+              <img
+                src={item.image}
+                alt=""
+                className="h-4 w-4 shrink-0 rounded-full object-cover"
+                style={{ background: '#f1ede4' }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            <span className="truncate">{displayBrand ?? 'Marke'}</span>
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              className="shrink-0"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
         </div>
       </div>
 

@@ -187,7 +187,7 @@ export function ShopMode({ activeStores, pinToStore, onClose }: Props) {
               <h3 className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
                 {CATEGORY_LABELS[cat]}
               </h3>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {rows.map((it) => (
                   <ItemRow key={it.id} item={it} activeStores={activeStores} />
                 ))}
@@ -200,7 +200,7 @@ export function ShopMode({ activeStores, pinToStore, onClose }: Props) {
               <h3 className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
                 Erledigt
               </h3>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {done.map((it) => (
                   <ItemRow key={it.id} item={it} activeStores={activeStores} />
                 ))}
