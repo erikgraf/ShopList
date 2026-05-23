@@ -8,12 +8,18 @@ import {
   type Item,
   type RecentProduct,
   type ShopList,
+  type UnknownBarcode,
 } from './types';
 
 class ShopListDB extends Dexie {
   items!: Table<Item, string>;
   recent!: Table<RecentProduct, string>;
   lists!: Table<ShopList, string>;
+  /** Log of barcodes that all OFF sister-DBs didn't recognise. Lets us
+   *  later mine real-world cold-cache misses to grow the snapshot, or
+   *  surface a "report this product" affordance. Append-only from
+   *  Scanner.addUnknown; never read by the main app loop. */
+  unknownBarcodes!: Table<UnknownBarcode, string>;
 
   constructor() {
     super('shoplist');
@@ -146,6 +152,17 @@ class ShopListDB extends Dexie {
             row.stores = availableStores(row.name, fallback);
           });
       });
+
+    // v7: cold-cache barcode log. Schema-additive only — adds the
+    // `unknownBarcodes` table so the Scanner can record codes that
+    // failed every OFF sister-DB lookup. Primary key is the barcode
+    // itself (re-scans bump count + lastSeenAt rather than appending).
+    this.version(7).stores({
+      items: 'id, position, addedAt, listId, updatedAt',
+      recent: 'id, lastUsedAt, useCount',
+      lists: 'id, position, updatedAt',
+      unknownBarcodes: 'barcode, lastSeenAt',
+    });
   }
 }
 

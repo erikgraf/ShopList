@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { listCameras, startScanner, type BarcodeController, type CameraDevice } from '../barcode';
 import { lookupBarcode } from '../openfoodfacts';
 import { lookupBarcodeInSnapshot } from '../snapshot';
-import { addItemFromProduct } from '../store';
+import { addItemFromProduct, logUnknownBarcode } from '../store';
 import type { Store } from '../types';
 
 type Status = 'starting' | 'scanning' | 'looking-up' | 'unknown' | 'error';
@@ -92,16 +92,26 @@ export function Scanner({
       await addItemFromProduct(product, { pinToStore });
       onClose();
     } else {
+      // No hit in the local snapshot or any of the four OFF sister-DBs.
+      // Log the barcode so we can later mine which codes keep coming up
+      // missing (likely catalog-worthy) vs. one-offs. Fire-and-forget —
+      // a failed write shouldn't block the manual-add path.
+      void logUnknownBarcode(code);
       setStatus('unknown');
     }
   };
 
   const addUnknown = async () => {
     if (!lastCode) return;
+    const fallbackName = `Artikel ${lastCode}`;
+    // Re-log on the manual-add path so the row remembers it was actually
+    // added to a list (not just dismissed). The `count` increment helps
+    // later when surfacing "barcodes you've added blind" for cleanup.
+    void logUnknownBarcode(lastCode, fallbackName);
     await addItemFromProduct(
       {
         id: lastCode,
-        name: `Artikel ${lastCode}`,
+        name: fallbackName,
         category: 'sonstiges',
         barcode: lastCode,
       },
