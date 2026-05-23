@@ -69,15 +69,28 @@ export async function enableSharing(
 
   const items = await db.items.where('listId').equals(localListId).toArray();
 
-  const res = await fetch(API_BASE, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      list: { id: '', name: list.name, updatedAt: list.updatedAt },
-      items: stripListId(items),
-    }),
-  });
-  if (!res.ok) throw new Error('Teilen fehlgeschlagen');
+  let res: Response;
+  try {
+    res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        list: { id: '', name: list.name, updatedAt: list.updatedAt },
+        items: stripListId(items),
+      }),
+    });
+  } catch (e) {
+    throw new Error(`Netzwerk-Fehler: ${(e as Error)?.message ?? 'unbekannt'}`);
+  }
+  if (!res.ok) {
+    let detail = '';
+    try {
+      detail = (await res.text()).slice(0, 200);
+    } catch {
+      // ignore
+    }
+    throw new Error(`Teilen fehlgeschlagen (HTTP ${res.status}) — ${detail || 'kein Detail'}`);
+  }
   const { cloudId, blob } = (await res.json()) as { cloudId: string; blob: Blob };
 
   await db.lists.update(localListId, {

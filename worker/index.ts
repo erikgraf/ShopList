@@ -153,36 +153,45 @@ async function handleSync(request: Request, env: Env, url: URL): Promise<Respons
   const path = url.pathname.replace(/^\/api\/sync\/?/, '');
   const cloudId = path.length > 0 ? decodeURIComponent(path.split('/')[0]) : null;
 
-  if (!cloudId) {
-    if (request.method !== 'POST') return plain('method not allowed', 405);
-    const incoming = await readBody(request);
-    const newId = newCloudId();
-    const blob = merge(null, incoming, newId);
-    await env.SHARED_LISTS.put(`list:${newId}`, JSON.stringify(blob));
-    return json({ cloudId: newId, blob });
-  }
+  try {
+    if (!cloudId) {
+      if (request.method !== 'POST') return plain('method not allowed', 405);
+      const incoming = await readBody(request);
+      const newId = newCloudId();
+      const blob = merge(null, incoming, newId);
+      await env.SHARED_LISTS.put(`list:${newId}`, JSON.stringify(blob));
+      return json({ cloudId: newId, blob });
+    }
 
-  if (request.method === 'GET') {
-    const raw = await env.SHARED_LISTS.get(`list:${cloudId}`);
-    if (!raw) return plain('not found', 404);
-    return new Response(raw, { headers: { ...CORS, 'content-type': 'application/json' } });
-  }
+    if (request.method === 'GET') {
+      const raw = await env.SHARED_LISTS.get(`list:${cloudId}`);
+      if (!raw) return plain('not found', 404);
+      return new Response(raw, { headers: { ...CORS, 'content-type': 'application/json' } });
+    }
 
-  if (request.method === 'POST') {
-    const incoming = await readBody(request);
-    const raw = await env.SHARED_LISTS.get(`list:${cloudId}`);
-    const stored: Blob | null = raw ? (JSON.parse(raw) as Blob) : null;
-    const merged = merge(stored, incoming, cloudId);
-    await env.SHARED_LISTS.put(`list:${cloudId}`, JSON.stringify(merged));
-    return json(merged);
-  }
+    if (request.method === 'POST') {
+      const incoming = await readBody(request);
+      const raw = await env.SHARED_LISTS.get(`list:${cloudId}`);
+      const stored: Blob | null = raw ? (JSON.parse(raw) as Blob) : null;
+      const merged = merge(stored, incoming, cloudId);
+      await env.SHARED_LISTS.put(`list:${cloudId}`, JSON.stringify(merged));
+      return json(merged);
+    }
 
-  if (request.method === 'DELETE') {
-    await env.SHARED_LISTS.delete(`list:${cloudId}`);
-    return new Response(null, { status: 204, headers: CORS });
-  }
+    if (request.method === 'DELETE') {
+      await env.SHARED_LISTS.delete(`list:${cloudId}`);
+      return new Response(null, { status: 204, headers: CORS });
+    }
 
-  return plain('method not allowed', 405);
+    return plain('method not allowed', 405);
+  } catch (err) {
+    // Surface the actual exception in the response body so the client can
+    // tell the user *why* sharing failed instead of just "Teilen
+    // fehlgeschlagen". Cloudflare's default 1101 swallows the message.
+    const message = err instanceof Error ? err.message : String(err);
+    const detail = err instanceof Error && err.stack ? err.stack.split('\n')[0] : '';
+    return plain(`worker error: ${message}\n${detail}`, 500);
+  }
 }
 
 export default {

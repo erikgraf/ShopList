@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ShopList } from '../types';
 
 interface Props {
@@ -26,6 +26,7 @@ const LONG_PRESS_MOVE_TOLERANCE = 8;
  */
 export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [hasLeftOverflow, setHasLeftOverflow] = useState(false);
 
   // Render order: non-active lists in their position order, then the active
   // list last. That way the active title sits at the right edge of the strip
@@ -45,8 +46,20 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Pro
     if (!el) return;
     requestAnimationFrame(() => {
       el.scrollLeft = el.scrollWidth - el.clientWidth;
+      setHasLeftOverflow(el.scrollLeft > 8);
     });
   }, [activeListId, ordered.length]);
+
+  // Track whether there's content scrolled off to the left — drives the
+  // fade gradient that hints "there are more lists, swipe right to see".
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => setHasLeftOverflow(el.scrollLeft > 8);
+    el.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [ordered.length]);
 
   // Long-press machinery. Pointer events start a 500 ms timer; if the
   // pointer moves more than 8 px before it fires we cancel — treat that as
@@ -98,13 +111,14 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Pro
   };
 
   return (
-    <div
-      ref={scrollRef}
-      className="-mx-4 overflow-x-auto px-4"
-      style={{ scrollbarWidth: 'none' }}
-    >
-      <div className="flex min-w-full items-baseline justify-end gap-5">
-        {ordered.map((l) => {
+    <div className="relative -mx-4">
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto px-4"
+        style={{ scrollbarWidth: 'none' }}
+      >
+        <div className="flex min-w-full items-baseline justify-end gap-5">
+          {ordered.map((l) => {
           const active = l.id === activeListId;
           return (
             <div
@@ -147,7 +161,20 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Pro
             </div>
           );
         })}
+        </div>
       </div>
+      {/* Fade gradient on the left edge — appears when there are list
+          titles scrolled off to the left. Communicates "swipe right to
+          see more lists" without taking up space when not needed. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-0 w-10 transition-opacity"
+        style={{
+          opacity: hasLeftOverflow ? 1 : 0,
+          background:
+            'linear-gradient(to right, var(--color-bg) 10%, transparent 100%)',
+        }}
+      />
     </div>
   );
 }
