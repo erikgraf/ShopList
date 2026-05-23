@@ -2,59 +2,47 @@ import { useEffect, useRef, useState } from 'react';
 import { setQuantity } from '../store';
 import type { Item } from '../types';
 
+/**
+ * Bottom sheet for editing an item's quantity. Three controls:
+ *  - Preset chips (only when the item declares `sizes`): tap any chip to
+ *    pick that exact quantity and dismiss the sheet — one tap covers
+ *    "Sixpack", "Kasten" etc.
+ *  - Big stepper: −/+ around a hero number. Most everyday quantities are
+ *    1–12 so two or three taps gets there. Holding the button accelerates.
+ *  - Fertig commits the local stepper value; chips commit immediately.
+ *
+ * Replaces the earlier iOS-style scroll-snap wheel — that was accurate but
+ * visually loud and slow to land on a number for a sub-second interaction.
+ */
 interface Props {
   item: Item;
   onClose: () => void;
 }
 
-const ITEM_HEIGHT = 44;
-const VISIBLE_COUNT = 5;
-const MAX = 50;
-const VALUES = Array.from({ length: MAX }, (_, i) => i + 1);
+const MIN = 1;
+const MAX = 999;
+const HOLD_STEP_INITIAL_DELAY_MS = 350;
+const HOLD_STEP_INTERVAL_MS = 80;
 
 export function QuantitySheet({ item, onClose }: Props) {
   const [value, setValue] = useState(item.quantity);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollTimer = useRef<number | undefined>(undefined);
 
-  // Center the initial value on open.
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const idx = Math.max(0, Math.min(MAX - 1, item.quantity - 1));
-    el.scrollTop = idx * ITEM_HEIGHT;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Lock body scroll while sheet is open.
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      if (e.key === 'Enter') void confirm();
+      if (e.key === 'ArrowUp') setValue((v) => Math.min(MAX, v + 1));
+      if (e.key === 'ArrowDown') setValue((v) => Math.max(MIN, v - 1));
     };
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', onKey);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose]);
-
-  const handleScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const idx = Math.round(el.scrollTop / ITEM_HEIGHT);
-    const next = VALUES[Math.max(0, Math.min(MAX - 1, idx))];
-    if (next !== value) setValue(next);
-    // Debounce: snap to nearest after scrolling stops.
-    if (scrollTimer.current) window.clearTimeout(scrollTimer.current);
-    scrollTimer.current = window.setTimeout(() => {
-      const snappedTop = idx * ITEM_HEIGHT;
-      if (Math.abs(el.scrollTop - snappedTop) > 0.5) {
-        el.scrollTo({ top: snappedTop, behavior: 'smooth' });
-      }
-    }, 120);
-  };
 
   const confirm = async () => {
     await setQuantity(item.id, value);
@@ -68,6 +56,7 @@ export function QuantitySheet({ item, onClose }: Props) {
 
   const sizeLabel = (n: number): string | null => {
     if (n === 6) return 'Sixpack';
+    if (n === 12) return 'Zwölfer';
     if (n === 24) return 'Kasten';
     return null;
   };
@@ -84,7 +73,7 @@ export function QuantitySheet({ item, onClose }: Props) {
         className="safe-bottom rounded-t-3xl bg-[var(--color-surface)]"
         style={{ boxShadow: 'var(--shadow-lg)' }}
       >
-        <div className="relative flex items-center justify-between border-b border-[var(--color-surface-2)] px-5 pt-4 pb-3">
+        <div className="relative flex items-center justify-between px-5 pt-4 pb-3">
           <div className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-[var(--color-border-strong)]" />
           <button
             type="button"
@@ -93,9 +82,7 @@ export function QuantitySheet({ item, onClose }: Props) {
           >
             Abbrechen
           </button>
-          <h2 className="pt-2 text-base font-semibold text-[var(--color-text-strong)]">
-            Menge — {item.name}
-          </h2>
+          <h2 className="pt-2 text-base font-semibold text-[var(--color-text-strong)]">Menge</h2>
           <button
             type="button"
             onClick={confirm}
@@ -106,23 +93,34 @@ export function QuantitySheet({ item, onClose }: Props) {
         </div>
 
         {item.sizes && item.sizes.length > 0 && (
-          <div className="border-b border-[var(--color-surface-2)] px-5 pt-3 pb-4">
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+          <div className="px-5 pt-4 pb-2">
+            <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
               Gängige Größen
             </div>
             <div className="flex flex-wrap gap-2">
               {item.sizes.map((n) => {
                 const label = sizeLabel(n);
+                const isActive = value === n;
                 return (
                   <button
                     key={n}
                     type="button"
                     onClick={() => quickPick(n)}
-                    className="flex items-center gap-1.5 rounded-full bg-[var(--color-surface-2)] px-3.5 py-1.5 text-sm font-medium text-[var(--color-text)] active:bg-[var(--color-border)] transition-press"
+                    className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-press ${
+                      isActive
+                        ? 'bg-[var(--color-accent)] text-white'
+                        : 'bg-[var(--color-surface-2)] text-[var(--color-text)] active:bg-[var(--color-border)]'
+                    }`}
                   >
                     <span className="tabular-nums">×{n}</span>
                     {label && (
-                      <span className="text-[11px] text-[var(--color-muted)]">· {label}</span>
+                      <span
+                        className={`text-[11px] ${
+                          isActive ? 'text-white/80' : 'text-[var(--color-muted)]'
+                        }`}
+                      >
+                        · {label}
+                      </span>
                     )}
                   </button>
                 );
@@ -131,59 +129,103 @@ export function QuantitySheet({ item, onClose }: Props) {
           </div>
         )}
 
-        <div className="relative py-4">
-          {/* center band */}
-          <div
-            className="pointer-events-none absolute inset-x-5 top-1/2 -translate-y-1/2 rounded-2xl bg-[var(--color-accent-soft)]"
-            style={{ height: ITEM_HEIGHT }}
-          />
-          {/* fade overlays top + bottom */}
-          <div
-            className="pointer-events-none absolute inset-x-0 top-4 z-10 h-12"
-            style={{
-              background:
-                'linear-gradient(to bottom, var(--color-surface) 0%, transparent 100%)',
-            }}
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-4 z-10 h-12"
-            style={{
-              background:
-                'linear-gradient(to top, var(--color-surface) 0%, transparent 100%)',
-            }}
-          />
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="overflow-y-scroll scroll-smooth"
-            style={{
-              height: ITEM_HEIGHT * VISIBLE_COUNT,
-              scrollSnapType: 'y mandatory',
-              scrollPaddingTop: ITEM_HEIGHT * Math.floor(VISIBLE_COUNT / 2),
-            }}
+        <div className="flex items-center justify-center gap-6 px-5 pt-6 pb-8">
+          <StepperButton
+            ariaLabel="Eins weniger"
+            disabled={value <= MIN}
+            onPress={() => setValue((v) => Math.max(MIN, v - 1))}
           >
-            <div style={{ height: ITEM_HEIGHT * Math.floor(VISIBLE_COUNT / 2) }} />
-            {VALUES.map((n) => (
-              <div
-                key={n}
-                style={{
-                  height: ITEM_HEIGHT,
-                  scrollSnapAlign: 'center',
-                  scrollSnapStop: 'always',
-                }}
-                className={`flex items-center justify-center tabular-nums transition-all ${
-                  value === n
-                    ? 'text-[28px] font-semibold text-[var(--color-accent-strong)]'
-                    : 'text-[18px] text-[var(--color-muted)]'
-                }`}
-              >
-                ×{n}
-              </div>
-            ))}
-            <div style={{ height: ITEM_HEIGHT * Math.floor(VISIBLE_COUNT / 2) }} />
+            <MinusIcon />
+          </StepperButton>
+          <div className="min-w-[7rem] flex flex-col items-center">
+            <div className="text-[56px] font-semibold tabular-nums leading-none text-[var(--color-text-strong)]">
+              ×{value}
+            </div>
+            <div className="mt-1 h-5 text-sm text-[var(--color-muted)]">
+              {sizeLabel(value) ?? ''}
+            </div>
           </div>
+          <StepperButton
+            ariaLabel="Eins mehr"
+            disabled={value >= MAX}
+            onPress={() => setValue((v) => Math.min(MAX, v + 1))}
+          >
+            <PlusIcon />
+          </StepperButton>
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Circular ±-button with press-and-hold acceleration. After an initial
+ * delay it fires `onPress` at a regular interval so the user can ramp up
+ * to high values (24, 50, …) without 24 individual taps.
+ */
+function StepperButton({
+  onPress,
+  disabled,
+  ariaLabel,
+  children,
+}: {
+  onPress: () => void;
+  disabled?: boolean;
+  ariaLabel: string;
+  children: React.ReactNode;
+}) {
+  const holdTimer = useRef<number | undefined>(undefined);
+  const repeatTimer = useRef<number | undefined>(undefined);
+
+  const clearTimers = () => {
+    if (holdTimer.current !== undefined) window.clearTimeout(holdTimer.current);
+    if (repeatTimer.current !== undefined) window.clearInterval(repeatTimer.current);
+    holdTimer.current = undefined;
+    repeatTimer.current = undefined;
+  };
+
+  const start = () => {
+    if (disabled) return;
+    onPress();
+    holdTimer.current = window.setTimeout(() => {
+      repeatTimer.current = window.setInterval(onPress, HOLD_STEP_INTERVAL_MS);
+    }, HOLD_STEP_INITIAL_DELAY_MS);
+  };
+
+  useEffect(() => () => clearTimers(), []);
+
+  return (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        start();
+      }}
+      onPointerUp={clearTimers}
+      onPointerLeave={clearTimers}
+      onPointerCancel={clearTimers}
+      className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent-strong)] transition-press active:bg-[var(--color-accent)] active:text-white disabled:opacity-40"
+    >
+      {children}
+    </button>
+  );
+}
+
+function MinusIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
   );
 }
