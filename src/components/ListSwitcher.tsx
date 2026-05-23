@@ -26,7 +26,7 @@ const LONG_PRESS_MOVE_TOLERANCE = 8;
  */
 export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew, onLongPress }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
   const lastReportedRef = useRef<string>(activeListId);
   const programmaticScrollRef = useRef(false);
   const programmaticTimerRef = useRef<number | undefined>(undefined);
@@ -137,38 +137,51 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onCreateNew, onLon
         {lists.map((l) => {
           const active = l.id === activeListId;
           return (
-            <button
+            <div
               key={l.id}
               ref={(node) => {
                 if (node) itemRefs.current.set(l.id, node);
                 else itemRefs.current.delete(l.id);
               }}
-              type="button"
-              onClick={() => handleTap(l.id)}
-              onPointerDown={(e) => startLongPress(l.id, e.clientX, e.clientY)}
-              onPointerMove={(e) => moveLongPress(e.clientX, e.clientY)}
-              onPointerUp={cancelLongPress}
-              onPointerCancel={cancelLongPress}
-              onPointerLeave={cancelLongPress}
-              onContextMenu={(e) => {
-                // Suppress the browser's default long-press context menu so
-                // ours is the only thing the user sees.
-                if (onLongPress) e.preventDefault();
-              }}
-              className="shrink-0 whitespace-nowrap py-1 transition-all"
+              className="shrink-0 inline-flex items-baseline gap-1.5 py-1"
               style={{ scrollSnapAlign: 'center', scrollSnapStop: 'always' }}
             >
-              <span
-                className={`inline-flex items-baseline gap-1.5 ${
-                  active
-                    ? 'text-2xl font-semibold tracking-tight text-[var(--color-text-strong)]'
-                    : 'text-base text-[var(--color-muted)]'
-                }`}
+              {/* Share-state icon is its own button so tapping it opens the
+                  action sheet (where Teilen lives) instead of bubbling up to
+                  the title button — which on the active list would open
+                  "Neue Liste". */}
+              <button
+                type="button"
+                onClick={() => onLongPress?.(l.id)}
+                aria-label={l.cloud ? 'Geteilt — Optionen' : 'Teilen'}
+                className="-mx-1 -my-0.5 inline-flex items-baseline px-1 py-0.5 active:opacity-60 transition-press"
               >
                 <ShareIndicator shared={!!l.cloud} active={active} />
-                {l.name}
-              </span>
-            </button>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTap(l.id)}
+                onPointerDown={(e) => startLongPress(l.id, e.clientX, e.clientY)}
+                onPointerMove={(e) => moveLongPress(e.clientX, e.clientY)}
+                onPointerUp={cancelLongPress}
+                onPointerCancel={cancelLongPress}
+                onPointerLeave={cancelLongPress}
+                onContextMenu={(e) => {
+                  if (onLongPress) e.preventDefault();
+                }}
+                className="whitespace-nowrap transition-all"
+              >
+                <span
+                  className={
+                    active
+                      ? 'text-2xl font-semibold tracking-tight text-[var(--color-text-strong)]'
+                      : 'text-base text-[var(--color-muted)]'
+                  }
+                >
+                  {l.name}
+                </span>
+              </button>
+            </div>
           );
         })}
         <button
