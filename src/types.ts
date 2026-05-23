@@ -194,3 +194,23 @@ export interface RecentProduct extends Product {
   lastUsedAt: number;
   useCount: number;
 }
+
+/**
+ * Row in `db.unknownBarcodes`. Logged when a scan returns no match from
+ * any OFF sister-DB (Food / Beauty / Products / PetFood). Lets us mine
+ * real-world cold-cache misses later — either to grow the snapshot or
+ * to wire a "report this product" affordance pointing back at OFF.
+ *
+ * Append-on-first-sighting, increment on re-scan. Never read by the
+ * main app loop; lives outside the per-list `items` table on purpose.
+ */
+export interface UnknownBarcode {
+  barcode: string;
+  firstSeenAt: number;
+  lastSeenAt: number;
+  count: number;
+  /** What the user typed as a name when they fell through to the manual
+   *  "Artikel <code>" path, if anything. Useful context if we ever want
+   *  to retro-fit guesses for the snapshot. */
+  userName?: string;
+}

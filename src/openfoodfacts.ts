@@ -12,6 +12,7 @@ const PRODUCT_DB_URLS = [
   'https://world.openfoodfacts.org/api/v2/product',     // groceries
   'https://world.openbeautyfacts.org/api/v2/product',   // cosmetics, drugstore
   'https://world.openproductsfacts.org/api/v2/product', // household, misc
+  'https://world.openpetfoodfacts.org/api/v2/product',  // pet food / pet supplies
   'https://world.openpetfoodfacts.org/api/v2/product',  // pet food
 ];
 
@@ -30,9 +31,21 @@ interface OFFProduct {
 
 function mapCategory(tags: string[] | undefined, name?: string): Category {
   const t = (tags?.join(' ') ?? '') + ' ' + (name ?? '');
-  // Beverages first: mineral waters / sparkling waters often carry few tags
-  // and the strongest signal is the product name itself ("Mineralwasser").
-  if (/beverages|drinks|getraenke|getränke|waters|water|mineralwasser|tafelwasser|sprudel|stilles|juice|saft|beer|bier|wine|wein|coffee|kaffee|tee|tea|cola|limonade|brause|schorle|smoothie/i.test(t))
+  // Order matters: specific categories first. Oils + condiments must come
+  // before the beverages branch because OFF tags compound — Leinöl and
+  // Olivenöl Demeter carry `en:plant-based-foods-and-beverages` which
+  // substring-matches "beverages" and would otherwise miscategorise them
+  // as Getränke. Adding name-level German oil markers (Leinöl, Olivenöl,
+  // Rapsöl, …) also helps when OFF tags are sparse but the name is clear.
+  if (/oils|öle|huile|vinegar|essig|spices|gewuerze|gewürze|condiments|sauces|saucen|salts|salz|senf|ketchup|leinöl|leinoel|olivenöl|olivenoel|rapsöl|rapsoel|sonnenblumenöl|sonnenblumenoel|kokosöl|kokosoel/i.test(t))
+    return 'gewuerze-saucen';
+  // Beverages — restrict the loose `beverages|drinks|waters|water` matches
+  // so `*-and-beverages` compound tags don't trigger a false positive.
+  // The negative lookbehind/lookahead for `-` and letters lets the lone
+  // `en:beverages` tag still match while blocking
+  // `en:plant-based-foods-and-beverages`. German name-level markers stay
+  // loose because they only ever appear in the product name.
+  if (/(?<![-a-z])(?:beverages|drinks|waters|water)(?![-a-z])|getraenke|getränke|mineralwasser|tafelwasser|sprudel|stilles|juice|saft|beer|bier|wine|wein|coffee|kaffee|\btee\b|\btea\b|cola|limonade|brause|schorle|smoothie/i.test(t))
     return 'getraenke';
   if (/fruits|vegetables|obst|gemuese|gemüse/i.test(t)) return 'obst-gemuese';
   if (/baby/i.test(t)) return 'baby';
@@ -44,7 +57,6 @@ function mapCategory(tags: string[] | undefined, name?: string): Category {
   if (/dairies|milk|cheese|yogurt|milch|kaese|käse|joghurt|eggs|eier/i.test(t)) return 'milch-eier';
   if (/meat|fish|fleisch|wurst|sausage|seafood|hams|salamis|poultries/i.test(t)) return 'fleisch-fisch';
   if (/spreads|jams|honey|honig|marmelade|mueslis|granolas|breakfast-cereals|aufstrich/i.test(t)) return 'fruehstueck-aufstrich';
-  if (/oils|öle|vinegar|essig|spices|gewuerze|gewürze|condiments|sauces|saucen|salts|salz|senf|ketchup/i.test(t)) return 'gewuerze-saucen';
   if (/snacks|chocolat|candy|sweet|bonbon|suess|süß|cookies|biscuits|chips|crisps|knabberei|confectioneries|gums|lollipops/i.test(t)) return 'suesses-knabberei';
   if (/pastas|cereals|rice|nudeln|reis|mehl|flours|sugars|legumes|canned|preserves|prepared-meals|ready-meals/i.test(t)) return 'vorrat';
   return 'sonstiges';

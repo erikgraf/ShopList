@@ -381,6 +381,36 @@ export async function getRecent(limit = 12): Promise<RecentProduct[]> {
   return db.recent.orderBy('lastUsedAt').reverse().limit(limit).toArray();
 }
 
+/**
+ * Record a scanned barcode that wasn't found in any OFF sister-DB. First
+ * sighting inserts; re-scans of the same code bump count + lastSeenAt so
+ * we know which unknown barcodes are persistent (likely catalog-worthy)
+ * vs. one-offs. `userName` is the name the user typed if they fell
+ * through to the manual add path; left undefined for pure abandonments.
+ */
+export async function logUnknownBarcode(
+  barcode: string,
+  userName?: string,
+): Promise<void> {
+  const now = Date.now();
+  const existing = await db.unknownBarcodes.get(barcode);
+  if (existing) {
+    await db.unknownBarcodes.update(barcode, {
+      lastSeenAt: now,
+      count: existing.count + 1,
+      userName: userName ?? existing.userName,
+    });
+  } else {
+    await db.unknownBarcodes.add({
+      barcode,
+      firstSeenAt: now,
+      lastSeenAt: now,
+      count: 1,
+      userName,
+    });
+  }
+}
+
 export function useItems(): Item[] {
   const [items, setItems] = useState<Item[]>([]);
   useEffect(() => {
