@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { ShopList } from '../types';
 
 interface Props {
@@ -16,74 +16,42 @@ const LONG_PRESS_MS = 500;
 const LONG_PRESS_MOVE_TOLERANCE = 8;
 
 /**
- * Horizontal wheel of list titles. Center item is the active list.
- * - Tap an inactive list → switches to it.
- * - Tap the active (centered) title → opens "new list" sheet.
- * - Scroll horizontally → snaps to the next list (which becomes active).
- * - Long-press any list title → fires `onLongPress(id)` (action sheet).
+ * Horizontal strip of list titles. The active list is rendered at the right
+ * end of the strip so the other (non-active) lists are visible to its left
+ * in the user's reading direction. Tap an inactive title to switch; tap the
+ * active title to open its action sheet; long-press anywhere does the same.
  *
- * Spacers at start and end let the first/last list center properly even though
- * the snap container is wider than the viewport.
+ * New-list creation is no longer an entry in this strip — that moved to the
+ * big green + button rendered next to the wheel in `App.tsx`.
  */
 export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
-  const lastReportedRef = useRef<string>(activeListId);
-  const programmaticScrollRef = useRef(false);
-  const programmaticTimerRef = useRef<number | undefined>(undefined);
 
-  // Scroll to the active list whenever it changes from outside (e.g. on mount,
-  // or after creating a new list). Use instant scroll so the scroll-detection
-  // handler doesn't fire mid-animation and bounce the active list back.
-  useEffect(() => {
-    const el = scrollRef.current;
-    const node = itemRefs.current.get(activeListId);
-    if (!el || !node) return;
-    const center = node.offsetLeft + node.offsetWidth / 2 - el.clientWidth / 2;
-    programmaticScrollRef.current = true;
-    el.scrollTo({ left: center, behavior: 'auto' });
-    lastReportedRef.current = activeListId;
-    // Briefly ignore scroll events that fire as a consequence of this jump.
-    if (programmaticTimerRef.current) window.clearTimeout(programmaticTimerRef.current);
-    programmaticTimerRef.current = window.setTimeout(() => {
-      programmaticScrollRef.current = false;
-    }, 100);
-  }, [activeListId, lists.length]);
+  // Render order: non-active lists in their position order, then the active
+  // list last. That way the active title sits at the right edge of the strip
+  // and the other lists sit to its left.
+  const ordered = useMemo(() => {
+    const sorted = [...lists].sort((a, b) => a.position - b.position);
+    const active = sorted.find((l) => l.id === activeListId);
+    const others = sorted.filter((l) => l.id !== activeListId);
+    return active ? [...others, active] : others;
+  }, [lists, activeListId]);
 
-  // While the user scrolls, find the item nearest to the viewport's horizontal
-  // center and treat that as "active". Debounced via rAF.
+  // When the active list changes, scroll the strip so the rightmost item
+  // (the active title) is in view. justify-end handles the case where the
+  // strip's content fits within the viewport; this handles overflow.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    let frame = 0;
-    const onScroll = () => {
-      if (frame || programmaticScrollRef.current) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        const viewportCenter = el.scrollLeft + el.clientWidth / 2;
-        let best: { id: string; dist: number } | null = null;
-        for (const [id, node] of itemRefs.current.entries()) {
-          const itemCenter = node.offsetLeft + node.offsetWidth / 2;
-          const dist = Math.abs(itemCenter - viewportCenter);
-          if (!best || dist < best.dist) best = { id, dist };
-        }
-        if (best && best.id !== lastReportedRef.current) {
-          lastReportedRef.current = best.id;
-          onSwitch(best.id);
-        }
-      });
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      el.removeEventListener('scroll', onScroll);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, [onSwitch, lists]);
+    requestAnimationFrame(() => {
+      el.scrollLeft = el.scrollWidth - el.clientWidth;
+    });
+  }, [activeListId, ordered.length]);
 
-  // Long-press machinery. Pointer events start a 500 ms timer; if the pointer
-  // moves more than 8 px before it fires we cancel — treat that as scroll
-  // intent so the horizontal wheel still works. When the timer fires, we set
-  // a flag that the click handler reads to swallow the upcoming tap.
+  // Long-press machinery. Pointer events start a 500 ms timer; if the
+  // pointer moves more than 8 px before it fires we cancel — treat that as
+  // scroll intent so the horizontal strip still works. When the timer fires,
+  // we set a flag that the click handler reads to swallow the upcoming tap.
   const longPressTimer = useRef<number | null>(null);
   const longPressFired = useRef(false);
   const longPressStart = useRef({ x: 0, y: 0 });
@@ -132,27 +100,19 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Pro
   return (
     <div
       ref={scrollRef}
-      className="-mx-4 overflow-x-auto"
-      style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}
+      className="-mx-4 overflow-x-auto px-4"
+      style={{ scrollbarWidth: 'none' }}
     >
-      <div className="flex w-max items-baseline gap-7">
-        <div className="shrink-0" style={{ minWidth: '50vw' }} aria-hidden />
-        {lists.map((l) => {
+      <div className="flex min-w-full items-baseline justify-end gap-5">
+        {ordered.map((l) => {
           const active = l.id === activeListId;
           return (
             <div
               key={l.id}
-              ref={(node) => {
-                if (node) itemRefs.current.set(l.id, node);
-                else itemRefs.current.delete(l.id);
-              }}
               className="shrink-0 inline-flex items-baseline gap-1.5 py-1"
-              style={{ scrollSnapAlign: 'center', scrollSnapStop: 'always' }}
             >
               {/* Share-state icon is its own button so tapping it opens the
-                  action sheet (where Teilen lives) instead of bubbling up to
-                  the title button — which on the active list would open
-                  "Neue Liste". */}
+                  action sheet instead of bubbling up to the title button. */}
               <button
                 type="button"
                 onClick={() => onLongPress?.(l.id)}
@@ -187,18 +147,15 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Pro
             </div>
           );
         })}
-        <div className="shrink-0" style={{ minWidth: '50vw' }} aria-hidden />
       </div>
     </div>
   );
 }
 
 /**
- * Tiny visual cue next to each list title in the wheel: greyish when the
+ * Tiny visual cue next to each list title in the strip: greyish when the
  * list is local-only, accent-green when it's been shared via the cloud
- * sync. Sits inline-baseline so it doesn't push the title around. Purely
- * decorative — sharing is still triggered through the long-press action
- * sheet on the title.
+ * sync. Sits inline-baseline so it doesn't push the title around.
  */
 function ShareIndicator({ shared, active }: { shared: boolean; active: boolean }) {
   const size = active ? 16 : 12;
