@@ -989,6 +989,109 @@ export const DOODLE_ICONS: Record<string, () => ReactNode> = {
       <path d="M19 16 Q19.5 17.5 18 17.5" />
     </>
   ),
+
+  // --- Körperpflege / Haushalt (expanded) ---
+  taschentuch: () => (
+    <>
+      <path d="M5 12 H19 V19 Q19 20 18 20 H6 Q5 20 5 19 Z" />
+      <path d="M5 12 Q5 10.4 7 10.4 H17 Q19 10.4 19 12" />
+      <path d="M10 11 Q11 6.8 12 9 Q13 6.8 14 11" />
+    </>
+  ),
+  zahnbuerste: () => (
+    <>
+      <path d="M3 13 H14 Q15 13 15 12 Q15 11 14 11 H3 Q2.4 11 2.4 12 Q2.4 13 3 13 Z" />
+      <path d="M15 10.5 H20 V13.5 H15 Z" />
+      <path d="M16 10.5 L16 9" />
+      <path d="M17.5 10.5 L17.5 9" />
+      <path d="M19 10.5 L19 9" />
+    </>
+  ),
+  creme: () => (
+    <>
+      <path d="M7 11 H17 V19 Q17 20 16 20 H8 Q7 20 7 19 Z" />
+      <path d="M6.5 9 H17.5 V11 H6.5 Z" />
+      <path d="M9 14 Q12 13 15 14" />
+    </>
+  ),
+  rasierer: () => (
+    <>
+      <path d="M11 14 V20 Q11 20.5 11.5 20.5 H12.5 Q13 20.5 13 20 V14" />
+      <path d="M8 10 H16 V13 Q16 14 15 14 H9 Q8 14 8 13 Z" />
+      <path d="M9 14 L9 15.5" />
+      <path d="M15 14 L15 15.5" />
+      <path d="M9 11.5 Q12 12 15 11.5" />
+    </>
+  ),
+  binde: () => (
+    <>
+      <path d="M8 8 Q8 7 9 7 H15 Q16 7 16 8 V16 Q16 17 15 17 H9 Q8 17 8 16 Z" />
+      <path d="M8 10 Q5.5 10.5 6 13 Q6.5 12 8 12.5" />
+      <path d="M16 10 Q18.5 10.5 18 13 Q17.5 12 16 12.5" />
+      <path d="M12 8 L12 16" />
+    </>
+  ),
+  pflaster: () => (
+    <>
+      <path d="M5 10 Q5 9 6 9 H18 Q19 9 19 10 V14 Q19 15 18 15 H6 Q5 15 5 14 Z" />
+      <path d="M9.5 10 V14" />
+      <path d="M14.5 10 V14" />
+      <circle cx="11" cy="11" r="0.3" fill="currentColor" />
+      <circle cx="13" cy="11" r="0.3" fill="currentColor" />
+      <circle cx="11" cy="13" r="0.3" fill="currentColor" />
+      <circle cx="13" cy="13" r="0.3" fill="currentColor" />
+    </>
+  ),
+  watte: () => (
+    <>
+      <path d="M5.5 8.5 L18.5 15.5" />
+      <circle cx="5" cy="8" r="2.1" />
+      <circle cx="19" cy="16" r="2.1" />
+    </>
+  ),
+  muellbeutel: () => (
+    <>
+      <path d="M7 9 Q7 8 8 8 Q12 6 16 8 Q17 8 17 9 L18 18 Q18 20 12 20 Q6 20 6 18 Z" />
+      <path d="M9 8 L8 5.5" />
+      <path d="M12 7 L12 4.5" />
+      <path d="M15 8 L16 5.5" />
+    </>
+  ),
+  folie: () => (
+    <>
+      <path d="M4 9 H17 Q18 9 18 10 V13 Q18 14 17 14 H4 Q3 14 3 13 V10 Q3 9 4 9 Z" />
+      <path d="M4 9 Q5 11.5 4 14" />
+      <path d="M17 13 L20 18" />
+      <path d="M18 12.5 L21 17" />
+    </>
+  ),
+  schwamm: () => (
+    <>
+      <path d="M4 10 Q4 9 5 9 H19 Q20 9 20 10 V16 Q20 17 19 17 H5 Q4 17 4 16 Z" />
+      <path d="M4 12 Q12 12.6 20 12" />
+      <circle cx="8" cy="14.5" r="0.5" fill="currentColor" />
+      <circle cx="12" cy="15" r="0.5" fill="currentColor" />
+      <circle cx="16" cy="14.5" r="0.5" fill="currentColor" />
+    </>
+  ),
+  batterie: () => (
+    <>
+      <path d="M6 9 H17 V15 H6 Z" />
+      <path d="M17 10.5 H18.5 V13.5 H17 Z" />
+      <path d="M9 12 H11" />
+      <path d="M10 11 V13" />
+      <path d="M13 12 H15" />
+    </>
+  ),
+  gluehbirne: () => (
+    <>
+      <path d="M12 4 Q7 4 7 9 Q7 12 9.5 14 V15.5 H14.5 V14 Q17 12 17 9 Q17 4 12 4 Z" />
+      <path d="M9.5 16.5 H14.5" />
+      <path d="M10 18 H14" />
+      <path d="M11 19.5 H13" />
+      <path d="M10.5 9 Q12 11 13.5 9" />
+    </>
+  ),
 };
 
 export function hasDoodleIcon(name: string): boolean {
