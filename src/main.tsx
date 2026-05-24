@@ -4,6 +4,7 @@ import { registerSW } from 'virtual:pwa-register';
 import './index.css';
 import App from './App.tsx';
 import { IconGallery } from './IconGallery.tsx';
+import { GapFinder } from './GapFinder.tsx';
 import { warmSnapshot } from './snapshot';
 
 if (import.meta.env.PROD) {
@@ -29,17 +30,21 @@ if (import.meta.env.PROD) {
 
 warmSnapshot();
 
-// Unlinked icon-review surface: open `#icons` to render every icon in both
-// styles. Kept out of the app's own routing so it ships harmlessly but
-// stays discoverable for review on any device.
-const isIconGallery = location.hash === '#icons';
+// Unlinked dev surfaces, kept out of the app's own routing so they ship
+// harmlessly but stay discoverable by typing the hash on any device:
+//   #icons     — gallery of every icon in both styles
+//   #unknowns  — catalog/icon gap-finder
+const devRoute = location.hash;
+const devView =
+  devRoute === '#icons' ? <IconGallery /> : devRoute === '#unknowns' ? <GapFinder /> : null;
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>{isIconGallery ? <IconGallery /> : <App />}</StrictMode>,
+  <StrictMode>{devView ?? <App />}</StrictMode>,
 );
 
-// Reload when toggling the #icons hash on/off so the root swaps cleanly
-// (the gallery vs. app choice is read once at mount).
+// The dev-view choice is read once at mount, so reload when entering or
+// leaving one of these hashes to swap the root cleanly.
 window.addEventListener('hashchange', () => {
-  if ((location.hash === '#icons') !== isIconGallery) location.reload();
+  const isDev = (h: string) => h === '#icons' || h === '#unknowns';
+  if (location.hash !== devRoute && (isDev(location.hash) || isDev(devRoute))) location.reload();
 });
