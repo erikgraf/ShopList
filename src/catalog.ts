@@ -240,7 +240,7 @@ export const CURATED_CATALOG: Product[] = [
 
   // Fleisch
   { id: 'local:haehnchen', name: 'Hähnchen', category: 'fleisch-fisch', icon: 'haehnchen', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
-  { id: 'local:haehnchenbrust', name: 'Hähnchenbrust', category: 'fleisch-fisch', icon: 'haehnchen', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:haehnchenbrust', name: 'Hähnchenbrust', category: 'fleisch-fisch', icon: 'haehnchenbrust', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:haehnchenschenkel', name: 'Hähnchenschenkel', category: 'fleisch-fisch', icon: 'haehnchen', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:pute', name: 'Pute', category: 'fleisch-fisch', icon: 'haehnchen', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:rinderhack', name: 'Rinderhack', category: 'fleisch-fisch', icon: 'hackfleisch', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },

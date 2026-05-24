@@ -247,9 +247,18 @@ export const KEY_LABELS: Record<string, string> = {
  * name because the user typed exactly what they wanted.
  */
 export function genericName(rawName: string): string {
-  const key = matchItemKey(rawName);
-  if (key && KEY_LABELS[key]) return KEY_LABELS[key];
-  return rawName;
+  const trimmed = rawName.trim();
+  const key = matchItemKey(trimmed);
+  if (!key || !KEY_LABELS[key]) return trimmed;
+  // German compounds carry meaning in the prefix: "Orangensaft" and
+  // "Zitronensaft" both match the `saft` key, but collapsing them to the
+  // bare label "Saft" throws away the type the user actually picked.
+  // Only simplify genuinely verbose / branded names (multiple words, e.g.
+  // "Kamill Hand- & Nagelcreme classic"). A single clean word — whether
+  // the bare noun ("Saft") or a compound ("Orangensaft") — is already the
+  // name the user wants, so keep it verbatim.
+  if (!/\s/.test(trimmed)) return trimmed;
+  return KEY_LABELS[key];
 }
 
 /**
