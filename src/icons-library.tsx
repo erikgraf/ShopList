@@ -861,6 +861,54 @@ const BASE_ICONS: Record<string, () => ReactNode> = {
       <circle cx="12.5" cy="8.5" r="2.5" />
     </>
   ),
+  // Cut-specific meat icons — distinct from the generic beef "steak" so the
+  // catalog's many cuts don't all look identical. Lean on geometric cues
+  // (breadcrumb specks, bone knob, string ties, cubes, rib lines).
+  schnitzel: () => (
+    <>
+      <path d="M5 11 C6 8.5 9 7.6 12 7.8 C15.5 8.1 18.5 9.6 19 12.3 C19.4 15 16.8 16.9 13.3 17 C9.3 17.1 5.6 16 5 13.4 C4.8 12.6 4.7 11.8 5 11 Z" />
+      <circle cx="9" cy="11" r="0.45" fill="currentColor" />
+      <circle cx="12.5" cy="12.5" r="0.45" fill="currentColor" />
+      <circle cx="15.5" cy="11.5" r="0.45" fill="currentColor" />
+      <circle cx="10.5" cy="14.5" r="0.45" fill="currentColor" />
+      <circle cx="14" cy="14.3" r="0.45" fill="currentColor" />
+    </>
+  ),
+  kotelett: () => (
+    <>
+      <path d="M9 8.5 C12 6.5 17 7 18.5 11 C19.8 14.5 17 18 12.5 18 C9 18 6.5 15.5 7 12 C7.2 10.4 7.5 9.4 9 8.5 Z" />
+      <path d="M9 8.5 C7.4 7.6 6.8 6 7.9 5 C8.9 4.2 10.2 5 10 6.6" />
+      <path d="M10 11.5 C12 11 14 11.5 14.5 13" />
+    </>
+  ),
+  braten: () => (
+    <>
+      <path d="M4 11.5 C4 9 7 7.8 12 7.8 C17 7.8 20 9 20 11.5 C20 14.2 17 16.5 12 16.5 C7 16.5 4 14.2 4 11.5 Z" />
+      <path d="M9 8 L9 16.3" />
+      <path d="M13 7.9 L13 16.4" />
+      <path d="M16.5 8.5 L16.5 15.6" />
+      <path d="M8 8 C8.6 7.2 9.4 7.2 10 8" />
+    </>
+  ),
+  gulasch: () => (
+    <>
+      <path d="M7 8.5 L10 7 L13 8.5 L10 10 Z" />
+      <path d="M7 8.5 L7 12 L10 13.5 L10 10 Z" />
+      <path d="M13 8.5 L13 12 L10 13.5 L10 10 Z" />
+      <path d="M13.5 13 L16 11.8 L18.5 13 L16 14.2 Z" />
+      <path d="M13.5 13 L13.5 15.8 L16 17 L16 14.2 Z" />
+      <path d="M18.5 13 L18.5 15.8 L16 17 L16 14.2 Z" />
+    </>
+  ),
+  rippchen: () => (
+    <>
+      <path d="M5 7.5 C5 6.5 6 6.3 7 6.3 L17 6.3 C18 6.3 19 6.5 19 7.5" />
+      <path d="M6.8 6.8 C5.8 10 5.8 15 7.3 18" />
+      <path d="M9.9 6.8 C8.9 10 8.9 15 10.4 18" />
+      <path d="M13 6.8 C12 10 12 15 13.5 18" />
+      <path d="M16.1 6.8 C15.1 10 15.1 15 16.6 18" />
+    </>
+  ),
   hackfleisch: () => (
     <>
       <path d="M4 16 Q4 11 12 11 Q20 11 20 16 Q20 17 19 17 H5 Q4 17 4 16 Z" />
