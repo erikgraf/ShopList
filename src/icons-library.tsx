@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { LUCIDE_ICONS } from './icons-library-lucide';
 
 /**
  * Hand-drawn line-icons for ShopList. Every icon shares the same chassis —
@@ -10,7 +11,7 @@ import type { ReactNode } from 'react';
  * Each entry is just the inner SVG fragment; the wrapper <svg> is applied
  * by the `CatalogIcon` renderer in `icons.tsx`.
  */
-export const ICONS: Record<string, () => ReactNode> = {
+const BASE_ICONS: Record<string, () => ReactNode> = {
   // --- Obst & Gemüse ---
   kartoffel: () => (
     <>
@@ -1045,6 +1046,13 @@ export const ICONS: Record<string, () => ReactNode> = {
     </>
   ),
 };
+
+/**
+ * Public icon set: hand-drawn base with the adopted Lucide icons layered on
+ * top, so Lucide wins for the items it covers and the hand-drawn versions
+ * remain the fallback everywhere else.
+ */
+export const ICONS: Record<string, () => ReactNode> = { ...BASE_ICONS, ...LUCIDE_ICONS };
 
 export function hasIcon(name: string): boolean {
   return name in ICONS;

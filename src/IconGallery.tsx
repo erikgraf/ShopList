@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ICONS } from './icons-library';
 import { DOODLE_ICONS } from './icons-library-doodle';
-import { LUCIDE_PROTOTYPE } from './icons-library-lucide';
 import { CURATED_CATALOG } from './catalog';
 
 /**
@@ -171,78 +170,10 @@ export function IconGallery() {
           borderRadius: 10,
         }}
       />
-      <PrototypeCompare />
       <Section title="Line only — doodle missing" names={lineOnly} query={q} tone="#c8412e" />
       <Section title="Doodle only — line missing" names={doodleOnly} query={q} tone="#c8412e" />
       <Section title="Both styles" names={both} query={q} />
     </div>
-  );
-}
-
-/**
- * Side-by-side: our hand-drawn line icon (left) vs the Lucide equivalent
- * (right) for the same item. Lucide is drawn for stroke-2, so it's rendered
- * a touch heavier here to show how it'd actually look. Purely a decision
- * aid — if the Lucide column wins, we paste those paths into ICONS.
- */
-function PrototypeCompare() {
-  const names = Object.keys(LUCIDE_PROTOTYPE);
-  return (
-    <section style={{ marginTop: 28 }}>
-      <h2 style={{ fontSize: 15, fontWeight: 600, color: '#2d6a4f', margin: '0 0 4px' }}>
-        Prototype — hand-drawn vs Lucide
-      </h2>
-      <p style={{ fontSize: 12, color: '#6b6557', margin: '0 0 12px' }}>
-        Left = current hand-drawn (stroke 1.5). Right = Lucide library (stroke 1.9).
-      </p>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-          gap: 10,
-        }}
-      >
-        {names.map((n) => (
-          <div
-            key={n}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 6,
-              padding: '12px 8px',
-              border: '1px solid #cfe3d6',
-              borderRadius: 12,
-              background: '#fff',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 18, color: '#2d2a24' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: 9, opacity: 0.55 }}>mine</span>
-                {ICONS[n] ? <Glyph render={ICONS[n]} size={44} doodle={false} /> : <span>—</span>}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: 9, color: '#2d6a4f' }}>lucide</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.9}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  width={44}
-                  height={44}
-                >
-                  {LUCIDE_PROTOTYPE[n]()}
-                </svg>
-              </div>
-            </div>
-            <code style={{ fontSize: 11, color: '#6b6557' }}>{n}</code>
-          </div>
-        ))}
-      </div>
-    </section>
   );
 }
 
