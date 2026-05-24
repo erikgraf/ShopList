@@ -111,9 +111,9 @@ export function CategoryAvatar({
       aria-hidden
     >
       {effectiveIcon ? (
-        <CatalogIcon name={effectiveIcon} size={Math.round(size * 0.6)} />
+        <CatalogIcon name={effectiveIcon} size={Math.round(size * 0.82)} />
       ) : (
-        <span style={{ fontSize: size * 0.55, lineHeight: 1 }}>{GLYPH[category]}</span>
+        <span style={{ fontSize: size * 0.7, lineHeight: 1 }}>{GLYPH[category]}</span>
       )}
     </div>
   );

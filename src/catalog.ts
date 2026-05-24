@@ -329,7 +329,7 @@ export const CURATED_CATALOG: Product[] = [
   { id: 'local:spaghetti', name: 'Spaghetti', category: 'vorrat', icon: 'nudeln', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:penne', name: 'Penne', category: 'vorrat', icon: 'nudeln', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:tagliatelle', name: 'Tagliatelle', category: 'vorrat', icon: 'nudeln', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
-  { id: 'local:fusilli', name: 'Fusilli', category: 'vorrat', icon: 'nudeln', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:fusilli', name: 'Fusilli', category: 'vorrat', icon: 'fusilli', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:lasagne-platten', name: 'Lasagne-Platten', category: 'vorrat', icon: 'nudeln', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:ravioli', name: 'Ravioli', category: 'vorrat', icon: 'nudeln', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:tortellini', name: 'Tortellini', category: 'vorrat', icon: 'nudeln', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
