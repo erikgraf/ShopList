@@ -838,11 +838,11 @@ export const ICONS: Record<string, () => ReactNode> = {
 
   // --- Fleisch & Fisch (expanded) ---
   haehnchen: () => (
+    // Lucide "drumstick" (ISC) — the conventional poultry icon, distinct
+    // from the haehnchenbrust fillet below.
     <>
-      <path d="M12 6 C8 6 5.5 9 5.5 13 C5.5 16 8 18 12 18 C16 18 18.5 16 18.5 13 C18.5 9 16 6 12 6 Z" />
-      <path d="M8 17.5 L7 19.6 C6.9 20.1 7.5 20.2 8 19.9 L9 18" />
-      <path d="M16 17.5 L17 19.6 C17.1 20.1 16.5 20.2 16 19.9 L15 18" />
-      <path d="M12 6 C12 4.6 13 4.2 14 4.7" />
+      <path d="M15.4 15.63a7.875 6 135 1 1 6.23-6.23 4.5 3.43 135 0 0-6.23 6.23" />
+      <path d="m8.29 12.71-2.6 2.6a2.5 2.5 0 1 0-1.65 4.65A2.5 2.5 0 1 0 8.7 18.3l2.59-2.59" />
     </>
   ),
   haehnchenbrust: () => (
@@ -852,10 +852,12 @@ export const ICONS: Record<string, () => ReactNode> = {
     </>
   ),
   steak: () => (
+    // Lucide "beef" (ISC) — a proper cut with bone, clearer than the
+    // hand-drawn version it replaced.
     <>
-      <path d="M6 8.5 C9 6.5 14 6.5 17 9 C19.5 11 19 15 16 16.5 C13 18 8 17.5 5.5 15 C3.5 13 4 10 6 8.5 Z" />
-      <path d="M8.5 11 C10 10.5 12 11 13 12" />
-      <path d="M16.5 9 C18.5 8 19.5 9.5 18.5 11 C17.7 10.2 16.7 10.6 16.2 11.2" />
+      <path d="M16.4 13.7A6.5 6.5 0 1 0 6.28 6.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3" />
+      <path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1-2.29 7.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5" />
+      <circle cx="12.5" cy="8.5" r="2.5" />
     </>
   ),
   hackfleisch: () => (
@@ -869,13 +871,13 @@ export const ICONS: Record<string, () => ReactNode> = {
     </>
   ),
   garnele: () => (
+    // Lucide "shrimp" (ISC).
     <>
-      <path d="M16 7 C12 5.5 7 7 6.5 12 C6.2 15.5 9 18.5 12.5 18 C11 17 10 15 10.5 13 C11 10.5 13 9 16 9.5" />
-      <path d="M16 7 C17.5 6.5 18.5 7.5 18 9 L16 9.5" />
-      <path d="M16 8.3 L18.3 8" />
-      <circle cx="8.5" cy="14.5" r="0.5" fill="currentColor" />
-      <path d="M9 16.5 L8 17.8" />
-      <path d="M11 17.5 L10.5 19" />
+      <path d="M11 12h.01" />
+      <path d="M13 22c.5-.5 1.12-1 2.5-1-1.38 0-2-.5-2.5-1" />
+      <path d="M14 2a3.28 3.28 0 0 1-3.227 1.798l-6.17-.561A2.387 2.387 0 1 0 4.387 8H15.5a1 1 0 0 1 0 13 1 1 0 0 0 0-5H12a7 7 0 0 1-7-7V8" />
+      <path d="M14 8a8.5 8.5 0 0 1 0 8" />
+      <path d="M16 16c2 0 4.5-4 4-6" />
     </>
   ),
   speck: () => (

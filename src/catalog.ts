@@ -264,6 +264,48 @@ export const CURATED_CATALOG: Product[] = [
   { id: 'local:thunfisch', name: 'Thunfisch', category: 'fleisch-fisch', icon: 'fisch', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:forelle', name: 'Forelle', category: 'fleisch-fisch', icon: 'fisch', stores: ['rewe', 'edeka'] },
   { id: 'local:garnelen', name: 'Garnelen', category: 'fleisch-fisch', icon: 'garnele', stores: ['rewe', 'edeka'] },
+  // Rind — Cuts & Braten
+  { id: 'local:rumpsteak', name: 'Rumpsteak', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:rinderfilet', name: 'Rinderfilet', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka'] },
+  { id: 'local:entrecote', name: 'Entrecôte', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka'] },
+  { id: 'local:ribeye', name: 'Ribeye-Steak', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka'] },
+  { id: 'local:hueftsteak', name: 'Hüftsteak', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:rinderbraten', name: 'Rinderbraten', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:rindergulasch', name: 'Rindergulasch', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:rinderrouladen', name: 'Rinderrouladen', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:tafelspitz', name: 'Tafelspitz', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka'] },
+  // Schwein
+  { id: 'local:schweineschnitzel', name: 'Schweineschnitzel', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:schweinefilet', name: 'Schweinefilet', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:schweinekotelett', name: 'Schweinekotelett', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:schweinebraten', name: 'Schweinebraten', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:schweinenacken', name: 'Schweinenacken', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:kasseler', name: 'Kasseler', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:schweinebauch', name: 'Schweinebauch', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka'] },
+  { id: 'local:spareribs', name: 'Spareribs', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  // Geflügel
+  { id: 'local:putenschnitzel', name: 'Putenschnitzel', category: 'fleisch-fisch', icon: 'haehnchenbrust', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:putenbrust', name: 'Putenbrust', category: 'fleisch-fisch', icon: 'haehnchenbrust', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:haehnchenfluegel', name: 'Hähnchenflügel', category: 'fleisch-fisch', icon: 'haehnchen', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:entenbrust', name: 'Entenbrust', category: 'fleisch-fisch', icon: 'haehnchenbrust', stores: ['rewe', 'edeka'] },
+  // Kalb & Lamm
+  { id: 'local:kalbsschnitzel', name: 'Kalbsschnitzel', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka'] },
+  { id: 'local:lammkotelett', name: 'Lammkotelett', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka'] },
+  { id: 'local:lammfilet', name: 'Lammfilet', category: 'fleisch-fisch', icon: 'steak', stores: ['rewe', 'edeka'] },
+  // Würste & Hack
+  { id: 'local:frikadellen', name: 'Frikadellen', category: 'fleisch-fisch', icon: 'hackfleisch', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:currywurst', name: 'Currywurst', category: 'fleisch-fisch', icon: 'bratwurst', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:weisswurst', name: 'Weißwurst', category: 'fleisch-fisch', icon: 'bratwurst', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:nuernberger', name: 'Nürnberger Würstchen', category: 'fleisch-fisch', icon: 'bratwurst', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:cevapcici', name: 'Cevapcici', category: 'fleisch-fisch', icon: 'bratwurst', stores: ['rewe', 'edeka'] },
+  // Fisch & Meeresfrüchte
+  { id: 'local:kabeljau', name: 'Kabeljau', category: 'fleisch-fisch', icon: 'fisch', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:seelachs', name: 'Seelachs', category: 'fleisch-fisch', icon: 'fisch', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:hering', name: 'Hering', category: 'fleisch-fisch', icon: 'fisch', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:matjes', name: 'Matjes', category: 'fleisch-fisch', icon: 'fisch', stores: ['rewe', 'edeka'] },
+  { id: 'local:scholle', name: 'Scholle', category: 'fleisch-fisch', icon: 'fisch', stores: ['rewe', 'edeka'] },
+  { id: 'local:pangasius', name: 'Pangasius', category: 'fleisch-fisch', icon: 'fisch', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:tintenfisch', name: 'Tintenfisch', category: 'fleisch-fisch', icon: 'garnele', stores: ['rewe', 'edeka'] },
 
   // Getränke
   { id: 'local:wasser', name: 'Wasser', category: 'getraenke', icon: 'wasser', sizes: [1, 6, 12], stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
