@@ -99,7 +99,7 @@ export function ItemRow({ item, activeStores }: { item: Item; activeStores: Stor
                 </svg>
               )}
             </button>
-            <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={40} />
+            <ProductImage src={leftSrc} category={item.category} iconName={iconName} size={52} />
             {hasBrandWithImage && item.image && (
               <img
                 src={item.image}

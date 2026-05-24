@@ -163,6 +163,28 @@ class ShopListDB extends Dexie {
       lists: 'id, position, updatedAt',
       unknownBarcodes: 'barcode, lastSeenAt',
     });
+
+    // v8: recompute item.stores cleanly. The v6 backfill seeded from the
+    // category default *unioned with the row's existing stores*, which
+    // preserved the bug where grocery staples (Eier, Brot, Milch…) had
+    // picked up dm/Rossmann via the old GROCERY_BIO map. Now that those
+    // drugstores are out of GROCERY_BIO, recompute from the category
+    // default alone (dropping the stale set) so the bad stores fall away.
+    this.version(8)
+      .stores({
+        items: 'id, position, addedAt, listId, updatedAt',
+        recent: 'id, lastUsedAt, useCount',
+        lists: 'id, position, updatedAt',
+        unknownBarcodes: 'barcode, lastSeenAt',
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table('items')
+          .toCollection()
+          .modify((row) => {
+            row.stores = availableStores(row.name, defaultStoresForCategory(row.category));
+          });
+      });
   }
 }
 

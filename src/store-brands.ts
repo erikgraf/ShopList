@@ -49,14 +49,21 @@ const GROCERY_DEFAULTS = {
   edeka: 'Gut & Günstig',
 } satisfies Partial<Record<Store, string>>;
 
-/** Grocery bio lines. */
+/**
+ * Grocery bio lines — supermarket chains only. dm (dmBio) and Rossmann
+ * (enerBio) are deliberately excluded: this map feeds `availableStores`,
+ * and including the drugstores made every grocery staple (Eier, Brot,
+ * Milch, …) show up under the dm/Rossmann store filters even though those
+ * chains don't carry fresh eggs, bread, meat, etc. Drugstore-bio coverage
+ * is too item-specific to model with a blanket grocery-bio map, so it's
+ * left out; dm/Rossmann still come in for the items that genuinely belong
+ * there via their own STORE_BRAND_MAP entries (toiletries, household).
+ */
 const GROCERY_BIO = {
   aldi: 'GUT BIO',
   lidl: 'Bio',
   rewe: 'REWE Bio',
   edeka: 'EDEKA Bio',
-  dm: 'dmBio',
-  rossmann: 'enerBio',
 } satisfies Partial<Record<Store, string>>;
 
 /**
@@ -247,9 +254,18 @@ export const KEY_LABELS: Record<string, string> = {
  * name because the user typed exactly what they wanted.
  */
 export function genericName(rawName: string): string {
-  const key = matchItemKey(rawName);
-  if (key && KEY_LABELS[key]) return KEY_LABELS[key];
-  return rawName;
+  const trimmed = rawName.trim();
+  const key = matchItemKey(trimmed);
+  if (!key || !KEY_LABELS[key]) return trimmed;
+  // German compounds carry meaning in the prefix: "Orangensaft" and
+  // "Zitronensaft" both match the `saft` key, but collapsing them to the
+  // bare label "Saft" throws away the type the user actually picked.
+  // Only simplify genuinely verbose / branded names (multiple words, e.g.
+  // "Kamill Hand- & Nagelcreme classic"). A single clean word — whether
+  // the bare noun ("Saft") or a compound ("Orangensaft") — is already the
+  // name the user wants, so keep it verbatim.
+  if (!/\s/.test(trimmed)) return trimmed;
+  return KEY_LABELS[key];
 }
 
 /**
