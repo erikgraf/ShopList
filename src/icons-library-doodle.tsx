@@ -931,6 +931,64 @@ export const DOODLE_ICONS: Record<string, () => ReactNode> = {
       <path d="M4 9.5 Q8 7.5 12 9.5 Q16 11.5 20 9.5" />
     </>
   ),
+
+  // --- Frühstück / Vorrat / Süßes / Tiefkühl / Brot (expanded) ---
+  muesli: () => (
+    <>
+      <path d="M4 12 Q12 9.8 20 12 Q19 18.2 12 18.2 Q5 18.2 4 12 Z" />
+      <circle cx="9" cy="13" r="0.65" fill="currentColor" />
+      <circle cx="12" cy="13.5" r="0.65" fill="currentColor" />
+      <circle cx="15" cy="13" r="0.65" fill="currentColor" />
+      <circle cx="10.5" cy="15" r="0.5" fill="currentColor" />
+      <circle cx="13.5" cy="15" r="0.5" fill="currentColor" />
+      <path d="M7 11.5 Q8 10.4 9 11.5" />
+    </>
+  ),
+  nuss: () => (
+    <>
+      <path d="M12 5 Q6 5 6 12 Q6 19 12 19 Q18 19 18 12 Q18 5 12 5 Z" />
+      <path d="M12 5 L12 19" />
+      <path d="M9 8 Q11 11 9 15" />
+      <path d="M15 8 Q13 11 15 15" />
+    </>
+  ),
+  eis: () => (
+    <>
+      <path d="M8 9 Q8 5.8 12 5.8 Q16 5.8 16 9 Q16 11.2 12 11.2 Q8 11.2 8 9 Z" />
+      <path d="M8.5 10.5 L12 20 L15.5 10.5" />
+      <path d="M9.5 13 L14.5 13" />
+      <path d="M10.5 15.5 L13.5 15.5" />
+    </>
+  ),
+  pommes: () => (
+    <>
+      <path d="M8 11 H16 L15 20 Q15 20.4 14.6 20.4 H9.4 Q9 20.4 9 20 Z" />
+      <path d="M8 11 Q12 11.6 16 11" />
+      <path d="M9.5 11 L9 6" />
+      <path d="M11 11 L11 5" />
+      <path d="M12.5 11 L13 5.5" />
+      <path d="M14 11 L14.5 6" />
+    </>
+  ),
+  brezel: () => (
+    <>
+      <path d="M12 6 Q7.8 6 6.3 9 Q4.8 12.6 7.5 14.6 Q9.6 16.2 11 13.5 Q12 12 12 12" />
+      <path d="M12 6 Q16.2 6 17.7 9 Q19.2 12.6 16.5 14.6 Q14.4 16.2 13 13.5 Q12 12 12 12" />
+      <path d="M7.5 14.6 L13 18.6" />
+      <path d="M16.5 14.6 L11 18.6" />
+      <path d="M11 18.6 Q12 19.1 13 18.6" />
+    </>
+  ),
+  croissant: () => (
+    <>
+      <path d="M5 16 Q4 12 7 10 Q12 7 17 10 Q20 12 19 16 Q18 14.5 16 14 Q12 13 8 14 Q6 14.5 5 16 Z" />
+      <path d="M9 13.5 L10 15.5" />
+      <path d="M12 13 L12.5 15.5" />
+      <path d="M15 13.5 L14.5 15.5" />
+      <path d="M5 16 Q4.5 17.5 6 17.5" />
+      <path d="M19 16 Q19.5 17.5 18 17.5" />
+    </>
+  ),
 };
 
 export function hasDoodleIcon(name: string): boolean {
