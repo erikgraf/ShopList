@@ -3,7 +3,7 @@ import { ICONS, hasIcon } from './icons-library';
 import { DOODLE_ICONS } from './icons-library-doodle';
 import { useIconStyle, type IconStyle } from './store';
 
-const COLORS: Record<Category, [string, string]> = {
+export const COLORS: Record<Category, [string, string]> = {
   'obst-gemuese': ['#16a34a', '#dcfce7'],
   'brot-gebaeck': ['#b45309', '#fed7aa'],
   'milch-eier': ['#3b82f6', '#dbeafe'],
@@ -20,7 +20,7 @@ const COLORS: Record<Category, [string, string]> = {
   sonstiges: ['#64748b', '#e2e8f0'],
 };
 
-const GLYPH: Record<Category, string> = {
+export const GLYPH: Record<Category, string> = {
   'obst-gemuese': '🥬',
   'brot-gebaeck': '🥖',
   'milch-eier': '🥛',
@@ -40,7 +40,7 @@ const GLYPH: Record<Category, string> = {
 /** Map each category to a default catalog icon name, used when the item itself
  *  doesn't specify one. The library has these registered. Categories without
  *  a default fall back to the emoji glyph. */
-const CATEGORY_DEFAULT_ICON: Partial<Record<Category, string>> = {
+export const CATEGORY_DEFAULT_ICON: Partial<Record<Category, string>> = {
   'obst-gemuese': 'apfel',
   'brot-gebaeck': 'brot',
   'milch-eier': 'milch',

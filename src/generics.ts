@@ -1,5 +1,6 @@
 import type { Category, Product, Store } from './types';
 import { defaultStoresForCategory } from './openfoodfacts';
+import { GENERICS as GENERICS_DATA } from './data';
 
 /**
  * The "generic product" tier — the concept a shopper has in mind, independent
@@ -45,98 +46,7 @@ export interface Generic {
  * through generics. Author-time data for now; see the README "build/update"
  * notes for the runtime-editable path.
  */
-export const GENERICS: Generic[] = [
-  // --- Milchprodukte: depth demo (parent → variants) --------------------
-  { id: 'milch', name: 'Milch', category: 'milch-eier', icon: 'milch', brandKey: 'milch' },
-  { id: 'vollmilch', name: 'Vollmilch', category: 'milch-eier', parentId: 'milch' },
-  { id: 'milch-fettarm', name: 'Milch fettarm', category: 'milch-eier', parentId: 'milch', aliases: ['fettarme milch'] },
-  { id: 'milch-laktosefrei', name: 'Milch laktosefrei', category: 'milch-eier', parentId: 'milch', aliases: ['laktosefreie milch', 'lactose free milk'] },
-  { id: 'h-milch', name: 'H-Milch', category: 'milch-eier', parentId: 'milch', aliases: ['h milch', 'haltbare milch'] },
-  { id: 'hafermilch', name: 'Hafermilch', category: 'milch-eier', parentId: 'milch', aliases: ['hafer drink', 'oat milk'] },
-  { id: 'sojamilch', name: 'Sojamilch', category: 'milch-eier', parentId: 'milch', aliases: ['soja drink', 'soy milk'] },
-  { id: 'mandelmilch', name: 'Mandelmilch', category: 'milch-eier', parentId: 'milch', aliases: ['almond milk'] },
-
-  { id: 'joghurt', name: 'Joghurt', category: 'milch-eier', icon: 'joghurt', brandKey: 'joghurt', aliases: ['yoghurt', 'yogurt'] },
-  { id: 'naturjoghurt', name: 'Naturjoghurt', category: 'milch-eier', parentId: 'joghurt', aliases: ['natur joghurt'] },
-  { id: 'griechischer-joghurt', name: 'Griechischer Joghurt', category: 'milch-eier', parentId: 'joghurt', aliases: ['griechischer joghurt', 'griech joghurt', 'greek yoghurt', 'greek yogurt'] },
-  { id: 'joghurt-laktosefrei', name: 'Joghurt laktosefrei', category: 'milch-eier', parentId: 'joghurt', aliases: ['laktosefreier joghurt', 'lactose free yoghurt', 'lactose free yogurt'] },
-  { id: 'skyr', name: 'Skyr', category: 'milch-eier', parentId: 'joghurt', icon: 'joghurt' },
-
-  { id: 'quark', name: 'Quark', category: 'milch-eier', icon: 'joghurt', brandKey: 'quark' },
-  { id: 'speisequark', name: 'Speisequark', category: 'milch-eier', parentId: 'quark', aliases: ['spq'] },
-  { id: 'speisequark-magerstufe', name: 'Speisequark Magerstufe', category: 'milch-eier', parentId: 'speisequark', aliases: ['spq mager', 'spq magerstufe', 'magerquark', 'quark magerstufe'] },
-  { id: 'speisequark-20', name: 'Speisequark 20%', category: 'milch-eier', parentId: 'speisequark', aliases: ['spq 20', 'quark 20', 'speisequark 20'] },
-  { id: 'speisequark-40', name: 'Speisequark 40%', category: 'milch-eier', parentId: 'speisequark', aliases: ['spq 40', 'quark 40', 'speisequark 40'] },
-
-  { id: 'butter', name: 'Butter', category: 'milch-eier', icon: 'butter', brandKey: 'butter' },
-  { id: 'sahne', name: 'Sahne', category: 'milch-eier', icon: 'milch', brandKey: 'sahne' },
-  { id: 'kaese', name: 'Käse', category: 'milch-eier', icon: 'kaese', brandKey: 'kaese' },
-  { id: 'frischkaese', name: 'Frischkäse', category: 'milch-eier', parentId: 'kaese' },
-  { id: 'mozzarella', name: 'Mozzarella', category: 'milch-eier', parentId: 'kaese' },
-  { id: 'eier', name: 'Eier', category: 'milch-eier', icon: 'ei', brandKey: 'eier' },
-
-  // --- Brot & Gebäck ----------------------------------------------------
-  { id: 'brot', name: 'Brot', category: 'brot-gebaeck', icon: 'brot', brandKey: 'brot' },
-  { id: 'broetchen', name: 'Brötchen', category: 'brot-gebaeck', icon: 'broetchen', brandKey: 'broetchen' },
-  { id: 'toast', name: 'Toastbrot', category: 'brot-gebaeck', icon: 'toast', brandKey: 'toast', aliases: ['toast'] },
-
-  // --- Vorrat -----------------------------------------------------------
-  { id: 'nudeln', name: 'Nudeln', category: 'vorrat', icon: 'nudeln', brandKey: 'nudeln', aliases: ['pasta'] },
-  { id: 'reis', name: 'Reis', category: 'vorrat', icon: 'reis', brandKey: 'reis' },
-  { id: 'mehl', name: 'Mehl', category: 'vorrat', icon: 'mehl', brandKey: 'mehl' },
-  { id: 'zucker', name: 'Zucker', category: 'vorrat', icon: 'mehl', brandKey: 'zucker' },
-
-  // --- Gewürze, Öle & Saucen -------------------------------------------
-  { id: 'olivenoel', name: 'Olivenöl', category: 'gewuerze-saucen', icon: 'olivenoel', brandKey: 'olivenoel' },
-  { id: 'essig', name: 'Essig', category: 'gewuerze-saucen', icon: 'olivenoel', brandKey: 'essig' },
-
-  // --- Frühstück & Aufstrich -------------------------------------------
-  { id: 'marmelade', name: 'Marmelade', category: 'fruehstueck-aufstrich', icon: 'marmelade', brandKey: 'marmelade', aliases: ['konfituere'] },
-  { id: 'honig', name: 'Honig', category: 'fruehstueck-aufstrich', icon: 'honig', brandKey: 'honig' },
-
-  // --- Süßes & Knabberei ------------------------------------------------
-  { id: 'schokolade', name: 'Schokolade', category: 'suesses-knabberei', icon: 'schokolade', brandKey: 'schokolade' },
-  { id: 'kekse', name: 'Kekse', category: 'suesses-knabberei', icon: 'keks', brandKey: 'kekse' },
-  { id: 'chips', name: 'Chips', category: 'suesses-knabberei', icon: 'chips', brandKey: 'chips' },
-  { id: 'gummibaerchen', name: 'Gummibärchen', category: 'suesses-knabberei', icon: 'keks', brandKey: 'gummibaerchen' },
-
-  // --- Getränke ---------------------------------------------------------
-  { id: 'wasser', name: 'Wasser', category: 'getraenke', icon: 'wasser', brandKey: 'wasser' },
-  { id: 'mineralwasser', name: 'Mineralwasser', category: 'getraenke', parentId: 'wasser', icon: 'wasser', brandKey: 'mineralwasser' },
-  { id: 'saft', name: 'Saft', category: 'getraenke', icon: 'saft', brandKey: 'saft' },
-  { id: 'cola', name: 'Cola', category: 'getraenke', icon: 'cola', brandKey: 'cola' },
-  { id: 'limonade', name: 'Limonade', category: 'getraenke', icon: 'cola', brandKey: 'limonade' },
-  { id: 'bier', name: 'Bier', category: 'getraenke', icon: 'cola', brandKey: 'bier' },
-  { id: 'wein', name: 'Wein', category: 'getraenke', icon: 'cola', brandKey: 'wein' },
-  { id: 'kaffee', name: 'Kaffee', category: 'getraenke', brandKey: 'kaffee' },
-  { id: 'tee', name: 'Tee', category: 'getraenke', icon: 'tee', brandKey: 'tee' },
-
-  // --- Körperpflege -----------------------------------------------------
-  { id: 'handcreme', name: 'Handcreme', category: 'koerperpflege', icon: 'creme', brandKey: 'handcreme' },
-  { id: 'bodylotion', name: 'Bodylotion', category: 'koerperpflege', icon: 'creme', brandKey: 'bodylotion' },
-  { id: 'gesichtscreme', name: 'Gesichtscreme', category: 'koerperpflege', icon: 'creme', brandKey: 'gesichtscreme' },
-  { id: 'sonnencreme', name: 'Sonnencreme', category: 'koerperpflege', icon: 'creme', brandKey: 'sonnencreme' },
-  { id: 'shampoo', name: 'Shampoo', category: 'koerperpflege', icon: 'shampoo', brandKey: 'shampoo' },
-  { id: 'trockenshampoo', name: 'Trockenshampoo', category: 'koerperpflege', parentId: 'shampoo', icon: 'shampoo', brandKey: 'trockenshampoo' },
-  { id: 'spuelung', name: 'Haarspülung', category: 'koerperpflege', icon: 'shampoo', brandKey: 'spuelung', aliases: ['spuelung'] },
-  { id: 'duschgel', name: 'Duschgel', category: 'koerperpflege', icon: 'shampoo', brandKey: 'duschgel' },
-  { id: 'zahnpasta', name: 'Zahnpasta', category: 'koerperpflege', icon: 'zahnpasta', brandKey: 'zahnpasta' },
-  { id: 'zahnbuerste', name: 'Zahnbürste', category: 'koerperpflege', icon: 'zahnbuerste', brandKey: 'zahnbuerste' },
-  { id: 'deo', name: 'Deo', category: 'koerperpflege', icon: 'deo', brandKey: 'deo' },
-  { id: 'seife', name: 'Seife', category: 'koerperpflege', icon: 'seife', brandKey: 'seife' },
-  { id: 'taschentuecher', name: 'Taschentücher', category: 'koerperpflege', icon: 'taschentuch', brandKey: 'taschentuecher', aliases: ['tempo'] },
-
-  // --- Haushalt ---------------------------------------------------------
-  { id: 'waschmittel', name: 'Waschmittel', category: 'haushalt', icon: 'waschmittel', brandKey: 'waschmittel' },
-  { id: 'weichspueler', name: 'Weichspüler', category: 'haushalt', icon: 'waschmittel', brandKey: 'weichspueler' },
-  { id: 'spuelmittel', name: 'Spülmittel', category: 'haushalt', icon: 'sprayflasche', brandKey: 'spuelmittel' },
-  { id: 'allzweckreiniger', name: 'Allzweckreiniger', category: 'haushalt', icon: 'sprayflasche', brandKey: 'allzweckreiniger' },
-  { id: 'toilettenpapier', name: 'Toilettenpapier', category: 'haushalt', icon: 'klopapier', brandKey: 'toilettenpapier', aliases: ['klopapier', 'klorolle'] },
-  { id: 'kuechenrolle', name: 'Küchenrolle', category: 'haushalt', icon: 'klopapier', brandKey: 'kuechenrolle' },
-
-  // --- Baby -------------------------------------------------------------
-  { id: 'windel', name: 'Windeln', category: 'baby', icon: 'babyflasche', brandKey: 'windel', aliases: ['windeln'] },
-];
+export const GENERICS: Generic[] = GENERICS_DATA;
 
 const norm = (s: string): string =>
   s
