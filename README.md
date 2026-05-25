@@ -27,6 +27,7 @@ Local-only, installable on iPhone. No accounts, no sync — that comes in Phase 
 npm install
 npm run dev          # http://localhost:5173
 npm run build        # production build into dist/
+npm test             # vitest — unit tests (generic-tier resolver)
 npm run build:catalog  # rebuild the 19k-product Open Food Facts snapshot (~30 min, streams the 12 GB dump)
 ```
 
@@ -44,6 +45,7 @@ To test on your iPhone over LAN, hit the network URL Vite prints. For PWA instal
 - `src/store.ts` — mutations (`addItemFromProduct`, `updateQuantity`, …) + hooks (`useItems`, `useRecent`).
 - `src/barcode.ts` — ZXing wrapper, filters to numeric codes.
 - `src/types.ts` — `Product`, `Item`, `Store`, `Category` definitions and labels.
+- `src/generics.ts` — **prototype**: the "generic product" tier (`Joghurt` → `Griechischer Joghurt`, `Speisequark 20%`…). Registry with a parent/variant hierarchy + aliases, the `resolveGeneric(name, category)` matcher, and `searchGenerics`. The missing middle layer between `Category` and a concrete SKU; `Product.genericId` / `Item.genericId` point at it. See `generics.test.ts`.
 - `scripts/build-catalog.mjs` — streams Open Food Facts' 12 GB JSONL dump, filters to top-N German products with images, writes `public/off-de-snapshot.json`.
 
 ## Data sources
@@ -54,3 +56,4 @@ To test on your iPhone over LAN, hit the network URL Vite prints. For PWA instal
 
 - Phase 2: shared-list sync via magic URL (no accounts). Backend TBD.
 - Phase 3: native iOS port. Likely Tantivy-backed on-device search to replace the linear snapshot scan.
+- Generic tier (started in `src/generics.ts`): finish collapsing the three scattered "generic" representations (catalog rows, `STORE_BRAND_MAP` keys, `KEY_LABELS`) into one entity; route brand suggestions through `brandKeyForGeneric(item.genericId)` so variants inherit own-brands; then hang per-SKU attributes (bio/Demeter, Haltungsform, rating) and a time-bounded `Offer` entity off it to power offer matching.

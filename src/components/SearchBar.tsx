@@ -2,15 +2,32 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { searchCatalog } from '../catalog';
 import { searchProducts } from '../openfoodfacts';
 import { searchSnapshot } from '../snapshot';
+import {
+  searchGenerics,
+  genericToProduct,
+  resolveGeneric,
+  rootGeneric,
+  getGeneric,
+  iconForGeneric,
+  type Generic,
+} from '../generics';
 import { addItemFromProduct, useRecent } from '../store';
 import { CATEGORY_LABELS, type Category, type Product, type Store } from '../types';
 import { ProductImage } from '../icons';
 
 interface Suggestion extends Product {
-  source: 'recent' | 'catalog' | 'snapshot' | 'off';
+  source: 'recent' | 'generic' | 'catalog' | 'snapshot' | 'off';
 }
 
-const MAX_SHOWN = 12;
+/** A generic header plus the variant/SKU rows that roll up to it. `root` is
+ *  null for suggestions that match no generic (OFF long tail, custom items),
+ *  which render flat. */
+interface SuggestionGroup {
+  root: Generic | null;
+  rows: Suggestion[];
+}
+
+const MAX_SHOWN = 14;
 
 export function SearchBar({
   onScanClick,
@@ -83,6 +100,16 @@ export function SearchBar({
         }
       }
     }
+    // Generic tier — injected high so the umbrella term and its variants
+    // (incl. ones with no catalog SKU yet, e.g. Speisequark 20%) surface and
+    // win the name-dedupe over the flat catalog rows for the same concept.
+    for (const g of searchGenerics(q, 20)) {
+      const p = genericToProduct(g);
+      if (!seen.has(p.name.toLowerCase())) {
+        seen.add(p.name.toLowerCase());
+        out.push({ ...p, source: 'generic' });
+      }
+    }
     for (const p of searchCatalog(q, 20)) {
       if (!seen.has(p.name.toLowerCase())) {
         seen.add(p.name.toLowerCase());
@@ -110,17 +137,55 @@ export function SearchBar({
     return [...map.entries()].sort((a, b) => b[1] - a[1]);
   }, [allSuggestions]);
 
-  const filteredSuggestions = useMemo(() => {
-    if (!selectedCategory) return allSuggestions.slice(0, MAX_SHOWN);
-    return allSuggestions.filter((s) => s.category === selectedCategory).slice(0, MAX_SHOWN);
+  const categoryFiltered = useMemo(() => {
+    if (!selectedCategory) return allSuggestions;
+    return allSuggestions.filter((s) => s.category === selectedCategory);
   }, [allSuggestions, selectedCategory]);
+
+  // Group rows under their root generic so variants nest beneath one header
+  // ("Quark" over Speisequark 20%/40%/Magerstufe). Groups keep first-seen
+  // order; rows equal to the root are dropped (the header represents them).
+  const groups = useMemo<SuggestionGroup[]>(() => {
+    const order: (string | null)[] = [];
+    const byRoot = new Map<string | null, Suggestion[]>();
+    for (const s of categoryFiltered) {
+      const gid = s.genericId ?? resolveGeneric(s.name, s.category) ?? undefined;
+      const rootId = (rootGeneric(gid) ?? getGeneric(gid))?.id ?? null;
+      if (!byRoot.has(rootId)) {
+        byRoot.set(rootId, []);
+        order.push(rootId);
+      }
+      byRoot.get(rootId)!.push(s);
+    }
+    let budget = MAX_SHOWN;
+    const out: SuggestionGroup[] = [];
+    for (const rootId of order) {
+      if (budget <= 0) break;
+      const root = rootId ? getGeneric(rootId) ?? null : null;
+      const all = byRoot.get(rootId)!;
+      // The header IS the umbrella term, so fold in the row that literally
+      // repeats it ("Joghurt"). Branded SKUs and variants ("Landliebe
+      // Joghurt", "Griechischer Joghurt") have different names and stay as
+      // children.
+      const rootNameLc = root?.name.trim().toLowerCase();
+      const children = root ? all.filter((s) => s.name.trim().toLowerCase() !== rootNameLc) : all;
+      const useHeader = !!root && children.length > 0;
+      const rows = (useHeader ? children : all).slice(0, Math.max(0, budget - (useHeader ? 1 : 0)));
+      if (!useHeader && rows.length === 0) continue;
+      budget -= rows.length + (useHeader ? 1 : 0);
+      out.push({ root: useHeader ? root : null, rows });
+    }
+    return out;
+  }, [categoryFiltered]);
+
+  const hasResults = groups.some((g) => g.rows.length > 0 || g.root);
 
   const showSuggestions = focused && query.trim().length > 0;
 
   const addLiteral = async () => {
     const name = query.trim();
     if (!name) return;
-    const top = filteredSuggestions[0] ?? allSuggestions[0];
+    const top = categoryFiltered[0] ?? allSuggestions[0];
     if (top) {
       await addItemFromProduct(top, { pinToStore });
     } else {
@@ -256,7 +321,7 @@ export function SearchBar({
             </div>
           )}
 
-          {filteredSuggestions.length === 0 && !loading && (
+          {!hasResults && !loading && (
             <button
               type="button"
               onPointerDown={(e) => e.preventDefault()}
@@ -270,36 +335,57 @@ export function SearchBar({
               </div>
             </button>
           )}
-          {loading && filteredSuggestions.length === 0 && (
+          {loading && !hasResults && (
             <div className="px-4 py-3 text-sm text-[var(--color-muted)]">Suche…</div>
           )}
+          {/* `onPointerDown` + preventDefault stops the input from losing
+           *  focus when the user taps a suggestion. Pointer events fire early
+           *  on touch (Android dispatches mouse events only after touch+click
+           *  resolve, too late to keep focus) and cover desktop too. */}
           <ul className="max-h-[60vh] overflow-y-auto">
-            {filteredSuggestions.map((s) => (
-              <li key={`${s.source}:${s.id}`}>
-                {/* `onPointerDown` + preventDefault stops the input from
-                 *  losing focus when the user taps a suggestion. Using
-                 *  `onMouseDown` here (the previous approach) only worked
-                 *  on desktop — Android dispatches mouse events AFTER
-                 *  touch + click resolve, so by the time preventDefault
-                 *  ran, the input had already blurred and the dropdown
-                 *  had unmounted, eating the tap. Pointer events fire
-                 *  early on touch and cover both worlds. */}
-                <button
-                  type="button"
-                  onPointerDown={(e) => e.preventDefault()}
-                  onClick={() => pick(s)}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 text-left active:bg-[var(--color-surface-2)]"
-                >
-                  <ProductImage src={s.image} category={s.category} iconName={s.icon} size={40} eager />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-base">{s.name}</div>
-                    {s.brand && (
-                      <div className="truncate text-xs text-[var(--color-muted)]">{s.brand}</div>
-                    )}
-                  </div>
-                </button>
-              </li>
-            ))}
+            {groups.map((group, gi) => {
+              const root = group.root;
+              return (
+                <li key={root ? `gen:${root.id}` : `flat:${gi}`}>
+                  {root && (
+                    <button
+                      type="button"
+                      onPointerDown={(e) => e.preventDefault()}
+                      onClick={() => pick(genericToProduct(root))}
+                      className="flex w-full items-center gap-3 px-3 py-2.5 text-left active:bg-[var(--color-surface-2)]"
+                    >
+                      <ProductImage category={root.category} iconName={iconForGeneric(root.id)} size={40} eager />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-base font-semibold">{root.name}</div>
+                        <div className="truncate text-xs text-[var(--color-muted)]">
+                          Sammelbegriff · {CATEGORY_LABELS[root.category]}
+                        </div>
+                      </div>
+                    </button>
+                  )}
+                  <ul className={root ? 'ml-5 border-l-2 border-[var(--color-surface-2)]' : ''}>
+                    {group.rows.map((s) => (
+                      <li key={`${s.source}:${s.id}`}>
+                        <button
+                          type="button"
+                          onPointerDown={(e) => e.preventDefault()}
+                          onClick={() => pick(s)}
+                          className="flex w-full items-center gap-3 px-3 py-2.5 text-left active:bg-[var(--color-surface-2)]"
+                        >
+                          <ProductImage src={s.image} category={s.category} iconName={s.icon} size={40} eager />
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-base">{s.name}</div>
+                            {s.brand && (
+                              <div className="truncate text-xs text-[var(--color-muted)]">{s.brand}</div>
+                            )}
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

@@ -118,6 +118,10 @@ export interface Product {
   brand?: string;
   image?: string;
   category: Category;
+  /** The generic this SKU/concept belongs to (see `generics.ts`). Resolved at
+   *  add-time from the name + category when not set explicitly. Optional during
+   *  the prototype — the long tail of OFF products has no generic yet. */
+  genericId?: string;
   barcode?: string;
   /** Stores where this is typically bought; empty = inferred from category */
   stores?: Store[];
@@ -134,6 +138,11 @@ export interface Item {
    *  Dexie v3 upgrade for items added before multi-list existed. */
   listId: string;
   productId: string;
+  /** Generic this item rolls up to (see `generics.ts`). Backfilled by the
+   *  Dexie v9 upgrade by resolving from name + category. Drives the generic
+   *  header grouping and lets per-store own-brand suggestions reuse the
+   *  generic's `brandKey`. */
+  genericId?: string;
   name: string;
   /** Global/default brand — what to show when no store filter is active, and
    *  the last-resort fallback when neither a per-store pick nor a suggestion
