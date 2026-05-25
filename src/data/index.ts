@@ -13,54 +13,12 @@
 import type { Category, Product, Store } from '../types';
 import type { Generic } from '../generics';
 import type { StoreBrandEntry } from '../store-brands';
+import { parseCSV } from '../csv';
 import catalogCsv from '../../data/catalog.csv?raw';
 import genericsCsv from '../../data/generics.csv?raw';
 import storeBrandsCsv from '../../data/store-brands.csv?raw';
 
-/** RFC-4180-ish parser: quoted fields, embedded commas, and "" escapes. Returns
- *  one object per row keyed by the header. Small on purpose — our CSVs are
- *  plain, but names like "Gewürze, Öle & Saucen" need real quote handling. */
-export function parseCSV(text: string): Record<string, string>[] {
-  const rows: string[][] = [];
-  let field = '';
-  let record: string[] = [];
-  let inQuotes = false;
-  let sawField = false;
-  const endField = () => {
-    record.push(field);
-    field = '';
-    sawField = true;
-  };
-  const endRecord = () => {
-    rows.push(record);
-    record = [];
-    sawField = false;
-  };
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (inQuotes) {
-      if (c === '"') {
-        if (text[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else inQuotes = false;
-      } else field += c;
-    } else if (c === '"') inQuotes = true;
-    else if (c === ',') endField();
-    else if (c === '\n') {
-      endField();
-      endRecord();
-    } else if (c !== '\r') field += c;
-  }
-  if (field.length > 0 || sawField || record.length > 0) {
-    endField();
-    endRecord();
-  }
-  const header = rows.shift() ?? [];
-  return rows
-    .filter((r) => r.some((c) => c !== ''))
-    .map((r) => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ''])));
-}
+export { parseCSV };
 
 const list = (v: string): string[] => (v ? v.split('|') : []);
 const opt = (v: string): string | undefined => v || undefined;

@@ -1,21 +1,16 @@
 import type { Category, Product, Store } from './types';
 import { defaultStoresForCategory } from './openfoodfacts';
+import { parseCSV } from './csv';
 
-/** Compact on-disk row shape (matches scripts/build-catalog.mjs trim()). */
+/** One row of `public/off-de-snapshot.csv` (written by build-catalog.mjs).
+ *  `stores` is a `|`-separated list of Open Food Facts store IDs. */
 interface RawRow {
-  c: string; // barcode/code
-  n: string; // name
-  b: string; // brand
-  i: string; // image
-  k: Category; // category
-  s?: string; // comma-separated store IDs from Open Food Facts stores_tags (optional)
-}
-
-interface SnapshotFile {
-  source: string;
-  generatedAt: string;
-  count: number;
-  products: RawRow[];
+  code: string;
+  name: string;
+  brand: string;
+  image: string;
+  category: Category;
+  stores: string;
 }
 
 interface IndexedProduct {
@@ -24,7 +19,7 @@ interface IndexedProduct {
   haystack: string;
 }
 
-const SNAPSHOT_URL = '/off-de-snapshot.json';
+const SNAPSHOT_URL = '/off-de-snapshot.csv';
 
 let loadPromise: Promise<IndexedProduct[]> | null = null;
 let indexed: IndexedProduct[] | null = null;
@@ -48,7 +43,7 @@ const KNOWN_STORES: Set<string> = new Set(['aldi', 'lidl', 'rewe', 'edeka', 'dm'
 
 function parseStores(s: string | undefined, category: Category): Store[] {
   if (s) {
-    const parsed = s.split(',').filter((t) => KNOWN_STORES.has(t)) as Store[];
+    const parsed = s.split('|').filter((t) => KNOWN_STORES.has(t)) as Store[];
     if (parsed.length) return parsed;
   }
   return defaultStoresForCategory(category);
@@ -56,13 +51,13 @@ function parseStores(s: string | undefined, category: Category): Store[] {
 
 function toProduct(r: RawRow): Product {
   return {
-    id: r.c || `off:${r.n}`,
-    name: r.n,
-    brand: r.b || undefined,
-    image: r.i || undefined,
-    category: r.k,
-    barcode: r.c || undefined,
-    stores: parseStores(r.s, r.k),
+    id: r.code || `off:${r.name}`,
+    name: r.name,
+    brand: r.brand || undefined,
+    image: r.image || undefined,
+    category: r.category,
+    barcode: r.code || undefined,
+    stores: parseStores(r.stores, r.category),
   };
 }
 
@@ -75,17 +70,17 @@ async function load(): Promise<IndexedProduct[]> {
     attemptedAt = Date.now();
     try {
       // Use default HTTP caching — server can return 304 on no-change, but a
-      // refreshed snapshot.json is picked up. The Workbox service worker still
+      // refreshed snapshot is picked up. The Workbox service worker still
       // gives us cache-first behaviour in production via its own runtime cache.
       const res = await fetch(SNAPSHOT_URL);
       if (!res.ok) {
         indexed = [];
         return indexed;
       }
-      const data = (await res.json()) as SnapshotFile;
-      indexed = data.products.map((r) => {
+      const rows = parseCSV(await res.text()) as unknown as RawRow[];
+      indexed = rows.map((r) => {
         const product = toProduct(r);
-        const haystack = norm(`${r.n} ${r.b}`);
+        const haystack = norm(`${r.name} ${r.brand}`);
         return { product, haystack };
       });
       return indexed;

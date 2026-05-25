@@ -47,7 +47,7 @@ flowchart TB
 
   CATEG -. "guard test" .-> TMAPS["types.ts / icons.tsx<br/>CATEGORY_* maps"]
 
-  DUMP -- "scripts/build-catalog.mjs<br/>(offline, ~25 min)" --> SNAP["public/off-de-snapshot.json<br/>19k products, 3.3 MB"]
+  DUMP -- "scripts/build-catalog.mjs<br/>(offline, ~25 min)" --> SNAP["public/off-de-snapshot.csv<br/>19k products, 2.7 MB"]
 
   SYM --> APP["search · list · filters · scan"]
   TMAPS --> APP
@@ -67,7 +67,7 @@ flowchart LR
   IN --> R["1 · recent items (Dexie)"]
   IN --> C["2 · CURATED_CATALOG<br/>catalog.csv"]
   IN --> G["3 · GENERICS<br/>generics.csv · resolveGeneric()"]
-  IN --> S["4 · snapshot<br/>off-de-snapshot.json"]
+  IN --> S["4 · snapshot<br/>off-de-snapshot.csv"]
   IN --> L["5 · live OFF API"]
   R --> RANK["ranked + grouped<br/>under root generic"]
   C --> RANK
@@ -104,10 +104,16 @@ The 14 supermarket-walk categories. `kind` is `grocery`|`drugstore`;
 
 **legacy-categories.csv** — `old, new` — remaps pre-14-category slugs on load.
 
-## The long tail (not in these CSVs)
+## The long tail — `public/off-de-snapshot.csv`
 
-`public/off-de-snapshot.json` (19k products) and the live OFF API cover
-everything the curated lists don't. The snapshot is **generated**, not
-hand-edited — rebuild it with `npm run build:catalog` when the OFF category
-rules change. Icon SVG paths live in `src/icons-library*.tsx` (they're code, not
-tabular data).
+`public/off-de-snapshot.csv` (19k products, ~2.7 MB) plus the live OFF API cover
+everything the curated lists don't. It's CSV too — same columns family as
+`catalog.csv` (`code,name,brand,image,category,stores`), so it's greppable and
+spreadsheet-openable — but it is **generated, not hand-edited**: `snapshot.ts`
+fetches and parses it at runtime, and `npm run build:catalog` regenerates it
+from the OFF dump (editing a row would be overwritten). The OFF-tag → category
+mapping it uses lives in `CATEGORY_TAG_RULES` in `scripts/build-catalog.mjs`.
+
+Icon SVG paths live in `src/icons-library*.tsx` — they're code (JSX markup), not
+tabular data, so they're not CSV; the natural editable form for them would be
+one `.svg` file per icon (a possible follow-up).

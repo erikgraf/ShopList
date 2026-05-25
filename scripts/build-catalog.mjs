@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Streams Open Food Facts' daily JSONL dump, filters to German products,
-// keeps the top-N most "complete" entries, writes a trimmed JSON snapshot.
+// keeps the top-N most "complete" entries, writes a trimmed CSV snapshot.
 //
-// Output: public/off-de-snapshot.json
+// Output: public/off-de-snapshot.csv
 //
 // Usage:
 //   node scripts/build-catalog.mjs [--limit=20000] [--source=URL_OR_PATH]
@@ -24,7 +24,7 @@ const ROOT = join(__dirname, '..');
 const DEFAULT_SOURCE = 'https://static.openfoodfacts.org/data/openfoodfacts-products.jsonl.gz';
 const DEFAULT_LIMIT = 20000;
 const DEFAULT_CACHE_PATH = join(tmpdir(), 'shoplist-off-dump.jsonl.gz');
-const OUTPUT_PATH = join(ROOT, 'public', 'off-de-snapshot.json');
+const OUTPUT_PATH = join(ROOT, 'public', 'off-de-snapshot.csv');
 
 function parseArgs() {
   const out = {
@@ -403,16 +403,25 @@ async function main() {
     final.push(product);
   }
 
-  const payload = {
-    source: 'openfoodfacts',
-    generatedAt: new Date().toISOString(),
-    count: final.length,
-    products: final,
+  // Emit CSV (loaded by src/snapshot.ts). Columns mirror the runtime RawRow:
+  // code,name,brand,image,category,stores — stores `|`-joined (the in-memory
+  // trim() still uses comma, so swap here). Smaller + greppable vs the old JSON.
+  const csvCell = (v) => {
+    const s = v == null ? '' : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-
-  await writeFile(OUTPUT_PATH, JSON.stringify(payload));
-  const sizeMB = (Buffer.byteLength(JSON.stringify(payload)) / 1024 / 1024).toFixed(2);
-  console.log(`[build-catalog] wrote ${final.length} products -> ${OUTPUT_PATH} (${sizeMB} MB raw)`);
+  const lines = ['code,name,brand,image,category,stores'];
+  for (const p of final) {
+    lines.push(
+      [p.c || '', p.n || '', p.b || '', p.i || '', p.k || '', (p.s || '').replace(/,/g, '|')]
+        .map(csvCell)
+        .join(','),
+    );
+  }
+  const csv = lines.join('\n') + '\n';
+  await writeFile(OUTPUT_PATH, csv);
+  const sizeMB = (Buffer.byteLength(csv) / 1024 / 1024).toFixed(2);
+  console.log(`[build-catalog] wrote ${final.length} products -> ${OUTPUT_PATH} (${sizeMB} MB)`);
 }
 
 main().catch((e) => {
