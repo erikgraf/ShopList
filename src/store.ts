@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { db, emitChange, onChange } from './db';
 import { defaultStoresForCategory } from './openfoodfacts';
 import { availableStores, DEFAULT_PREFERENCES, genericName, type Preferences } from './store-brands';
+import { resolveGeneric } from './generics';
 import {
   DEFAULT_LIST_ID,
   DEFAULT_LIST_NAME,
@@ -197,6 +198,11 @@ export async function addItemFromProduct(
   // items keep their literal name because the user already chose it.
   const displayName = p.barcode ? genericName(p.name) : p.name;
 
+  // Resolve which generic this rolls up to. An explicit id on the product
+  // wins (e.g. a generic suggestion); otherwise infer from the display name
+  // and category so typed and scanned items land on the same logical row.
+  const genericId = p.genericId ?? resolveGeneric(displayName, p.category) ?? undefined;
+
   // Stores the item could be bought at: always seed from the category
   // default (every chain that carries products in this category), then
   // union in whatever the product blob claimed and every chain that has
@@ -245,6 +251,7 @@ export async function addItemFromProduct(
     id: uid(),
     listId: activeList,
     productId: p.id,
+    genericId,
     name: displayName,
     brand: p.brand,
     brandByStore,

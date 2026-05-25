@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import { availableStores } from './store-brands';
 import { defaultStoresForCategory } from './openfoodfacts';
+import { resolveGeneric } from './generics';
 import {
   migrateCategory,
   DEFAULT_LIST_ID,
@@ -183,6 +184,28 @@ class ShopListDB extends Dexie {
           .toCollection()
           .modify((row) => {
             row.stores = availableStores(row.name, defaultStoresForCategory(row.category));
+          });
+      });
+
+    // v9: generic tier. Adds the `genericId` field + index and backfills it on
+    // existing items by resolving from name + category (see `generics.ts`).
+    // Items whose name matches no generic stay `undefined` and simply render
+    // ungrouped — the field is optional during the prototype.
+    this.version(9)
+      .stores({
+        items: 'id, position, addedAt, listId, updatedAt, genericId',
+        recent: 'id, lastUsedAt, useCount',
+        lists: 'id, position, updatedAt',
+        unknownBarcodes: 'barcode, lastSeenAt',
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table('items')
+          .toCollection()
+          .modify((row) => {
+            if (!row.genericId) {
+              row.genericId = resolveGeneric(row.name, row.category) ?? undefined;
+            }
           });
       });
   }

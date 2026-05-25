@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "test": "vitest run",
     "lint": "eslint .",
     "preview": "npm run build && wrangler dev",
     "build:catalog": "node scripts/build-catalog.mjs",
@@ -38,6 +39,7 @@
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",
     "vite-plugin-pwa": "^1.0.3",
+    "vitest": "^4.1.7",
     "wrangler": "^4.93.1"
   }
 }
