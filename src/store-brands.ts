@@ -257,14 +257,21 @@ export function genericName(rawName: string): string {
   const trimmed = rawName.trim();
   const key = matchItemKey(trimmed);
   if (!key || !KEY_LABELS[key]) return trimmed;
-  // German compounds carry meaning in the prefix: "Orangensaft" and
-  // "Zitronensaft" both match the `saft` key, but collapsing them to the
-  // bare label "Saft" throws away the type the user actually picked.
-  // Only simplify genuinely verbose / branded names (multiple words, e.g.
-  // "Kamill Hand- & Nagelcreme classic"). A single clean word — whether
-  // the bare noun ("Saft") or a compound ("Orangensaft") — is already the
-  // name the user wants, so keep it verbatim.
+  // A single clean word is already the name the user wants, whether the
+  // bare noun ("Saft") or a compound built on the key ("Orangensaft").
   if (!/\s/.test(trimmed)) return trimmed;
+  // Multi-word (typically a scanned OFF name: brand + product + pack size,
+  // e.g. "Ferrero Milchschnitte 10er Pack"). If any single word is a richer
+  // compound built on the key — "Milchschnitte"/"Vollmilch" on `milch`,
+  // "Orangensaft" on `saft` — keep that word; collapsing to the bare label
+  // ("Milch") throws away the product. Otherwise (the name only carries the
+  // bare noun amid brand/filler words) fall back to the clean base label.
+  const norm = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/ß/g, 'ss');
+  for (const word of trimmed.split(/\s+/)) {
+    const n = norm(word);
+    if (n.length > key.length && n.includes(key) && /\p{L}/u.test(word)) return word;
+  }
   return KEY_LABELS[key];
 }
 

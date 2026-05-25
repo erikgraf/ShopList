@@ -430,6 +430,9 @@ export const CURATED_CATALOG: Product[] = [
   { id: 'local:chips', name: 'Chips', category: 'suesses-knabberei', icon: 'chips', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:gummibaerchen', name: 'Gummibärchen', category: 'suesses-knabberei', icon: 'keks', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
   { id: 'local:nuesse', name: 'Nüsse', category: 'suesses-knabberei', icon: 'nuss', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:milchschnitte', name: 'Milchschnitte', brand: 'Ferrero', category: 'suesses-knabberei', icon: 'schokolade', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:kinderriegel', name: 'Kinder Riegel', brand: 'Ferrero', category: 'suesses-knabberei', icon: 'schokolade', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
+  { id: 'local:kinderpingui', name: 'Kinder Pingui', brand: 'Ferrero', category: 'suesses-knabberei', icon: 'schokolade', stores: ['rewe', 'edeka', 'aldi', 'lidl'] },
 ];
 
 const norm = (s: string): string =>

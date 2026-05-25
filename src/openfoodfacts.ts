@@ -31,6 +31,18 @@ interface OFFProduct {
 
 function mapCategory(tags: string[] | undefined, name?: string): Category {
   const t = (tags?.join(' ') ?? '') + ' ' + (name ?? '');
+  // Milk-named sweets ("Milchschnitte", "Milchschokolade", "Milchriegel")
+  // otherwise get grabbed by the dairy `milch` substring below and land in
+  // Milchprodukte instead of Süßes. Detect a clear sweet signal up front
+  // and use it to skip the dairy branch. Deliberately precise tokens
+  // (sweet-snacks, schokolade, riegel, …) — NOT bare "sweet" — so
+  // "sweetened" / "Fruchtjoghurt" stay dairy. Spreads (Nutella →
+  // chocolate-spreads) are still matched by their own branch, which runs
+  // before the final sweets branch, so this only diverts the dairy hit.
+  const isSweet =
+    /sweet-snacks|sugary-snacks|chocolat|schokolade|schoko|\bcandy\b|bonbon|cookies|biscuits|knabberei|confectioneries|lollipops|riegel|waffel|praline|schnitte/i.test(
+      t,
+    );
   // Order matters: specific categories first. Oils + condiments must come
   // before the beverages branch because OFF tags compound — Leinöl and
   // Olivenöl Demeter carry `en:plant-based-foods-and-beverages` which
@@ -54,10 +66,11 @@ function mapCategory(tags: string[] | undefined, name?: string): Category {
   if (/cleaning|haushalt|detergent|laundry|waschmittel|reiniger|spülmittel|spuelmittel|household/i.test(t)) return 'haushalt';
   if (/frozen|tiefkuehl|tiefkühl/i.test(t)) return 'tiefkuehl';
   if (/breads|bread|brot|broetchen|brötchen|baker|gebaeck|gebäck|rusks|crackers|toasts/i.test(t)) return 'brot-gebaeck';
-  if (/dairies|milk|cheese|yogurt|milch|kaese|käse|joghurt|eggs|eier/i.test(t)) return 'milch-eier';
+  if (!isSweet && /dairies|milk|cheese|yogurt|milch|kaese|käse|joghurt|eggs|eier/i.test(t))
+    return 'milch-eier';
   if (/meat|fish|fleisch|wurst|sausage|seafood|hams|salamis|poultries/i.test(t)) return 'fleisch-fisch';
   if (/spreads|jams|honey|honig|marmelade|mueslis|granolas|breakfast-cereals|aufstrich/i.test(t)) return 'fruehstueck-aufstrich';
-  if (/snacks|chocolat|candy|sweet|bonbon|suess|süß|cookies|biscuits|chips|crisps|knabberei|confectioneries|gums|lollipops/i.test(t)) return 'suesses-knabberei';
+  if (/snacks|chocolat|schokolade|schoko|candy|sweet|bonbon|suess|süß|cookies|biscuits|chips|crisps|knabberei|confectioneries|gums|lollipops|riegel|waffel|praline|schnitte/i.test(t)) return 'suesses-knabberei';
   if (/pastas|cereals|rice|nudeln|reis|mehl|flours|sugars|legumes|canned|preserves|prepared-meals|ready-meals/i.test(t)) return 'vorrat';
   return 'sonstiges';
 }
