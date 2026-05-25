@@ -16,6 +16,7 @@ double-quoted (e.g. `"Gewürze, Öle & Saucen"`).
 | `store-brands.csv` | 64 | `src/data/index.ts` → `STORE_BRAND_MAP` + `KEY_LABELS` | **source of truth** |
 | `categories.csv` | 14 | mirror of `types.ts` + `icons.tsx` | mirror (guarded by a test) |
 | `legacy-categories.csv` | 12 | mirror of `LEGACY_CATEGORY_MAP` | mirror (guarded by a test) |
+| `category-rules.csv` | 129 | `scripts/build-catalog.mjs` (OFF→category) | **source of truth** (build-time) |
 
 > Why are categories a mirror? The 14 categories define the `Category` **union
 > type** used across the code, so they live in `types.ts`. `categories.csv` is a
@@ -112,7 +113,32 @@ everything the curated lists don't. It's CSV too — same columns family as
 spreadsheet-openable — but it is **generated, not hand-edited**: `snapshot.ts`
 fetches and parses it at runtime, and `npm run build:catalog` regenerates it
 from the OFF dump (editing a row would be overwritten). The OFF-tag → category
-mapping it uses lives in `CATEGORY_TAG_RULES` in `scripts/build-catalog.mjs`.
+mapping it applies is the build-time source of truth in `category-rules.csv`
+(loaded by `scripts/build-catalog.mjs`).
+
+## For data analysis — `data/off-de-full.csv`
+
+The runtime snapshot above is deliberately lean (6 columns) so the app downloads
+fast. For offline analysis the same build pass also emits a **wide** sibling,
+`data/off-de-full.csv` — the identical 19k products carrying **all** the OFF
+metadata worth keeping (29 columns). It is **generated and git-ignored** (it's
+large and reproducible): run `npm run build:catalog` to populate it. Both files
+come from the same dedup'd product set in one pass, so a `code` in the snapshot
+always has a matching row here.
+
+Columns, grouped:
+
+- **identity** — `code, name, generic_name, brand, brands`
+- **classification** — `category` (our slug), `off_categories`, `stores`, `countries`, `labels`, `packaging`, `quantity`
+- **scores** — `nutriscore, nova_group, ecoscore`
+- **nutrition per 100 g** — `energy_kcal_100g, fat_100g, saturated_fat_100g, carbohydrates_100g, sugars_100g, fiber_100g, proteins_100g, salt_100g`
+- **composition** — `ingredients_text, allergens, additives_n`
+- **meta** — `completeness, popularity_key, image`
+
+Tag-like fields (`off_categories`, `countries`, `labels`, `packaging`,
+`allergens`) keep OFF's full `|`-joined tag lists; numeric fields are blank when
+OFF has no value. Use it in a notebook/spreadsheet — it is never loaded by the
+app.
 
 Icon SVG paths live in `src/icons-library*.tsx` — they're code (JSX markup), not
 tabular data, so they're not CSV; the natural editable form for them would be

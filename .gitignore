@@ -33,3 +33,6 @@ dist-ssr
 !.dev.vars.example
 .env*
 !.env.example
+
+# Generated OFF analysis export (large; rebuild with npm run build:catalog)
+data/off-de-full.csv

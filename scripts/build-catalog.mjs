@@ -9,7 +9,7 @@
 //
 // Source can be an http(s) URL or a local .jsonl.gz path.
 
-import { createReadStream, existsSync, statSync } from 'node:fs';
+import { createReadStream, existsSync, statSync, readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +25,9 @@ const DEFAULT_SOURCE = 'https://static.openfoodfacts.org/data/openfoodfacts-prod
 const DEFAULT_LIMIT = 20000;
 const DEFAULT_CACHE_PATH = join(tmpdir(), 'shoplist-off-dump.jsonl.gz');
 const OUTPUT_PATH = join(ROOT, 'public', 'off-de-snapshot.csv');
+// Rich analysis export — all OFF metadata, not shipped (gitignored). For data
+// analysis only; regenerated alongside the lean snapshot on every run.
+const RICH_OUTPUT_PATH = join(ROOT, 'data', 'off-de-full.csv');
 
 function parseArgs() {
   const out = {
@@ -107,70 +110,22 @@ function passesPrefilter(line) {
   return false;
 }
 
-// Tag-prefix → category. Order = priority (first match wins). Most specific first.
-// A product's tags include the full ancestry chain (e.g. en:chocolate-spreads
-// implies en:sweet-spreads implies en:spreads), so exact OR prefix-with-dash matches.
-const CATEGORY_TAG_RULES = [
-  // Non-food first — these are the most specific
-  ['baby', ['en:baby-foods', 'en:baby-products', 'en:infant-foods', 'en:infant-milks']],
-  ['koerperpflege', ['en:cosmetics', 'en:hygiene-products', 'en:personal-care', 'en:body-care', 'en:hair-care', 'en:oral-care']],
-  ['haushalt', ['en:household-products', 'en:detergents', 'en:cleaning-products', 'en:dishwashing']],
-  // Frozen wins before anything food-shaped — TK-Pizza, TK-Eis, TK-Gemüse all belong here
-  ['tiefkuehl', ['en:frozen-foods', 'en:frozen-desserts', 'en:frozen-meals']],
-  // Fresh produce — but watch out: "canned-vegetables" should sit in Vorrat
-  ['obst-gemuese', [
-    'en:fruits', 'en:vegetables', 'en:fresh-vegetables', 'en:fresh-fruits',
-    'en:salads', 'en:mushrooms', 'en:roots', 'en:tubers',
-  ]],
-  ['brot-gebaeck', [
-    'en:breads', 'en:bread-products', 'en:rusks', 'en:crackers', 'en:toasts',
-    'en:flat-breads', 'en:viennoiseries',
-  ]],
-  ['milch-eier', [
-    'en:dairies', 'en:milks', 'en:cheeses', 'en:yogurts', 'en:creams',
-    'en:fermented-milk-products', 'en:plant-based-milks', 'en:eggs', 'en:butters',
-  ]],
-  ['fleisch-fisch', [
-    'en:meats', 'en:fishes', 'en:seafood', 'en:sausages', 'en:hams', 'en:salamis',
-    'en:cooked-meats', 'en:charcuterie', 'en:poultries', 'en:beef', 'en:pork',
-  ]],
-  // Breakfast & spreads — Nutella, Müsli, Marmelade, Honig live here
-  ['fruehstueck-aufstrich', [
-    'en:breakfast-cereals', 'en:mueslis', 'en:granolas',
-    'en:spreads', 'en:sweet-spreads', 'en:chocolate-spreads', 'en:hazelnut-spreads',
-    'en:cocoa-and-hazelnuts-spreads', 'en:nut-butters', 'en:peanut-butters',
-    'en:jams', 'en:marmalades', 'en:fruit-spreads',
-    'en:honeys', 'en:honey', 'en:syrups',
-  ]],
-  // Spices, oils, vinegars, sauces, condiments
-  ['gewuerze-saucen', [
-    'en:spices', 'en:salts', 'en:peppers',
-    'en:oils', 'en:olive-oils', 'en:vegetable-oils', 'en:cooking-oils',
-    'en:vinegars',
-    'en:condiments', 'en:sauces', 'en:dressings', 'en:ketchups', 'en:mustards',
-    'en:mayonnaises', 'en:soy-sauces', 'en:hot-sauces',
-  ]],
-  // Sweets / savory snacks. Order matters: tested AFTER breakfast spreads so
-  // Nutella doesn't get pulled here by the generic "sweet-spreads" tag.
-  ['suesses-knabberei', [
-    'en:chocolates', 'en:candies', 'en:cookies', 'en:biscuits',
-    'en:snacks', 'en:sweet-snacks', 'en:salty-snacks', 'en:chips', 'en:crisps',
-    'en:cakes', 'en:desserts', 'en:ice-creams', 'en:confectioneries', 'en:bars',
-    'en:nuts', 'en:dried-fruits', 'en:gums', 'en:lollipops',
-  ]],
-  ['getraenke', [
-    'en:beverages', 'en:waters', 'en:juices', 'en:teas', 'en:coffees',
-    'en:beers', 'en:wines', 'en:spirits', 'en:soft-drinks', 'en:colas',
-    'en:hot-beverages', 'en:cold-beverages',
-    'en:non-alcoholic-beverages', 'en:alcoholic-beverages',
-  ]],
-  // Pantry catch-all for shelf-stable staples
-  ['vorrat', [
-    'en:pastas', 'en:cereals', 'en:rice', 'en:flours', 'en:sugars',
-    'en:legumes', 'en:canned-foods', 'en:canned-fruits', 'en:canned-vegetables',
-    'en:preserves', 'en:soups', 'en:ready-meals', 'en:prepared-meals',
-  ]],
-];
+// OFF tag → category rules, loaded from data/category-rules.csv — the editable
+// source of truth (see data/README.md). Rows are pre-sorted by priority; a
+// product's tags include the full ancestry chain so exact / prefix-with-dash
+// matches. Reconstructed here as [category, [tags…]] in priority order.
+const CATEGORY_TAG_RULES = (() => {
+  const text = readFileSync(join(ROOT, 'data', 'category-rules.csv'), 'utf8');
+  const byCat = new Map();
+  const order = [];
+  for (const line of text.trim().split('\n').slice(1)) {
+    const [, category, offTag] = line.split(',');
+    if (!category || !offTag) continue;
+    if (!byCat.has(category)) { byCat.set(category, []); order.push(category); }
+    byCat.get(category).push(offTag.trim());
+  }
+  return order.map((c) => [c, byCat.get(c)]);
+})();
 
 function mapCategory(tags) {
   if (!tags || !tags.length) return 'sonstiges';
@@ -269,6 +224,54 @@ function trim(p, imageUrl) {
     i: imageUrl || '',
     k: category,
     ...(stores.length ? { s: stores.join(',') } : {}),
+  };
+}
+
+// Rich row for the analysis export (data/off-de-full.csv) — every OFF field
+// worth analysing. Separate from the lean runtime snapshot so the shipped
+// download stays small. List-valued fields are `|`-joined.
+const RICH_COLUMNS = [
+  'code', 'name', 'generic_name', 'brand', 'brands', 'category', 'off_categories',
+  'stores', 'countries', 'quantity', 'packaging', 'labels', 'nutriscore', 'nova_group',
+  'ecoscore', 'energy_kcal_100g', 'fat_100g', 'saturated_fat_100g', 'carbohydrates_100g',
+  'sugars_100g', 'fiber_100g', 'proteins_100g', 'salt_100g', 'ingredients_text',
+  'allergens', 'additives_n', 'completeness', 'popularity_key', 'image',
+];
+
+function richRow(p, imageUrl) {
+  const nut = p.nutriments || {};
+  const num = (v) => (typeof v === 'number' ? v : '');
+  const tags = (t) => (Array.isArray(t) ? t.join('|') : '');
+  return {
+    code: p.code || '',
+    name: (p.product_name_de || p.product_name || p.generic_name_de || '').trim(),
+    generic_name: (p.generic_name_de || p.generic_name || '').trim(),
+    brand: (p.brands || '').split(',')[0]?.trim() || '',
+    brands: p.brands || '',
+    category: mapCategory(p.categories_tags),
+    off_categories: tags(p.categories_tags),
+    stores: mapStores(p.stores_tags).join('|'),
+    countries: tags(p.countries_tags),
+    quantity: p.quantity || '',
+    packaging: tags(p.packaging_tags),
+    labels: tags(p.labels_tags),
+    nutriscore: p.nutriscore_grade || p.nutrition_grades || '',
+    nova_group: num(p.nova_group),
+    ecoscore: p.ecoscore_grade || '',
+    energy_kcal_100g: num(nut['energy-kcal_100g']),
+    fat_100g: num(nut.fat_100g),
+    saturated_fat_100g: num(nut['saturated-fat_100g']),
+    carbohydrates_100g: num(nut.carbohydrates_100g),
+    sugars_100g: num(nut.sugars_100g),
+    fiber_100g: num(nut.fiber_100g),
+    proteins_100g: num(nut.proteins_100g),
+    salt_100g: num(nut.salt_100g),
+    ingredients_text: (p.ingredients_text_de || p.ingredients_text || '').trim(),
+    allergens: tags(p.allergens_tags),
+    additives_n: num(p.additives_n),
+    completeness: num(p.completeness),
+    popularity_key: num(p.popularity_key),
+    image: imageUrl || '',
   };
 }
 
@@ -378,7 +381,7 @@ async function main() {
     if (kept.length >= KEEP_THRESHOLD && score <= minKeptScore) continue;
 
     qualified++;
-    kept.push({ score, product: trim(p, imageUrl) });
+    kept.push({ score, product: trim(p, imageUrl), rich: richRow(p, imageUrl) });
 
     if (kept.length >= KEEP_THRESHOLD) {
       kept.sort((a, b) => b.score - a.score);
@@ -393,35 +396,49 @@ async function main() {
     `[build-catalog] ${truncated ? 'truncated input,' : 'done.'} lines=${lines} prefilter=${scanned} parsed=${parsed} qualified=${qualified} final=${kept.length}`,
   );
 
-  // Dedup by normalized name to drop near-duplicates with same brand
+  // Dedup by normalized name to drop near-duplicates with same brand. Keep the
+  // whole entry (lean product + rich row) so both exports stay aligned.
   const seen = new Set();
   const final = [];
-  for (const { product } of kept) {
+  for (const entry of kept) {
+    const { product } = entry;
     const key = `${(product.b || '').toLowerCase()}|${product.n.toLowerCase()}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    final.push(product);
+    final.push(entry);
   }
 
-  // Emit CSV (loaded by src/snapshot.ts). Columns mirror the runtime RawRow:
-  // code,name,brand,image,category,stores — stores `|`-joined (the in-memory
-  // trim() still uses comma, so swap here). Smaller + greppable vs the old JSON.
   const csvCell = (v) => {
     const s = v == null ? '' : String(v);
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const lines = ['code,name,brand,image,category,stores'];
-  for (const p of final) {
-    lines.push(
+
+  // 1) Lean runtime snapshot (shipped, loaded by src/snapshot.ts):
+  //    code,name,brand,image,category,stores — stores `|`-joined.
+  const leanLines = ['code,name,brand,image,category,stores'];
+  for (const { product: p } of final) {
+    leanLines.push(
       [p.c || '', p.n || '', p.b || '', p.i || '', p.k || '', (p.s || '').replace(/,/g, '|')]
         .map(csvCell)
         .join(','),
     );
   }
-  const csv = lines.join('\n') + '\n';
-  await writeFile(OUTPUT_PATH, csv);
-  const sizeMB = (Buffer.byteLength(csv) / 1024 / 1024).toFixed(2);
-  console.log(`[build-catalog] wrote ${final.length} products -> ${OUTPUT_PATH} (${sizeMB} MB)`);
+  const leanCsv = leanLines.join('\n') + '\n';
+  await writeFile(OUTPUT_PATH, leanCsv);
+  const leanMB = (Buffer.byteLength(leanCsv) / 1024 / 1024).toFixed(2);
+  console.log(`[build-catalog] wrote ${final.length} products -> ${OUTPUT_PATH} (${leanMB} MB)`);
+
+  // 2) Rich analysis export (NOT shipped, gitignored): all metadata for
+  //    data analysis. See data/README.md.
+  const richLines = [RICH_COLUMNS.join(',')];
+  for (const { rich } of final) {
+    richLines.push(RICH_COLUMNS.map((c) => csvCell(rich[c])).join(','));
+  }
+  const richCsv = richLines.join('\n') + '\n';
+  await mkdir(dirname(RICH_OUTPUT_PATH), { recursive: true });
+  await writeFile(RICH_OUTPUT_PATH, richCsv);
+  const richMB = (Buffer.byteLength(richCsv) / 1024 / 1024).toFixed(2);
+  console.log(`[build-catalog] wrote ${final.length} rich rows -> ${RICH_OUTPUT_PATH} (${richMB} MB)`);
 }
 
 main().catch((e) => {
