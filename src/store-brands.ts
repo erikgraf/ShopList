@@ -1,4 +1,5 @@
 import type { Store } from './types';
+import { STORE_BRAND_MAP as STORE_BRAND_MAP_DATA, KEY_LABELS as KEY_LABELS_DATA } from './data';
 
 /**
  * Curated mapping of common shopping-list items to each chain's own brand.
@@ -21,33 +22,11 @@ export interface StoreBrandEntry {
 }
 
 /** Drugstore store brands (Aldi/Lidl carry many of these as private-label too). */
-const DRUGSTORE_DEFAULTS = {
-  aldi: 'Lacura',
-  lidl: 'Cien',
-  rewe: 'REWE Beste Wahl',
-  edeka: 'EDEKA',
-  dm: 'Balea',
-  rossmann: 'Isana',
-} satisfies Partial<Record<Store, string>>;
 
 /** Bio cosmetics lines: dmBio/Alverde at DM, Alterra at Rossmann, GUT BIO at
  *  Aldi etc. — the discounters' bio range covers cosmetics under a single name. */
-const DRUGSTORE_BIO = {
-  aldi: 'GUT BIO',
-  lidl: 'Bio',
-  rewe: 'REWE Bio',
-  edeka: 'EDEKA Bio',
-  dm: 'Alverde',
-  rossmann: 'Alterra',
-} satisfies Partial<Record<Store, string>>;
 
 /** Grocery house brands — these match the chain's everyday cheapest tier. */
-const GROCERY_DEFAULTS = {
-  aldi: 'Milsani',
-  lidl: 'Milbona',
-  rewe: 'Ja!',
-  edeka: 'Gut & Günstig',
-} satisfies Partial<Record<Store, string>>;
 
 /**
  * Grocery bio lines — supermarket chains only. dm (dmBio) and Rossmann
@@ -59,12 +38,6 @@ const GROCERY_DEFAULTS = {
  * left out; dm/Rossmann still come in for the items that genuinely belong
  * there via their own STORE_BRAND_MAP entries (toiletries, household).
  */
-const GROCERY_BIO = {
-  aldi: 'GUT BIO',
-  lidl: 'Bio',
-  rewe: 'REWE Bio',
-  edeka: 'EDEKA Bio',
-} satisfies Partial<Record<Store, string>>;
 
 /**
  * Keys are lowercase substrings of item names. `matchItemKey` does a simple
@@ -72,87 +45,7 @@ const GROCERY_BIO = {
  * still hits "handcreme". Longer/more specific keys come first so e.g.
  * "trockenshampoo" wins over "shampoo".
  */
-export const STORE_BRAND_MAP: Record<string, StoreBrandEntry> = {
-  // --- Drugstore: cosmetics & personal care -----------------------------
-  handcreme: { default: DRUGSTORE_DEFAULTS, bio: DRUGSTORE_BIO },
-  bodylotion: { default: DRUGSTORE_DEFAULTS, bio: DRUGSTORE_BIO },
-  gesichtscreme: { default: DRUGSTORE_DEFAULTS, bio: DRUGSTORE_BIO },
-  sonnencreme: {
-    default: { aldi: 'Ombia Sun', lidl: 'Cien Sun', rewe: 'REWE Beste Wahl', edeka: 'EDEKA', dm: 'Sundance', rossmann: 'Sun Ozon' },
-  },
-  trockenshampoo: { default: DRUGSTORE_DEFAULTS },
-  shampoo: { default: DRUGSTORE_DEFAULTS, bio: DRUGSTORE_BIO },
-  spuelung: { default: DRUGSTORE_DEFAULTS, bio: DRUGSTORE_BIO },
-  duschgel: { default: DRUGSTORE_DEFAULTS, bio: DRUGSTORE_BIO },
-  zahnpasta: {
-    default: { aldi: 'Bevola', lidl: 'Dentalux', rewe: 'REWE Beste Wahl', edeka: 'EDEKA', dm: 'Dontodent', rossmann: 'Perlodent' },
-  },
-  zahnbuerste: {
-    default: { aldi: 'Bevola', lidl: 'Dentalux', dm: 'Dontodent', rossmann: 'Perlodent' },
-  },
-  mundwasser: {
-    default: { aldi: 'Bevola', lidl: 'Dentalux', dm: 'Dontodent', rossmann: 'Perlodent' },
-  },
-  deo: { default: DRUGSTORE_DEFAULTS, bio: DRUGSTORE_BIO },
-  rasierschaum: { default: { aldi: 'Bevola', lidl: 'Cien', dm: 'Balea Men', rossmann: 'Isana Men' } },
-  rasierer: { default: { aldi: 'Bevola', lidl: 'Cien', dm: 'Profissimo', rossmann: 'Rubaza' } },
-  seife: { default: DRUGSTORE_DEFAULTS, bio: DRUGSTORE_BIO },
-  damenbinde: { default: { aldi: 'Sensiva', lidl: 'Siempre', dm: 'Jessa', rossmann: 'Facelle' } },
-  tampons: { default: { aldi: 'Sensiva', lidl: 'Siempre', dm: 'Jessa', rossmann: 'Facelle' } },
-  taschentuecher: { default: { aldi: 'Saugstark', lidl: 'Floralys', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Sanft & Sicher', rossmann: 'domol' } },
-  windel: { default: { aldi: 'Lupilu', lidl: 'Lupilu', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Babylove', rossmann: 'Babydream' } },
-
-  // --- Household / cleaning ---------------------------------------------
-  waschmittel: { default: { aldi: 'Tandil', lidl: 'Formil', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Denkmit', rossmann: 'Domol' } },
-  weichspueler: { default: { aldi: 'Tandil', lidl: 'Formil', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Denkmit', rossmann: 'Domol' } },
-  spuelmittel: { default: { aldi: 'Tandil', lidl: 'W5', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Denkmit', rossmann: 'Domol' } },
-  spuelmaschinentabs: { default: { aldi: 'Tandil', lidl: 'W5', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Denkmit', rossmann: 'Domol' } },
-  allzweckreiniger: { default: { aldi: 'Tandil', lidl: 'W5', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Denkmit', rossmann: 'Domol' } },
-  badreiniger: { default: { aldi: 'Tandil', lidl: 'W5', dm: 'Denkmit', rossmann: 'Domol' } },
-  glasreiniger: { default: { aldi: 'Tandil', lidl: 'W5', dm: 'Denkmit', rossmann: 'Domol' } },
-  wcreiniger: { default: { aldi: 'Tandil', lidl: 'W5', dm: 'Denkmit', rossmann: 'Domol' } },
-  toilettenpapier: { default: { aldi: 'Kokett', lidl: 'Floralys', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Sanft & Sicher', rossmann: 'domol' } },
-  klopapier: { default: { aldi: 'Kokett', lidl: 'Floralys', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Sanft & Sicher', rossmann: 'domol' } },
-  kuechenrolle: { default: { aldi: 'Wonder', lidl: 'Floralys', rewe: 'Ja!', edeka: 'Gut & Günstig', dm: 'Denkmit', rossmann: 'Domol' } },
-  muellbeutel: { default: { aldi: 'Quickpack', lidl: 'Quickpack', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  alufolie: { default: { aldi: 'Quickpack', lidl: 'Toppits', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  backpapier: { default: { aldi: 'Quickpack', lidl: 'Toppits', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-
-  // --- Grocery basics ---------------------------------------------------
-  milch: { default: GROCERY_DEFAULTS, bio: GROCERY_BIO },
-  butter: { default: GROCERY_DEFAULTS, bio: GROCERY_BIO },
-  joghurt: { default: GROCERY_DEFAULTS, bio: GROCERY_BIO },
-  kaese: { default: { aldi: 'Hofburger', lidl: 'Milbona', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  sahne: { default: GROCERY_DEFAULTS, bio: GROCERY_BIO },
-  quark: { default: GROCERY_DEFAULTS, bio: GROCERY_BIO },
-  eier: { default: { aldi: 'Eierhof', lidl: 'Pilos', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  broetchen: { default: { aldi: 'Goldähren', lidl: 'Grafschafter', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  brot: { default: { aldi: 'Goldähren', lidl: 'Grafschafter', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  toast: { default: { aldi: 'Goldähren', lidl: 'Grafschafter', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  mehl: { default: { aldi: 'Goldpuder', lidl: 'Belbake', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  zucker: { default: { aldi: 'Diamant', lidl: 'Belbake', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  reis: { default: { aldi: 'Bon Ri', lidl: 'Golden Sun', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  nudeln: { default: { aldi: 'Cucina Nobile', lidl: 'Combino', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  olivenoel: { default: { aldi: 'Casa Morando', lidl: 'Primadonna', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  essig: { default: { aldi: 'Kühne (Aldi)', lidl: 'Vitasia', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  schokolade: { default: { aldi: 'Choceur', lidl: 'Fin Carré', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  kekse: { default: { aldi: 'Biscotto', lidl: 'Sondey', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  chips: { default: { aldi: 'Snack Day', lidl: 'Snacktastic', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  gummibaerchen: { default: { aldi: 'Mister Choc', lidl: 'Sugarland', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  marmelade: { default: { aldi: 'Grandessa', lidl: 'Mariola', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  honig: { default: { aldi: 'Bienenhof', lidl: 'Maribel', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  kaffee: { default: { aldi: 'Markus Kaffee', lidl: 'Bellarom', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  tee: { default: { aldi: 'Westcliff', lidl: 'Lord Nelson', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-
-  // --- Drinks -----------------------------------------------------------
-  saft: { default: { aldi: 'Rio d’Oro', lidl: 'Solevita', rewe: 'Ja!', edeka: 'Gut & Günstig' }, bio: GROCERY_BIO },
-  wasser: { default: { aldi: 'Quellbrunn', lidl: 'Saskia', rewe: 'Erlenhofer', edeka: 'Aqua Culinaris' } },
-  mineralwasser: { default: { aldi: 'Quellbrunn', lidl: 'Saskia', rewe: 'Erlenhofer', edeka: 'Aqua Culinaris' } },
-  cola: { default: { aldi: 'River Cola', lidl: 'Freeway Cola', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  limonade: { default: { aldi: 'River', lidl: 'Freeway', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  bier: { default: { aldi: 'Karlskrone', lidl: 'Perlenbacher', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-  wein: { default: { aldi: 'Vino Verdi', lidl: 'Allini', rewe: 'Ja!', edeka: 'Gut & Günstig' } },
-};
+export const STORE_BRAND_MAP = STORE_BRAND_MAP_DATA;
 
 /**
  * Resolve an item name to a STORE_BRAND_MAP key. Longer keys win first so a
@@ -180,72 +73,7 @@ export function matchItemKey(name: string): string | null {
  * `matchItemKey` resolves to `handcreme` and `KEY_LABELS.handcreme` is
  * `"Handcreme"`. The brand stays separately on the right.
  */
-export const KEY_LABELS: Record<string, string> = {
-  handcreme: 'Handcreme',
-  bodylotion: 'Bodylotion',
-  gesichtscreme: 'Gesichtscreme',
-  sonnencreme: 'Sonnencreme',
-  trockenshampoo: 'Trockenshampoo',
-  shampoo: 'Shampoo',
-  spuelung: 'Spülung',
-  duschgel: 'Duschgel',
-  zahnpasta: 'Zahnpasta',
-  zahnbuerste: 'Zahnbürste',
-  mundwasser: 'Mundwasser',
-  deo: 'Deo',
-  rasierschaum: 'Rasierschaum',
-  rasierer: 'Rasierer',
-  seife: 'Seife',
-  damenbinde: 'Damenbinden',
-  tampons: 'Tampons',
-  taschentuecher: 'Taschentücher',
-  windel: 'Windeln',
-  waschmittel: 'Waschmittel',
-  weichspueler: 'Weichspüler',
-  spuelmittel: 'Spülmittel',
-  spuelmaschinentabs: 'Spülmaschinentabs',
-  allzweckreiniger: 'Allzweckreiniger',
-  badreiniger: 'Badreiniger',
-  glasreiniger: 'Glasreiniger',
-  wcreiniger: 'WC-Reiniger',
-  toilettenpapier: 'Toilettenpapier',
-  klopapier: 'Klopapier',
-  kuechenrolle: 'Küchenrolle',
-  muellbeutel: 'Müllbeutel',
-  alufolie: 'Alufolie',
-  backpapier: 'Backpapier',
-  milch: 'Milch',
-  butter: 'Butter',
-  joghurt: 'Joghurt',
-  kaese: 'Käse',
-  sahne: 'Sahne',
-  quark: 'Quark',
-  eier: 'Eier',
-  broetchen: 'Brötchen',
-  brot: 'Brot',
-  toast: 'Toast',
-  mehl: 'Mehl',
-  zucker: 'Zucker',
-  reis: 'Reis',
-  nudeln: 'Nudeln',
-  olivenoel: 'Olivenöl',
-  essig: 'Essig',
-  schokolade: 'Schokolade',
-  kekse: 'Kekse',
-  chips: 'Chips',
-  gummibaerchen: 'Gummibärchen',
-  marmelade: 'Marmelade',
-  honig: 'Honig',
-  kaffee: 'Kaffee',
-  tee: 'Tee',
-  saft: 'Saft',
-  wasser: 'Wasser',
-  mineralwasser: 'Mineralwasser',
-  cola: 'Cola',
-  limonade: 'Limonade',
-  bier: 'Bier',
-  wein: 'Wein',
-};
+export const KEY_LABELS = KEY_LABELS_DATA;
 
 /**
  * Return a clean generic name if the raw product name matches a known

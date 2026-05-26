@@ -200,8 +200,14 @@ export async function addItemFromProduct(
 
   // Resolve which generic this rolls up to. An explicit id on the product
   // wins (e.g. a generic suggestion); otherwise infer from the display name
-  // and category so typed and scanned items land on the same logical row.
-  const genericId = p.genericId ?? resolveGeneric(displayName, p.category) ?? undefined;
+  // and category so typed and scanned items land on the same logical row. The
+  // LLM generic name ("Weizenbier alkoholfrei") is a cleaner resolve input than
+  // a brandy SKU name ("Erdinger Alkoholfrei"), so try it as a fallback.
+  const genericId =
+    p.genericId ??
+    resolveGeneric(displayName, p.category) ??
+    resolveGeneric(p.genericName ?? '', p.category) ??
+    undefined;
 
   // Stores the item could be bought at: always seed from the category
   // default (every chain that carries products in this category), then
@@ -226,6 +232,9 @@ export async function addItemFromProduct(
     const next: Item = {
       ...dup,
       quantity: dup.quantity + quantity,
+      // Backfill the generic name onto pre-existing items added before this
+      // field (or before the snapshot carried it).
+      genericName: dup.genericName ?? p.genericName,
       updatedAt: Date.now(),
     };
     // If we're at a specific store and the duplicate doesn't yet have a
@@ -252,6 +261,7 @@ export async function addItemFromProduct(
     listId: activeList,
     productId: p.id,
     genericId,
+    genericName: p.genericName,
     name: displayName,
     brand: p.brand,
     brandByStore,
