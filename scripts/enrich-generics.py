@@ -639,228 +639,6 @@ def generic_from_tags(tags_str: str) -> str:
 
 
 # ─────────────────────────────────────────────────────────────
-# 2b.  Specific sub-type tag → German product type
-# ─────────────────────────────────────────────────────────────
-# Used for the product_type column (finer than TAG_TO_DE).
-# TAG_TO_DE collapses all yogurts to "Joghurt"; SPECIFIC_TAGS
-# distinguishes "Fruchtjoghurt", "Griechischer Joghurt", etc.
-
-SPECIFIC_TAGS: dict[str, str] = {
-    # ── Joghurt sub-types ─────────────────────────────────────
-    "en:greek-yogurts":              "Griechischer Joghurt",
-    "en:greek-style-yogurts":        "Joghurt griechischer Art",
-    "en:skyr":                       "Skyr",
-    "en:drinkable-yogurts":          "Trinkjoghurt",
-    "en:fruit-yogurts":              "Fruchtjoghurt",
-    "en:cherry-yogurts":             "Kirsch-Joghurt",
-    "en:strawberry-yogurts":         "Erdbeer-Joghurt",
-    "en:raspberry-yogurts":          "Himbeer-Joghurt",
-    "en:blueberry-yogurts":          "Heidelbeer-Joghurt",
-    "en:peach-yogurts":              "Pfirsich-Joghurt",
-    "en:lemon-yogurts":              "Zitronen-Joghurt",
-    "en:mango-yogurts":              "Mango-Joghurt",
-    "en:vanilla-yogurts":            "Vanille-Joghurt",
-    "en:strawberry-banana-yogurts":  "Erdbeer-Bananen-Joghurt",
-    "en:plain-yogurts":              "Naturjoghurt",
-    "en:natural-yogurts":            "Naturjoghurt",
-    # ── Milch sub-types ───────────────────────────────────────
-    "en:whole-milks":                "Vollmilch",
-    "en:semi-skimmed-milks":         "Halbfettmilch",
-    "en:skimmed-milks":              "Magermilch",
-    "en:long-life-milks":            "H-Milch",
-    "en:lactose-free-milks":         "Laktosefreie Milch",
-    "en:oat-milks":                  "Haferdrink",
-    "en:almond-milks":               "Mandeldrink",
-    "en:soy-milks":                  "Sojadrink",
-    "en:rice-milks":                 "Reisdrink",
-    # ── Milchprodukte ────────────────────────────────────────
-    "en:creme-fraiche":              "Crème fraîche",
-    "en:soured-cream":               "Sauerrahm",
-    "en:whipping-creams":            "Schlagsahne",
-    "en:quark":                      "Quark",
-    "en:cream-cheeses":              "Frischkäse",
-    "en:fresh-cheeses":              "Frischkäse",
-    "en:cottage-cheeses":            "Hüttenkäse",
-    # ── Käse sub-types ────────────────────────────────────────
-    "en:ricotta":                    "Ricotta",
-    "en:mozzarella":                 "Mozzarella",
-    "en:camembert":                  "Camembert",
-    "en:camemberts":                 "Camembert",
-    "en:brie":                       "Brie",
-    "en:gouda":                      "Gouda",
-    "en:edam":                       "Edamer",
-    "en:emmental":                   "Emmentaler",
-    "en:emmentaler":                 "Emmentaler",
-    "en:parmesan":                   "Parmesan",
-    "en:cheddar":                    "Cheddar",
-    "en:feta":                       "Feta",
-    "en:halloumi":                   "Halloumi",
-    "en:roquefort":                  "Roquefort",
-    "en:blue-veined-cheeses":        "Blauschimmelkäse",
-    "en:hard-cheeses":               "Hartkäse",
-    "en:semi-hard-cheeses":          "Schnittkäse",
-    "en:soft-cheeses":               "Weichkäse",
-    "en:sliced-cheeses":             "Käsescheiben",
-    "en:melted-cheese":              "Schmelzkäse",
-    "en:processed-cheeses":          "Schmelzkäse",
-    "en:cheeses-for-kids":           "Kinderkäse",
-    # ── Schokolade sub-types ──────────────────────────────────
-    "en:dark-chocolate-bars":        "Zartbitterschokolade",
-    "en:dark-chocolates":            "Zartbitterschokolade",
-    "en:milk-chocolate-bars":        "Milchschokolade",
-    "en:milk-chocolates":            "Milchschokolade",
-    "en:white-chocolates":           "Weiße Schokolade",
-    # ── Bier sub-types ────────────────────────────────────────
-    "en:non-alcoholic-wheat-beers":  "Alkoholfreies Weizenbier",
-    "en:non-alcoholic-beers":        "Alkoholfreies Bier",
-    "en:wheat-beers":                "Weizenbier",
-    "en:lagers":                     "Lagerbier",
-    "en:ales":                       "Ale",
-    "en:dark-beers":                 "Dunkelbier",
-    "en:pilsners":                   "Pils",
-    # ── Saft sub-types ────────────────────────────────────────
-    "en:apple-juices":               "Apfelsaft",
-    "en:orange-juices":              "Orangensaft",
-    "en:grape-juices":               "Traubensaft",
-    "en:tomato-juices":              "Tomatensaft",
-    "en:carrot-juices":              "Karottensaft",
-    "en:multivitamin-juices":        "Multivitaminsaft",
-    "en:fruit-juices":               "Fruchtsaft",
-    "en:vegetable-juices":           "Gemüsesaft",
-    "en:smoothies":                  "Smoothie",
-    # ── Wasser sub-types ──────────────────────────────────────
-    "en:sparkling-waters":           "Mineralwasser",
-    "en:still-waters":               "Stilles Wasser",
-    "en:spring-waters":              "Quellwasser",
-    # ── Tee sub-types ─────────────────────────────────────────
-    "en:green-teas":                 "Grüntee",
-    "en:black-teas":                 "Schwarztee",
-    "en:herbal-teas":                "Kräutertee",
-    "en:fruit-teas":                 "Früchtetee",
-    # ── Kaffee sub-types ──────────────────────────────────────
-    "en:instant-coffees":            "Instantkaffee",
-    "en:espresso":                   "Espresso",
-    # ── Softdrinks ────────────────────────────────────────────
-    "en:colas":                      "Cola",
-    "en:lemonades":                  "Limonade",
-    "en:energy-drinks":              "Energy-Drink",
-    "en:ice-teas":                   "Eistee",
-    # ── Wein sub-types ────────────────────────────────────────
-    "en:red-wines":                  "Rotwein",
-    "en:white-wines":                "Weißwein",
-    "en:rose-wines":                 "Rosé",
-    "en:sparkling-wines":            "Sekt",
-    # ── Brot sub-types ────────────────────────────────────────
-    "en:whole-wheat-breads":         "Vollkornbrot",
-    "en:rye-breads":                 "Roggenbrot",
-    "en:sourdough-breads":           "Sauerteigbrot",
-    "en:white-breads":               "Weißbrot",
-    "en:toast-breads":               "Toastbrot",
-    # ── Nudeln sub-types ──────────────────────────────────────
-    "en:spaghetti":                  "Spaghetti",
-    "en:penne":                      "Penne",
-    "en:fusilli":                    "Fusilli",
-    "en:tagliatelle":                "Tagliatelle",
-    "en:rigatoni":                   "Rigatoni",
-    "en:lasagna-sheets":             "Lasagneblätter",
-    # ── Reis sub-types ────────────────────────────────────────
-    "en:basmati-rice":               "Basmati-Reis",
-    "en:brown-rice":                 "Naturreis",
-    "en:jasmine-rice":               "Jasminreis",
-    "en:parboiled-rice":             "Parboiled-Reis",
-    # ── Öl sub-types ──────────────────────────────────────────
-    "en:olive-oils":                 "Olivenöl",
-    "en:sunflower-oils":             "Sonnenblumenöl",
-    "en:rapeseed-oils":              "Rapsöl",
-    "en:coconut-oils":               "Kokosöl",
-    "en:sesame-oils":                "Sesamöl",
-    # ── Essig / Saucen sub-types ──────────────────────────────
-    "en:apple-cider-vinegars":       "Apfelessig",
-    "en:balsamic-vinegars":          "Balsamico",
-    "en:ketchups":                   "Ketchup",
-    "en:dijon-mustards":             "Dijon-Senf",
-    "en:mayonnaises":                "Mayonnaise",
-    "en:pestos":                     "Pesto",
-    "en:tomato-sauces":              "Tomatensauce",
-    "en:soy-sauces":                 "Sojasoße",
-    "en:bbq-sauces":                 "BBQ-Sauce",
-    "en:hot-sauces":                 "Scharfe Sauce",
-    # ── Aufstrich / Honig sub-types ───────────────────────────
-    "en:strawberry-jams":            "Erdbeer-Konfitüre",
-    "en:raspberry-jams":             "Himbeer-Konfitüre",
-    "en:apricot-jams":               "Aprikosen-Konfitüre",
-    "en:cherry-jams":                "Kirsch-Konfitüre",
-    "en:blueberry-jams":             "Heidelbeer-Konfitüre",
-    "en:orange-marmalades":          "Orangen-Marmelade",
-    "en:flower-honeys":              "Blütenhonig",
-    "en:maple-syrups":               "Ahornsirup",
-    "en:peanut-butters":             "Erdnussbutter",
-    "en:almond-butters":             "Mandelmus",
-    "en:hazelnut-spreads":           "Haselnussaufstrich",
-    "en:cocoa-and-hazelnuts-spreads":"Nuss-Nougat-Creme",
-    "en:chocolate-spreads":          "Schokoladenaufstrich",
-    # ── Fleisch / Fisch sub-types ─────────────────────────────
-    "en:chicken-breasts":            "Hähnchenbrust",
-    "en:minced-meat":                "Hackfleisch",
-    "en:minced-beef":                "Rinderhackfleisch",
-    "en:minced-pork":                "Schweinehackfleisch",
-    "en:salami":                     "Salami",
-    "en:raw-hams":                   "Rohschinken",
-    "en:cooked-hams":                "Kochschinken",
-    "en:liver-pates":                "Leberwurst",
-    "en:blood-sausages":             "Blutwurst",
-    "en:frankfurters":               "Frankfurter",
-    "en:smoked-salmons":             "Räucherlachs",
-    "en:canned-tunas":               "Thunfisch in Dose",
-    "en:fish-fingers":               "Fischstäbchen",
-    # ── Snack sub-types ───────────────────────────────────────
-    "en:tortilla-chips":             "Tortilla-Chips",
-    "en:potato-chips":               "Chips",
-    "en:rice-cakes":                 "Reiswaffeln",
-    "en:cereal-bars":                "Müsliriegel",
-    "en:protein-bars":               "Proteinriegel",
-    # ── Frühstück sub-types ───────────────────────────────────
-    "en:corn-flakes":                "Cornflakes",
-    "en:mueslis":                    "Müsli",
-    "en:granolas":                   "Granola",
-    "en:porridges":                  "Porridge",
-    "en:rolled-oats":                "Haferflocken",
-    # ── Tiefkühl sub-types ────────────────────────────────────
-    "en:frozen-pizzas":              "Tiefkühlpizza",
-    "en:frozen-vegetables":          "Tiefkühlgemüse",
-    "en:frozen-peas":                "Tiefkühlerbsen",
-    "en:frozen-spinach":             "Tiefkühlspinat",
-    "en:french-fries":               "Pommes Frites",
-    "en:frozen-fish":                "Tiefkühlfisch",
-    # ── Eis sub-types ─────────────────────────────────────────
-    "en:ice-cream-bars":             "Eiscreme-Riegel",
-    "en:ice-cream-cones":            "Eistüte",
-    "en:sorbets":                    "Sorbet",
-    # ── Kekse sub-types ───────────────────────────────────────
-    "en:shortbread-cookies":         "Mürbeteigkekse",
-    "en:butter-cookies":             "Butterkekse",
-    "en:chocolate-chip-cookies":     "Schoko-Cookies",
-    # ── Baby sub-types ────────────────────────────────────────
-    "en:infant-formulas":            "Säuglingsnahrung",
-    "en:baby-purees":                "Babybrei",
-    "en:baby-cereals":               "Babygetreide",
-    "en:infant-milks":               "Säuglingsmilch",
-}
-
-
-def generic_from_specific_tags(tags_str: str) -> str:
-    """Walk OFF tags most-specific→least, using SPECIFIC_TAGS (finer than TAG_TO_DE)."""
-    if not tags_str:
-        return ""
-    tags = [t.strip() for t in tags_str.split("|") if t.strip()]
-    for tag in reversed(tags):
-        de = SPECIFIC_TAGS.get(tag)
-        if de:
-            return de
-    return ""
-
-
-# ─────────────────────────────────────────────────────────────
 # 3.  Derive from product name (last resort)
 # ─────────────────────────────────────────────────────────────
 
@@ -900,11 +678,14 @@ def process(in_path: Path, out_path: Path) -> None:
         for row in reader:
             rows.append(row)
 
-    new_col      = "generic_name_clean"   # broad category  ("Joghurt")
-    new_col_type = "product_type"          # specific variant ("Fruchtjoghurt")
-    for col in (new_col, new_col_type):
-        if col not in fieldnames:
-            fieldnames.append(col)
+    new_col = "generic_name_clean"   # broad category noun from OFF tags ("Joghurt")
+    if new_col not in fieldnames:
+        fieldnames.append(new_col)
+    # The fine-grained product name now comes from the LLM pass
+    # (scripts/llm-generic-name.py → data/llm-generic-names.csv), so the old
+    # regex `product_type` column is retired here. Drop it if a prior run left it.
+    if "product_type" in fieldnames:
+        fieldnames.remove("product_type")
 
     stats: dict[str, int] = {"off_generic": 0, "tags": 0, "name": 0}
     samples: dict[str, list] = {"off_generic": [], "tags": [], "name": []}
@@ -945,21 +726,10 @@ def process(in_path: Path, out_path: Path) -> None:
                 pass  # counted below
 
         row[new_col] = result  # generic_name_clean: broad category, blank on total miss
-
-        # ── product_type: most-specific available label ──────────
-        # Priority 1: specific sub-type tag (e.g. en:fruit-yogurts → "Fruchtjoghurt")
-        pt = generic_from_specific_tags(off_categories)
-        # Priority 2: cleaned OFF generic_name when it adds more detail than the broad tag
-        if not pt and existing:
-            cleaned = clean_generic(existing)
-            if cleaned and cleaned != result:
-                pt = cleaned
-        # Priority 3: fall back to broad category (same as generic_name_clean)
-        row[new_col_type] = pt or result
+        row.pop("product_type", None)  # scrub any column left by an earlier run
 
     # Recount cleanly
     stats = {"off_generic": 0, "tags": 0, "name": 0, "empty": 0}
-    pt_refined = 0  # rows where product_type is more specific than generic_name_clean
     for row in rows:
         existing = (row.get("generic_name") or "").strip()
         off_categories = (row.get("off_categories") or "").strip()
@@ -974,11 +744,9 @@ def process(in_path: Path, out_path: Path) -> None:
             stats["tags"] += 1
         else:
             stats["name"] += 1
-        if row.get(new_col_type, "") != result:
-            pt_refined += 1
 
     with open(out_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -989,9 +757,6 @@ def process(in_path: Path, out_path: Path) -> None:
     print(f"  {stats['tags']:5d} ({100*stats['tags']//total:2d}%)  from OFF category tags")
     print(f"  {stats['name']:5d} ({100*stats['name']//total:2d}%)  derived from product name")
     print(f"  {stats['empty']:5d} ({100*stats['empty']//total:2d}%)  empty (no match found)")
-    print(f"\n[product_type]  specific variant")
-    print(f"  {pt_refined:5d} ({100*pt_refined//total:2d}%)  more specific than generic_name_clean")
-    print(f"  {total-pt_refined-stats['empty']:5d} ({100*(total-pt_refined-stats['empty'])//total:2d}%)  same as generic_name_clean (no sub-type found)")
 
     # QA samples
     print("\n--- generic_name_clean: from OFF generic (cleaned) ---")
@@ -1016,16 +781,6 @@ def process(in_path: Path, out_path: Path) -> None:
             print(f"  [{row['name'][:35]:35s}] …{cats[:40]:40s} → {tag_result}")
             shown += 1
             if shown >= 6: break
-
-    print("\n--- product_type: specific sub-type examples ---")
-    shown = 0
-    for row in rows:
-        broad = row.get(new_col, "")
-        specific = row.get(new_col_type, "")
-        if specific and specific != broad:
-            print(f"  [{row['name'][:38]:38s}] {broad:<20} → {specific}")
-            shown += 1
-            if shown >= 16: break
 
 
 if __name__ == "__main__":

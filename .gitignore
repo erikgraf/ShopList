@@ -36,3 +36,12 @@ dist-ssr
 
 # Generated OFF analysis export (large; rebuild with npm run build:catalog)
 data/off-de-full.csv
+
+# LLM generic-name pass — working log + validation scratch. Only the
+# gold-standard output (data/llm-generic-names.csv) is committed.
+data/.llm-cache.jsonl
+data/llm-sample-input.csv
+data/llm-sample-comparison.csv
+
+# Python bytecode
+scripts/__pycache__/

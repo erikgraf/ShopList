@@ -122,6 +122,13 @@ export interface Product {
    *  add-time from the name + category when not set explicitly. Optional during
    *  the prototype — the long tail of OFF products has no generic yet. */
   genericId?: string;
+  /** LLM-derived generic product name for the OFF long tail, e.g. "Weizenbier
+   *  alkoholfrei" for an Erdinger SKU. Distinct from `genericId` (a curated
+   *  registry slug): this is a free-form German label that every snapshot
+   *  product carries (joined by `code` from data/llm-generic-names.csv). It's
+   *  the key for finding offers/alternatives across brands, and a strong signal
+   *  for resolving the curated `genericId`. See data/README "generic names". */
+  genericName?: string;
   barcode?: string;
   /** Stores where this is typically bought; empty = inferred from category */
   stores?: Store[];
@@ -143,6 +150,10 @@ export interface Item {
    *  header grouping and lets per-store own-brand suggestions reuse the
    *  generic's `brandKey`. */
   genericId?: string;
+  /** LLM-derived generic product name carried over from the snapshot Product
+   *  at add-time (see `Product.genericName`). Persisted so a later offers/
+   *  alternatives feature can match this item to deals without re-deriving it. */
+  genericName?: string;
   name: string;
   /** Global/default brand — what to show when no store filter is active, and
    *  the last-resort fallback when neither a per-store pick nor a suggestion

@@ -11,6 +11,9 @@ interface RawRow {
   image: string;
   category: Category;
   stores: string;
+  /** LLM-derived generic product name (joined by code in build). May be absent
+   *  if the snapshot hasn't been through `llm-generic-name.py join`. */
+  generic?: string;
 }
 
 interface IndexedProduct {
@@ -56,6 +59,7 @@ function toProduct(r: RawRow): Product {
     brand: r.brand || undefined,
     image: r.image || undefined,
     category: r.category,
+    genericName: r.generic || undefined,
     barcode: r.code || undefined,
     stores: parseStores(r.stores, r.category),
   };
@@ -80,7 +84,9 @@ async function load(): Promise<IndexedProduct[]> {
       const rows = parseCSV(await res.text()) as unknown as RawRow[];
       indexed = rows.map((r) => {
         const product = toProduct(r);
-        const haystack = norm(`${r.name} ${r.brand}`);
+        // Fold the generic name into the index so typing "Weizenbier" surfaces
+        // "Erdinger Alkoholfrei" — the brand SKU whose generic is Weizenbier.
+        const haystack = norm(`${r.name} ${r.brand} ${r.generic ?? ''}`);
         return { product, haystack };
       });
       return indexed;

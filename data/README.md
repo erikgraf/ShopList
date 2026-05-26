@@ -17,6 +17,7 @@ double-quoted (e.g. `"Gewürze, Öle & Saucen"`).
 | `categories.csv` | 14 | mirror of `types.ts` + `icons.tsx` | mirror (guarded by a test) |
 | `legacy-categories.csv` | 12 | mirror of `LEGACY_CATEGORY_MAP` | mirror (guarded by a test) |
 | `category-rules.csv` | 129 | `scripts/build-catalog.mjs` (OFF→category) | **source of truth** (build-time) |
+| `llm-generic-names.csv` | 19054 | `scripts/llm-generic-name.py join` → snapshot `generic` col | **gold standard** (LLM-labeled, by `code`) |
 
 > Why are categories a mirror? The 14 categories define the `Category` **union
 > type** used across the code, so they live in `types.ts`. `categories.csv` is a
@@ -108,13 +109,37 @@ The 14 supermarket-walk categories. `kind` is `grocery`|`drugstore`;
 ## The long tail — `public/off-de-snapshot.csv`
 
 `public/off-de-snapshot.csv` (19k products, ~2.7 MB) plus the live OFF API cover
-everything the curated lists don't. It's CSV too — same columns family as
-`catalog.csv` (`code,name,brand,image,category,stores`), so it's greppable and
-spreadsheet-openable — but it is **generated, not hand-edited**: `snapshot.ts`
-fetches and parses it at runtime, and `npm run build:catalog` regenerates it
-from the OFF dump (editing a row would be overwritten). The OFF-tag → category
-mapping it applies is the build-time source of truth in `category-rules.csv`
-(loaded by `scripts/build-catalog.mjs`).
+everything the curated lists don't. It's CSV too — `code,name,brand,image,category,stores,generic`
+— so it's greppable and spreadsheet-openable, but it is **generated, not
+hand-edited**: `snapshot.ts` fetches and parses it at runtime, and `npm run
+build:catalog` regenerates it from the OFF dump (editing a row would be
+overwritten). The OFF-tag → category mapping it applies is the build-time source
+of truth in `category-rules.csv` (loaded by `scripts/build-catalog.mjs`).
+
+The last column, `generic`, is the **generic product name** (e.g. `Weizenbier
+alkoholfrei` for an Erdinger SKU) — the key for grouping offers/alternatives
+across brands. It is **not** produced by `build:catalog`; it's joined in by
+`code` from `data/llm-generic-names.csv` (one-off Opus 4.7 labeling, see below).
+`snapshot.ts` reads it into `Product.genericName`. Refresh order after an OFF
+dump update:
+
+```
+npm run build:catalog                      # OFF dump → snapshot + off-de-full.csv
+python3 scripts/llm-generic-name.py full   # label new codes (cached by code)
+python3 scripts/llm-generic-name.py join   # stitch `generic` into the snapshot
+```
+
+## Generic product names — `data/llm-generic-names.csv`
+
+The generic-product layer for the OFF long tail. Each of the 19k products gets a
+clean German `generic_product_llm` name (head-noun first, brand/size/marketing
+stripped) from a one-off Claude Opus 4.7 pass — kept as a **gold standard** keyed
+by `code`, independent of the regenerable `off-de-full.csv`. Columns:
+`code, name, generic_product_llm, model`. Built/refreshed by
+`scripts/llm-generic-name.py` (`sample` → `run` to compare against the old regex
+column; `full` to label everything; `join` to patch the snapshot). This
+**supersedes the retired regex `product_type`** column that an earlier
+`enrich-generics.py` produced.
 
 ## For data analysis — `data/off-de-full.csv`
 
