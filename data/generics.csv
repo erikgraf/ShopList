@@ -1,0 +1,69 @@
+id,name,category,parentId,aliases,icon,brandKey
+milch,Milch,milch-eier,,,milch,milch
+vollmilch,Vollmilch,milch-eier,milch,,,
+milch-fettarm,Milch fettarm,milch-eier,milch,fettarme milch,,
+milch-laktosefrei,Milch laktosefrei,milch-eier,milch,laktosefreie milch|lactose free milk,,
+h-milch,H-Milch,milch-eier,milch,h milch|haltbare milch,,
+hafermilch,Hafermilch,milch-eier,milch,hafer drink|oat milk,,
+sojamilch,Sojamilch,milch-eier,milch,soja drink|soy milk,,
+mandelmilch,Mandelmilch,milch-eier,milch,almond milk,,
+joghurt,Joghurt,milch-eier,,yoghurt|yogurt,joghurt,joghurt
+naturjoghurt,Naturjoghurt,milch-eier,joghurt,natur joghurt,,
+griechischer-joghurt,Griechischer Joghurt,milch-eier,joghurt,griechischer joghurt|griech joghurt|greek yoghurt|greek yogurt,,
+joghurt-laktosefrei,Joghurt laktosefrei,milch-eier,joghurt,laktosefreier joghurt|lactose free yoghurt|lactose free yogurt,,
+skyr,Skyr,milch-eier,joghurt,,joghurt,
+quark,Quark,milch-eier,,,joghurt,quark
+speisequark,Speisequark,milch-eier,quark,spq,,
+speisequark-magerstufe,Speisequark Magerstufe,milch-eier,speisequark,spq mager|spq magerstufe|magerquark|quark magerstufe,,
+speisequark-20,Speisequark 20%,milch-eier,speisequark,spq 20|quark 20|speisequark 20,,
+speisequark-40,Speisequark 40%,milch-eier,speisequark,spq 40|quark 40|speisequark 40,,
+butter,Butter,milch-eier,,,butter,butter
+sahne,Sahne,milch-eier,,,milch,sahne
+kaese,Käse,milch-eier,,,kaese,kaese
+frischkaese,Frischkäse,milch-eier,kaese,,,
+mozzarella,Mozzarella,milch-eier,kaese,,,
+eier,Eier,milch-eier,,,ei,eier
+brot,Brot,brot-gebaeck,,,brot,brot
+broetchen,Brötchen,brot-gebaeck,,,broetchen,broetchen
+toast,Toastbrot,brot-gebaeck,,toast,toast,toast
+nudeln,Nudeln,vorrat,,pasta,nudeln,nudeln
+reis,Reis,vorrat,,,reis,reis
+mehl,Mehl,vorrat,,,mehl,mehl
+zucker,Zucker,vorrat,,,mehl,zucker
+olivenoel,Olivenöl,gewuerze-saucen,,,olivenoel,olivenoel
+essig,Essig,gewuerze-saucen,,,olivenoel,essig
+marmelade,Marmelade,fruehstueck-aufstrich,,konfituere,marmelade,marmelade
+honig,Honig,fruehstueck-aufstrich,,,honig,honig
+schokolade,Schokolade,suesses-knabberei,,,schokolade,schokolade
+kekse,Kekse,suesses-knabberei,,,keks,kekse
+chips,Chips,suesses-knabberei,,,chips,chips
+gummibaerchen,Gummibärchen,suesses-knabberei,,,keks,gummibaerchen
+wasser,Wasser,getraenke,,,wasser,wasser
+mineralwasser,Mineralwasser,getraenke,wasser,,wasser,mineralwasser
+saft,Saft,getraenke,,,saft,saft
+cola,Cola,getraenke,,,cola,cola
+limonade,Limonade,getraenke,,,cola,limonade
+bier,Bier,getraenke,,,cola,bier
+wein,Wein,getraenke,,,cola,wein
+kaffee,Kaffee,getraenke,,,,kaffee
+tee,Tee,getraenke,,,tee,tee
+handcreme,Handcreme,koerperpflege,,,creme,handcreme
+bodylotion,Bodylotion,koerperpflege,,,creme,bodylotion
+gesichtscreme,Gesichtscreme,koerperpflege,,,creme,gesichtscreme
+sonnencreme,Sonnencreme,koerperpflege,,,creme,sonnencreme
+shampoo,Shampoo,koerperpflege,,,shampoo,shampoo
+trockenshampoo,Trockenshampoo,koerperpflege,shampoo,,shampoo,trockenshampoo
+spuelung,Haarspülung,koerperpflege,,spuelung,shampoo,spuelung
+duschgel,Duschgel,koerperpflege,,,shampoo,duschgel
+zahnpasta,Zahnpasta,koerperpflege,,,zahnpasta,zahnpasta
+zahnbuerste,Zahnbürste,koerperpflege,,,zahnbuerste,zahnbuerste
+deo,Deo,koerperpflege,,,deo,deo
+seife,Seife,koerperpflege,,,seife,seife
+taschentuecher,Taschentücher,koerperpflege,,tempo,taschentuch,taschentuecher
+waschmittel,Waschmittel,haushalt,,,waschmittel,waschmittel
+weichspueler,Weichspüler,haushalt,,,waschmittel,weichspueler
+spuelmittel,Spülmittel,haushalt,,,sprayflasche,spuelmittel
+allzweckreiniger,Allzweckreiniger,haushalt,,,sprayflasche,allzweckreiniger
+toilettenpapier,Toilettenpapier,haushalt,,klopapier|klorolle,klopapier,toilettenpapier
+kuechenrolle,Küchenrolle,haushalt,,,klopapier,kuechenrolle
+windel,Windeln,baby,,windeln,babyflasche,windel

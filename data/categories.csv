@@ -1,0 +1,15 @@
+slug,label,order,kind,defaultIcon,colorFg,colorBg,glyph,defaultStores
+obst-gemuese,Obst & Gemüse,1,grocery,apfel,#16a34a,#dcfce7,🥬,rewe|edeka|aldi|lidl
+brot-gebaeck,Brot & Gebäck,2,grocery,brot,#b45309,#fed7aa,🥖,rewe|edeka|aldi|lidl
+milch-eier,Milchprodukte & Eier,3,grocery,milch,#3b82f6,#dbeafe,🥛,rewe|edeka|aldi|lidl
+fleisch-fisch,Fleisch & Fisch,4,grocery,fisch,#ef4444,#fee2e2,🍖,rewe|edeka|aldi|lidl
+tiefkuehl,Tiefkühl,5,grocery,pizza,#0891b2,#cffafe,🧊,rewe|edeka|aldi|lidl
+vorrat,Vorrat & Konserven,6,grocery,konserve,#a16207,#fef3c7,🌾,rewe|edeka|aldi|lidl
+gewuerze-saucen,"Gewürze, Öle & Saucen",7,grocery,salz,#ea580c,#ffedd5,🧂,rewe|edeka|aldi|lidl
+fruehstueck-aufstrich,Frühstück & Aufstrich,8,grocery,honig,#d97706,#fef3c7,🍯,rewe|edeka|aldi|lidl
+suesses-knabberei,Süßes & Knabberei,9,grocery,schokolade,#db2777,#fbcfe8,🍫,rewe|edeka|aldi|lidl
+getraenke,Getränke,10,grocery,wasser,#0ea5e9,#bae6fd,🥤,rewe|edeka|aldi|lidl
+koerperpflege,Körperpflege,11,drugstore,seife,#8b5cf6,#ede9fe,🧴,dm|rossmann|rewe|edeka
+haushalt,Haushalt,12,drugstore,sprayflasche,#475569,#e2e8f0,🧽,dm|rossmann|rewe|edeka|aldi|lidl
+baby,Baby,13,drugstore,babyflasche,#f472b6,#fce7f3,🍼,dm|rossmann|rewe|edeka
+sonstiges,Sonstiges,14,grocery,,#64748b,#e2e8f0,🛒,rewe|edeka|aldi|lidl

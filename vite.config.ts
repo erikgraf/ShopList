@@ -30,7 +30,7 @@ export default defineConfig({
       maximumFileSizeToCacheInBytes: 64 * 1024 * 1024,
       runtimeCaching: [
         {
-          urlPattern: ({ url }) => url.pathname === '/off-de-snapshot.json',
+          urlPattern: ({ url }) => url.pathname === '/off-de-snapshot.csv',
           handler: 'CacheFirst',
           options: {
             cacheName: 'off-snapshot',
