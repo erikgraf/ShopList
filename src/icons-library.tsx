@@ -494,10 +494,9 @@ const BASE_ICONS: Record<string, () => ReactNode> = {
   ),
   klopapier: () => (
     <>
-      <ellipse cx="12" cy="6.5" rx="6" ry="1.7" />
-      <ellipse cx="12" cy="6.5" rx="1.6" ry="0.5" />
-      <path d="M6 6.5 V18 C6 19 8.7 19.8 12 19.8 C15.3 19.8 18 19 18 18 V6.5" />
-      <path d="M18 13 C19 13 19.5 14 19 15 L17.5 17" />
+      <ellipse cx="12" cy="7" rx="6" ry="2.2" />
+      <ellipse cx="12" cy="7" rx="1.9" ry="0.65" />
+      <path d="M6 7 V17.5 Q7.5 18.7 9 17.9 Q10.5 17.1 12 17.9 Q13.5 18.7 15 17.9 Q16.5 17.1 18 17.5 V7" />
     </>
   ),
 
