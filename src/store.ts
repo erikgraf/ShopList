@@ -191,22 +191,26 @@ export async function addItemFromProduct(
   const open = all.filter((it) => !it.checked);
   const max = all.reduce((m, it) => Math.max(m, it.position), -1);
 
-  // Barcode scans hand us verbose OFF product names like "Kamill Hand- &
-  // Nagelcreme classic". Collapse those to a generic noun ("Handcreme") so
-  // the row reads cleanly — the brand + product image stay separately on
-  // the right of the row to identify which variant it is. Typed/searched
-  // items keep their literal name because the user already chose it.
-  const displayName = p.barcode ? genericName(p.name) : p.name;
+  // Show the full, detailed product name on the row — a scan of "Kamill Hand-
+  // & Nagelcreme classic" should read with all its detail, not collapse to
+  // "Handcreme". The generic name lives on separately as `genericName` metadata
+  // (for offer/alternative matching), so detail and matching no longer compete.
+  const displayName = p.name;
 
-  // Resolve which generic this rolls up to. An explicit id on the product
-  // wins (e.g. a generic suggestion); otherwise infer from the display name
-  // and category so typed and scanned items land on the same logical row. The
-  // LLM generic name ("Weizenbier alkoholfrei") is a cleaner resolve input than
-  // a brandy SKU name ("Erdinger Alkoholfrei"), so try it as a fallback.
+  // Clean key for *matching* (generic resolution + store-brand lookup), kept
+  // separate from the displayed name so the full scan name's brand noise
+  // doesn't break those. Prefer the LLM generic ("Weizenbier alkoholfrei");
+  // fall back to the verbose-name collapse for scans, else the literal name.
+  const matchName = p.genericName || (p.barcode ? genericName(p.name) : p.name);
+
+  // Resolve which generic this rolls up to. An explicit id on the product wins
+  // (e.g. a generic suggestion); otherwise infer from the clean match name (and
+  // the literal name as a backstop) so typed and scanned items land on the same
+  // logical row.
   const genericId =
     p.genericId ??
+    resolveGeneric(matchName, p.category) ??
     resolveGeneric(displayName, p.category) ??
-    resolveGeneric(p.genericName ?? '', p.category) ??
     undefined;
 
   // Stores the item could be bought at: always seed from the category
@@ -220,7 +224,7 @@ export async function addItemFromProduct(
   const baseStores = Array.from(
     new Set([...defaultStoresForCategory(p.category), ...(p.stores ?? [])]),
   );
-  const stores = availableStores(displayName, baseStores);
+  const stores = availableStores(matchName, baseStores);
 
   const dup = open.find(
     (it) =>
