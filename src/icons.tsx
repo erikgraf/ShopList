@@ -3,21 +3,28 @@ import { ICONS, hasIcon } from './icons-library';
 import { DOODLE_ICONS } from './icons-library-doodle';
 import { useIconStyle, type IconStyle } from './store';
 
+/**
+ * 14 harmonised aisle colours — retuned from the original Tailwind swatches
+ * (neon green, fire-truck red, electric cyan) which clashed on the cream
+ * surface. Every foreground sits around 50–55 % lightness with lower chroma,
+ * every soft background is a warm low-chroma tint, so all 14 bands read as
+ * ONE system while staying individually recognisable.
+ */
 export const COLORS: Record<Category, [string, string]> = {
-  'obst-gemuese': ['#16a34a', '#dcfce7'],
-  'brot-gebaeck': ['#b45309', '#fed7aa'],
-  'milch-eier': ['#3b82f6', '#dbeafe'],
-  'fleisch-fisch': ['#ef4444', '#fee2e2'],
-  tiefkuehl: ['#0891b2', '#cffafe'],
-  vorrat: ['#a16207', '#fef3c7'],
-  'gewuerze-saucen': ['#ea580c', '#ffedd5'],
-  'fruehstueck-aufstrich': ['#d97706', '#fef3c7'],
-  'suesses-knabberei': ['#db2777', '#fbcfe8'],
-  getraenke: ['#0ea5e9', '#bae6fd'],
-  koerperpflege: ['#8b5cf6', '#ede9fe'],
-  haushalt: ['#475569', '#e2e8f0'],
-  baby: ['#f472b6', '#fce7f3'],
-  sonstiges: ['#64748b', '#e2e8f0'],
+  'obst-gemuese':          ['#4a7c52', '#e3ecdd'], // garden green
+  'brot-gebaeck':          ['#a9762f', '#f1e7d3'], // warm crust
+  'milch-eier':            ['#4f7398', '#e2e8ef'], // dairy blue
+  'fleisch-fisch':         ['#b05f60', '#f1e1df'], // terracotta
+  tiefkuehl:               ['#4e8893', '#deeaeb'], // frosted teal
+  vorrat:                  ['#9a8043', '#efe8d4'], // pantry ochre
+  'gewuerze-saucen':       ['#b56a43', '#f1e4d9'], // paprika / sienna
+  'fruehstueck-aufstrich': ['#c08a3e', '#f3eada'], // honey amber
+  'suesses-knabberei':     ['#b25f86', '#f1e1e8'], // muted rose
+  getraenke:               ['#5b8f86', '#dfece7'], // herbal teal-green
+  koerperpflege:           ['#8a6f9c', '#e9e2ee'], // soft lavender
+  haushalt:                ['#6d7484', '#e4e6ea'], // slate
+  baby:                    ['#bf86a4', '#f3e6ec'], // soft mauve-pink
+  sonstiges:               ['#857c70', '#e8e4dd'], // warm stone
 };
 
 export const GLYPH: Record<Category, string> = {
