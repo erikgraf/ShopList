@@ -154,6 +154,12 @@ export interface Item {
    *  at add-time (see `Product.genericName`). Persisted so a later offers/
    *  alternatives feature can match this item to deals without re-deriving it. */
   genericName?: string;
+  /** Current discount percent if this item is on offer. Populated by the
+   *  offers service — matches `genericName` / barcode against deal data (see
+   *  `data/llm-generic-names.csv` and the taxonomy artefact). Absent = not on
+   *  offer. Drives the "Meine %" filter and the −N % row badge. Optional, so
+   *  no Dexie migration is required. */
+  offer?: number;
   name: string;
   /** Global/default brand — what to show when no store filter is active, and
    *  the last-resort fallback when neither a per-store pick nor a suggestion

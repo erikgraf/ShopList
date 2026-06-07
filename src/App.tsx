@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { SearchBar } from './components/SearchBar';
-import { ItemRow } from './components/ItemRow';
+import { ShelfGroup } from './components/ShelfGroup';
+import { ShelfRow } from './components/ShelfRow';
+import { OffersToggle } from './components/OffersToggle';
 import { ActiveFilters } from './components/ActiveFilters';
 import { FilterSheet } from './components/FilterSheet';
 import { StoreChips } from './components/StoreChips';
@@ -15,7 +17,7 @@ import {
   useLists,
 } from './store';
 import { startSyncLoop } from './sync';
-import { CATEGORY_LABELS, CATEGORY_ORDER, type Category, type Item } from './types';
+import { CATEGORY_ORDER, type Category, type Item } from './types';
 
 const NewListSheet = lazy(() =>
   import('./components/NewListSheet').then((m) => ({ default: m.NewListSheet })),
@@ -84,8 +86,12 @@ export default function App() {
 
   const open = filtered.filter((it) => !it.checked);
   const done = filtered.filter((it) => it.checked);
+  const total = open.length + done.length;
+  const progress = total > 0 ? Math.round((done.length / total) * 100) : 0;
 
   const grouped = useMemo(() => groupByCategory(open), [open]);
+
+  const activeStores = useMemo(() => [...filter.stores], [filter.stores]);
 
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
@@ -120,37 +126,57 @@ export default function App() {
             </svg>
           </button>
         </div>
-        <div className="text-center text-xs font-medium text-[var(--color-muted)]">
-          {open.length} offen{done.length > 0 ? ` · ${done.length} erledigt` : ''}
+
+        {/* count + shopping progress bar */}
+        <div className="flex items-center gap-3">
+          <div className="shrink-0 text-xs font-medium text-[var(--color-muted)]">
+            <strong className="text-[var(--color-accent-strong)]">{open.length}</strong> offen
+            {done.length > 0 ? ` · ${done.length} erledigt` : ''}
+          </div>
+          <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-[var(--color-surface-2)]">
+            <div
+              className="h-full rounded-full bg-[var(--color-accent)] transition-[width] duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
+
         <SearchBar
           onScanClick={() => setScanOpen(true)}
           onShopModeClick={() => setShopOpen(true)}
           pinToStore={activeStore}
         />
-        <StoreChips filter={filter} facets={facets} onChange={setFilter} />
+
+        {/* chip row: "Meine %" offers toggle, then the store chips */}
+        <div className="flex items-center gap-2">
+          <OffersToggle
+            active={filter.offersOnly}
+            count={facets.offers}
+            onToggle={() => setFilter({ ...filter, offersOnly: !filter.offersOnly })}
+          />
+          <span className="h-[18px] w-px shrink-0 bg-[var(--color-border-strong)]" />
+          <div className="min-w-0 flex-1">
+            <StoreChips filter={filter} facets={facets} onChange={setFilter} />
+          </div>
+        </div>
+
         <ActiveFilters filter={filter} onChange={setFilter} onOpenSheet={() => setSheetOpen(true)} />
       </header>
 
       <main className="flex-1 px-4 pt-2 pb-32">
-        {open.length === 0 && done.length === 0 && <EmptyState filtered={items.length > 0} />}
+        {open.length === 0 && done.length === 0 && (
+          <EmptyState filtered={items.length > 0} offersOnly={filter.offersOnly} />
+        )}
 
-        {grouped.map(([category, rows], i) => (
-          <section key={category} className={i === 0 ? '' : 'mt-5'}>
-            <CategoryHeader category={category} count={rows.length} />
-            <div className="grid grid-cols-2 gap-2">
-              {rows.map((it) => (
-                <ItemRow key={it.id} item={it} activeStores={[...filter.stores]} />
-              ))}
-            </div>
-          </section>
+        {grouped.map(([category, rows]) => (
+          <ShelfGroup key={category} category={category} rows={rows} activeStores={activeStores} />
         ))}
 
         {done.length > 0 && (
-          <section className={grouped.length > 0 ? 'mt-7' : ''}>
+          <section className={grouped.length > 0 ? 'mt-5' : ''}>
             <div className="mb-2 flex items-center justify-between px-1">
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
-                Erledigt
+                Erledigt · {done.length}
               </h2>
               <button
                 type="button"
@@ -160,9 +186,12 @@ export default function App() {
                 Alle entfernen
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div
+              className="overflow-hidden rounded-2xl bg-[var(--color-surface)] divide-y divide-[var(--color-border)]"
+              style={{ boxShadow: 'var(--shadow-sm)' }}
+            >
               {done.map((it) => (
-                <ItemRow key={it.id} item={it} activeStores={[...filter.stores]} />
+                <ShelfRow key={it.id} item={it} activeStores={activeStores} />
               ))}
             </div>
           </section>
@@ -186,7 +215,7 @@ export default function App() {
       {shopOpen && (
         <Suspense fallback={null}>
           <ShopMode
-            activeStores={[...filter.stores]}
+            activeStores={activeStores}
             pinToStore={activeStore}
             onClose={() => setShopOpen(false)}
           />
@@ -214,17 +243,6 @@ export default function App() {
   );
 }
 
-function CategoryHeader({ category, count }: { category: Category; count: number }) {
-  return (
-    <div className="mb-2 flex items-baseline justify-between px-1">
-      <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
-        {CATEGORY_LABELS[category]}
-      </h2>
-      <span className="text-[11px] font-medium tabular-nums text-[var(--color-muted)]">{count}</span>
-    </div>
-  );
-}
-
 /**
  * Sort items into supermarket-walk order. Items within a category keep their
  * existing relative order (position / addedAt — already applied upstream by
@@ -246,20 +264,35 @@ function groupByCategory(items: Item[]): Array<[Category, Item[]]> {
   return out;
 }
 
-function EmptyState({ filtered }: { filtered: boolean }) {
+function EmptyState({ filtered, offersOnly }: { filtered: boolean; offersOnly: boolean }) {
   return (
-    <div className="mt-12 rounded-3xl bg-[var(--color-surface)] p-8 text-center" style={{ boxShadow: 'var(--shadow-sm)' }}>
+    <div
+      className="mt-12 rounded-3xl bg-[var(--color-surface)] p-8 text-center"
+      style={{ boxShadow: 'var(--shadow-sm)' }}
+    >
       <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-accent-soft)]">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--color-accent)]">
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className="text-[var(--color-accent)]"
+        >
           <path d="M3 4h2l2.5 12h11l2-9H7" />
           <circle cx="9" cy="20" r="1.5" fill="currentColor" />
           <circle cx="17" cy="20" r="1.5" fill="currentColor" />
         </svg>
       </div>
       <p className="text-base font-medium text-[var(--color-text)]">
-        {filtered ? 'Mit diesen Filtern steht nichts auf der Liste.' : 'Deine Liste ist noch leer.'}
+        {offersOnly
+          ? 'Keine Angebote auf deiner Liste.'
+          : filtered
+            ? 'Mit diesen Filtern steht nichts auf der Liste.'
+            : 'Deine Liste ist noch leer.'}
       </p>
-      {!filtered && (
+      {!filtered && !offersOnly && (
         <p className="mt-2 text-sm text-[var(--color-muted)]">
           Tippe oben, um Produkte hinzuzufügen — oder scanne einen Barcode.
         </p>
