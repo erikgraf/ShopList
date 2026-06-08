@@ -276,15 +276,18 @@ export function SearchBar({
           type="button"
           onClick={onScanClick}
           aria-label="Barcode scannen"
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-accent)] text-white transition-press"
-          style={{ boxShadow: '0 1px 2px rgba(45,106,79,0.25)' }}
+          // Soft accent circle instead of the previous solid-green block — the
+          // scan trigger is a quiet affordance, not the loudest thing on the
+          // bar. The barcode glyph reads as varying-width vertical bars so
+          // it's instantly recognisable even at this size.
+          className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] active:bg-[var(--color-accent-soft-hover)] transition-press"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-            <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-            <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-            <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-            <path d="M7 8v8M11 8v8M15 8v8M19 8v8" />
+          <svg width="21" height="21" viewBox="0 0 24 24" stroke="currentColor" strokeLinecap="round">
+            <line x1="4" y1="6" x2="4" y2="18" strokeWidth="1.6" />
+            <line x1="8" y1="6" x2="8" y2="18" strokeWidth="2.6" />
+            <line x1="12.5" y1="6" x2="12.5" y2="18" strokeWidth="1.6" />
+            <line x1="16" y1="6" x2="16" y2="18" strokeWidth="3" />
+            <line x1="20" y1="6" x2="20" y2="18" strokeWidth="1.6" />
           </svg>
         </button>
       </div>

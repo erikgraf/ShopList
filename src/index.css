@@ -30,6 +30,22 @@
   --color-success: #15803d;
   --color-warning: #b45309;
 
+  /* Offers / Angebote — warm "deal" accent, distinct from the forest-green
+     primary so a price cut never reads as a normal action. */
+  --color-offer: #c2410c;
+  --color-offer-soft: #f6e3d8;        /* offer badge / chip background */
+  --color-offer-on: #c2410c;          /* active toggle fill */
+
+  /* Store brand cues — used as a 7px dot on each store chip so a shop is
+     recognised by colour before its label is read. Muted toward the cream
+     base, not the loud corporate hex. */
+  --store-aldi: #1b4a9c;
+  --store-lidl: #0a5bb5;
+  --store-rewe: #cc0a1e;
+  --store-edeka: #1f72b8;
+  --store-dm: #0a2a6b;
+  --store-rossmann: #c4022e;
+
   /* Shadows — soft, layered, never sharp */
   --shadow-sm: 0 1px 2px rgba(31, 28, 22, 0.04), 0 0 0 1px rgba(31, 28, 22, 0.04);
   --shadow-md: 0 2px 4px rgba(31, 28, 22, 0.04), 0 4px 12px rgba(31, 28, 22, 0.06);
