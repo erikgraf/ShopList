@@ -171,6 +171,10 @@ export interface Item {
    *  offer. Drives the "Meine %" filter and the −N % row badge. Optional, so
    *  no Dexie migration is required. */
   offer?: number;
+  /** Store the matching offer is at (e.g. "aldi", "dm"). Set alongside
+   *  `offer` so the row badge can read "−N % · Aldi" instead of just the
+   *  percent. Transient — populated each render from the offers blob. */
+  offerStore?: string;
   name: string;
   /** Global/default brand — what to show when no store filter is active, and
    *  the last-resort fallback when neither a per-store pick nor a suggestion

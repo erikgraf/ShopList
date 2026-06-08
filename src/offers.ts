@@ -15,6 +15,7 @@
  * directly rather than badging existing list items.
  */
 import { useEffect, useState } from 'react';
+import type { Item } from './types';
 import type { OffersTier } from './facets';
 
 /** Minimum shape needed to match an offer against. Both `Item` (a row on a
@@ -121,6 +122,31 @@ export const stripDiacritics = (s: string): string =>
  * user to put something on today's list before any tier could light up;
  * past shoppings reflect long-term taste.
  */
+/**
+ * For each item, find the best Marken-tier offer (deepest discount wins) and
+ * return a NEW items array with `item.offer` (positive discount percent) and
+ * `item.offerStore` stamped. Items without a match come through unchanged.
+ *
+ * Marken-tier only because the badge has to mean "this exact thing is on
+ * offer right now" — looser matching belongs in the Angebote view's Produkte
+ * / Kategorien tiers, not on the row.
+ */
+export function attachOfferMeta(items: Item[], offers: Offer[]): Item[] {
+  if (offers.length === 0) return items;
+  return items.map((it) => {
+    let best: Offer | undefined;
+    for (const o of offers) {
+      if (!doesOfferMatchHistory(o, [it], 'marken')) continue;
+      const d = o.discount_pct ?? 0;
+      if (!best || d < (best.discount_pct ?? 0)) best = o;
+    }
+    if (!best) return it;
+    const discount =
+      best.discount_pct !== undefined && best.discount_pct < 0 ? -best.discount_pct : undefined;
+    return { ...it, offer: discount ?? it.offer, offerStore: best.store };
+  });
+}
+
 export function doesOfferMatchHistory(
   offer: Offer,
   history: OfferMatchKey[],

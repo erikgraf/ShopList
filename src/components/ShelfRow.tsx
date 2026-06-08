@@ -98,40 +98,56 @@ export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Sto
                 }`}
               >
                 {item.name}
-                {item.offer ? <OfferBadge percent={item.offer} /> : null}
               </div>
-              {displayBrand && (
-                <button
-                  type="button"
-                  onClick={() => setBrandOpen(true)}
-                  aria-label="Marke wählen"
-                  className={`mt-0.5 truncate text-[12px] ${
-                    displaySuggested ? 'italic text-[var(--color-muted)]' : 'text-[var(--color-muted)]'
-                  }`}
-                >
-                  {displayBrand}
-                </button>
+              {/* second line — brand on the left, offer badge on the right
+                  with `shrink-0` so the brand truncates first, not the badge */}
+              {(displayBrand || item.offer) && (
+                <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
+                  {displayBrand && (
+                    <button
+                      type="button"
+                      onClick={() => setBrandOpen(true)}
+                      aria-label="Marke wählen"
+                      className={`min-w-0 truncate text-[12px] ${
+                        displaySuggested ? 'italic text-[var(--color-muted)]' : 'text-[var(--color-muted)]'
+                      }`}
+                    >
+                      {displayBrand}
+                    </button>
+                  )}
+                  {item.offer ? (
+                    <OfferBadge percent={item.offer} store={item.offerStore} />
+                  ) : null}
+                </div>
               )}
             </>
           ) : (
-            <div
-              className={`truncate text-[15.5px] font-medium leading-tight text-[var(--color-text)] ${
-                item.checked ? 'line-through' : ''
-              }`}
-            >
-              {item.name}
-              {displayBrand && (
-                <button
-                  type="button"
-                  onClick={() => setBrandOpen(true)}
-                  className="text-[0.82em] font-normal text-[var(--color-muted)]"
-                >
-                  {' · '}
-                  {displayBrand}
-                </button>
-              )}
-              {item.offer ? <OfferBadge percent={item.offer} /> : null}
-            </div>
+            <>
+              <div
+                className={`truncate text-[15.5px] font-medium leading-tight text-[var(--color-text)] ${
+                  item.checked ? 'line-through' : ''
+                }`}
+              >
+                {item.name}
+                {displayBrand && (
+                  <button
+                    type="button"
+                    onClick={() => setBrandOpen(true)}
+                    className="text-[0.82em] font-normal text-[var(--color-muted)]"
+                  >
+                    {' · '}
+                    {displayBrand}
+                  </button>
+                )}
+              </div>
+              {/* Offer badge gets its own short line so the brand line above
+                  can truncate without clipping it. */}
+              {item.offer ? (
+                <div className="mt-0.5">
+                  <OfferBadge percent={item.offer} store={item.offerStore} />
+                </div>
+              ) : null}
+            </>
           )}
         </div>
 
@@ -186,10 +202,41 @@ export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Sto
   );
 }
 
-function OfferBadge({ percent }: { percent: number }) {
+/** Small price-cut chip on a row. Shows the discount percent and (optionally)
+ *  the store the offer is at — e.g. "−27 % · Aldi". The store dot mirrors
+ *  the brand-dot colour used in StoreChips so it's recognisable at a glance. */
+function OfferBadge({ percent, store }: { percent: number; store?: string }) {
   return (
-    <span className="ml-1.5 inline-flex items-center whitespace-nowrap rounded-md bg-[var(--color-offer-soft)] px-1.5 py-px align-[13%] text-[10.5px] font-bold text-[var(--color-offer)]">
-      −{percent}&thinsp;%
+    <span className="ml-1.5 inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-[var(--color-offer-soft)] px-1.5 py-px align-[13%] text-[10.5px] font-bold text-[var(--color-offer)]">
+      <span>−{percent}&thinsp;%</span>
+      {store && (
+        <>
+          <span aria-hidden className="opacity-60">·</span>
+          <span
+            aria-hidden
+            className="h-[5px] w-[5px] shrink-0 rounded-full"
+            style={{ background: STORE_DOT[store] ?? 'currentColor' }}
+          />
+          <span className="font-bold">{STORE_LABEL[store] ?? store}</span>
+        </>
+      )}
     </span>
   );
 }
+
+// Small mirror of the StoreChips brand-dot palette so the offer pill on the
+// row reads as "the same store" as the chip without importing the chip itself.
+const STORE_LABEL: Record<string, string> = {
+  aldi: 'Aldi', dm: 'DM', rewe: 'Rewe', edeka: 'Edeka', lidl: 'Lidl',
+  netto: 'Netto', kaufland: 'Kaufland', rossmann: 'Rossmann',
+};
+const STORE_DOT: Record<string, string> = {
+  aldi:    'var(--store-aldi, #1b4a9c)',
+  dm:      'var(--store-dm, #0a2a6b)',
+  rewe:    'var(--store-rewe, #cc0a1e)',
+  edeka:   'var(--store-edeka, #1f72b8)',
+  lidl:    'var(--store-lidl, #0a5bb5)',
+  netto:   '#ffd400',
+  kaufland:'#e10915',
+  rossmann:'var(--store-rossmann, #c4022e)',
+};

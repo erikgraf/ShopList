@@ -9,7 +9,7 @@ import { FilterSheet } from './components/FilterSheet';
 import { StoreChips } from './components/StoreChips';
 import { ListSwitcher } from './components/ListSwitcher';
 import { applyFilter, computeFacets, emptyFilter } from './facets';
-import { useOffers } from './offers';
+import { attachOfferMeta, useOffers } from './offers';
 import {
   clearChecked,
   ensureDefaultList,
@@ -81,12 +81,18 @@ export default function App() {
 
   const actionList = actionListId ? lists.find((l) => l.id === actionListId) : null;
 
-  // Cached offers blob — used by the Meine % entry pill (count badge) and the
-  // OffersView when it's open. The list rows themselves no longer get
-  // auto-stamped item.offer; only adding an offer via the AddOfferSheet sets it.
+  // Cached offers blob — used by the Meine % entry pill (count badge) and
+  // the OffersView when it's open. We *also* run a Marken-tier join over the
+  // user's items so any row that has a matching offer right now gets its
+  // `offer` + `offerStore` stamped: ShelfRow then renders a "−N % · Aldi"
+  // pill on the row.
   const offersBlob = useOffers();
-  const facets = useMemo(() => computeFacets(items, filter), [items, filter]);
-  const filtered = useMemo(() => applyFilter(items, filter), [items, filter]);
+  const stamped = useMemo(
+    () => attachOfferMeta(items, offersBlob.offers),
+    [items, offersBlob],
+  );
+  const facets = useMemo(() => computeFacets(stamped, filter), [stamped, filter]);
+  const filtered = useMemo(() => applyFilter(stamped, filter), [stamped, filter]);
   // The single active store, if any — drives per-store brand pinning when
   // adding items, and per-store brand display in rows.
   const activeStore = filter.stores.size === 1 ? [...filter.stores][0] : undefined;
