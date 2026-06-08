@@ -21,7 +21,7 @@
 import { useMemo, useState } from 'react';
 import type { OffersTier } from '../facets';
 import { type Offer, stripDiacritics, doesOfferMatchHistory } from '../offers';
-import { useRecent } from '../store';
+import { useAllItems, useLists, useRecent } from '../store';
 import { OfferCard } from './OfferCard';
 import { AddOfferSheet } from './AddOfferSheet';
 
@@ -72,12 +72,15 @@ export function OffersView({
   generatedAt: string | null;
   onClose: () => void;
 }) {
-  // Match against the user's *shopping history* (everything they've added
-  // before, kept in the `recents` Dexie table) rather than the current
-  // shopping list. The current list is what they need *today*; the history
-  // reflects long-term taste — which is what "Meine Marken / Produkte /
-  // Kategorien" should track.
-  const history = useRecent();
+  // Matching set: union of *past purchases* (everything ever added; long-term
+  // taste) AND *items currently on any list* (regardless of which list is
+  // active right now). The latter is what lets us surface "this offer fits
+  // something on your Wocheneinkauf list" — see listsByOffer below.
+  const recent = useRecent();
+  const allItems = useAllItems();
+  const lists = useLists();
+  const history = useMemo(() => [...recent, ...allItems], [recent, allItems]);
+
   const [tier, setTier] = useState<OffersTier>('alle');
   const [pickup, setPickup] = useState<Offer | null>(null);
 
@@ -95,6 +98,28 @@ export function OffersView({
     if (tier === 'alle') return offers;
     return offers.filter((o) => doesOfferMatchHistory(o, history, tier));
   }, [offers, history, tier]);
+
+  // Per-offer indicator: which (if any) of the user's lists currently
+  // contain a marken-tier match (exact EAN or brand+name overlap) for this
+  // offer? The OfferCard renders one chip per list — so users see at a
+  // glance "this deal hits something on Einkauf · Wocheneinkauf".
+  const listsByOffer = useMemo(() => {
+    if (allItems.length === 0 || lists.length === 0) return new Map<string, string[]>();
+    const listNameById = new Map(lists.map((l) => [l.id, l.name]));
+    const out = new Map<string, string[]>();
+    for (const o of filtered) {
+      const key = `${o.store}|${o.source_url}`;
+      const hits = new Set<string>();
+      for (const it of allItems) {
+        if (doesOfferMatchHistory(o, [it], 'marken')) {
+          const name = listNameById.get(it.listId);
+          if (name) hits.add(name);
+        }
+      }
+      if (hits.size) out.set(key, [...hits]);
+    }
+    return out;
+  }, [filtered, allItems, lists]);
 
   // Cosmetic sort: deepest discount first, then everything else by name.
   const sorted = useMemo(
@@ -201,11 +226,18 @@ export function OffersView({
           </div>
         ) : (
           <ul className="flex flex-col gap-2 pb-12">
-            {sorted.map((o, i) => (
-              <li key={`${o.store}-${o.source_url}-${i}`}>
-                <OfferCard offer={o} onAdd={() => setPickup(o)} />
-              </li>
-            ))}
+            {sorted.map((o, i) => {
+              const key = `${o.store}|${o.source_url}`;
+              return (
+                <li key={`${key}-${i}`}>
+                  <OfferCard
+                    offer={o}
+                    onLists={listsByOffer.get(key) ?? []}
+                    onAdd={() => setPickup(o)}
+                  />
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

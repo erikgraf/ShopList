@@ -27,7 +27,18 @@ const STORE_COLOR: Record<string, string> = {
   rossmann:'var(--store-rossmann, #c4022e)',
 };
 
-export function OfferCard({ offer, onAdd }: { offer: Offer; onAdd: () => void }) {
+export function OfferCard({
+  offer,
+  onLists,
+  onAdd,
+}: {
+  offer: Offer;
+  /** Names of any lists that already contain a matching item — surfaced
+   *  as small "Auf Liste …" chips so the user knows the deal hits
+   *  something they've already planned for. Empty when no match. */
+  onLists?: string[];
+  onAdd: () => void;
+}) {
   const fmt = (n: number) => n.toFixed(2).replace('.', ',');
   return (
     <button
@@ -95,6 +106,26 @@ export function OfferCard({ offer, onAdd }: { offer: Offer; onAdd: () => void })
             </span>
           )}
         </div>
+
+        {/* List-match indicator(s). Shown only when this offer hits an item
+            already on one of the user's lists — strong signal that the deal
+            is worth acting on today, not just "vielleicht mal". */}
+        {onLists && onLists.length > 0 && (
+          <div className="-mt-0.5 flex flex-wrap items-center gap-1">
+            {onLists.map((listName) => (
+              <span
+                key={listName}
+                className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent-soft)] px-1.5 py-0.5 text-[10.5px] font-semibold text-[var(--color-accent)]"
+              >
+                {/* checkmark glyph — already-on-list cue */}
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M4 12.5l5 5L20 6" />
+                </svg>
+                Auf <span className="font-bold">{listName}</span>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Price + Hinzufügen */}

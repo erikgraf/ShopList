@@ -463,6 +463,26 @@ export function useItems(): Item[] {
   return items;
 }
 
+/**
+ * All items across every list — used by the Angebote view so an offer can
+ * surface "this is on your Wocheneinkauf list" badges, regardless of which
+ * list is currently active. Like `useItems`, strips soft-delete tombstones.
+ */
+export function useAllItems(): Item[] {
+  const [items, setItems] = useState<Item[]>([]);
+  useEffect(() => {
+    let alive = true;
+    const refresh = async () => {
+      const all = await db.items.toArray();
+      if (!alive) return;
+      setItems(all.filter((it) => !it.deletedAt));
+    };
+    refresh();
+    return onChange(refresh);
+  }, []);
+  return items;
+}
+
 export function useRecent(): RecentProduct[] {
   const [recent, setRecent] = useState<RecentProduct[]>([]);
   useEffect(() => {
