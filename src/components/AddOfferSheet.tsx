@@ -48,12 +48,28 @@ export function AddOfferSheet({ offer, onClose }: { offer: Offer; onClose: () =>
     try {
       const product = offerToProduct(offer);
       const item = await addItemFromProduct(product, { quantity: qty });
-      // Stamp the discount percent on the new Item so the row shows the −N %
-      // badge straight away (ShelfRow reads from item.offer).
-      if (offer.discount_pct !== undefined && offer.discount_pct < 0) {
-        const { db } = await import('../db');
-        await db.items.put({ ...item, offer: -offer.discount_pct });
-      }
+      // Always overwrite the persisted Item with: (a) the offer-derived
+      // category, so even the dup-merge path (which preserves the OLD
+      // category by design) gets the new bucket; (b) the full offer
+      // metadata, so ShelfRow's OfferLine paints "−N % · ●Aldi · €X,YZ ·
+      // Spare €A,BC" immediately and survives the next cron rotation
+      // even if attachOfferMeta loses the match.
+      const next: typeof item = {
+        ...item,
+        category: product.category,
+        offerStore: offer.store,
+        ...(offer.discount_pct !== undefined && offer.discount_pct < 0
+          ? { offer: -offer.discount_pct }
+          : {}),
+        ...(offer.price !== undefined ? { offerPrice: offer.price } : {}),
+        ...(offer.price !== undefined &&
+        offer.was_price !== undefined &&
+        offer.was_price > offer.price
+          ? { offerSavings: Math.round((offer.was_price - offer.price) * 100) / 100 }
+          : {}),
+      };
+      const { db } = await import('../db');
+      await db.items.put(next);
       onClose();
     } finally {
       setBusy(false);

@@ -161,13 +161,17 @@ const CATEGORY_KEYWORDS: { cat: Category; kw: RegExp }[] = [
   // alcohol-content marker is the single strongest signal for any spirit /
   // wine / liqueur — that catches the long tail of vinhos, Bordeaux, etc.
   // even when no grape varietal is in the keyword list.
-  { cat: 'getraenke',     kw: /(wasser|saft|cola|fanta|sprite|bier|wein|sekt|limo|tee|kaffee|espresso|kakao|smoothie|getraenk|mineralwasser|brause|schorle|eistee|pfanner|drink|sirup|vodka|secco|prosecco|spritz|sprizz|aperitivo|aperitif|schnaps|gin|whisky|rum|liqueur|likoer|chardonnay|merlot|riesling|pinot|primitivo|grigio|sauvignon|rouge|rose|rosato|moscato|bacardi|martini|veltliner|melitta|coffeeb|% vol|\d+,\d+ % vol|bag in box|0,75 liter|0,7 liter)/ },
+  // Drinks rule. Short tokens (`gin`, `tee`, `rum`) are wrapped in `\b…\b`
+  // so they don't substring-match into "auBERGINe", "salaTEE", "burRUMher"
+  // and so on. Longer / distinctive tokens stay loose to catch compound
+  // forms like "Apfelschorle", "Bag-in-Box", "0,75 Liter".
+  { cat: 'getraenke',     kw: /(wasser|saft|cola|fanta|sprite|bier|wein|sekt|limo|kaffee|espresso|kakao|smoothie|getraenk|mineralwasser|brause|schorle|eistee|pfanner|sirup|vodka|secco|prosecco|spritz|sprizz|aperitivo|aperitif|schnaps|whisky|liqueur|likoer|chardonnay|merlot|riesling|pinot|primitivo|grigio|sauvignon|rouge|rosato|moscato|bacardi|martini|veltliner|melitta|coffeeb|bag in box|0,75 liter|0,7 liter|0,75l|% vol|drink)|\b(gin|rum|tee|rose)\b/ },
   // Obst & Gemüse runs LAST among the food rules — by now anything that's
   // really a drink, sweet, dairy or meat with a fruit-flavour suffix has
   // already been claimed. Drop `\b` so compound forms like
   // "Cherryrispentomaten", "Mini-Gurken", "Speisefrühkartoffeln",
   // "Plattpfirsiche" match.
-  { cat: 'obst-gemuese',  kw: /(apfel|aepfel|birne|tomate|salat|gurke|paprika|zwiebel|kartoffel|drilling|avocado|banane|kiwi|trauben|pfirsich|aprikose|kirsche|melone|mango|ananas|knoblauch|moehre|rote bete|spinat|brokkoli|blumenkohl|pilz|champignon|eisberg|kraeuter|frueh(?:kartoffel)?|rispe|beilagensalat)/ },
+  { cat: 'obst-gemuese',  kw: /(apfel|aepfel|birne|tomate|salat|gurke|paprika|zwiebel|kartoffel|drilling|avocado|aubergine|banane|kiwi|trauben|pfirsich|aprikose|kirsche|melone|mango|ananas|knoblauch|moehre|rote bete|spinat|brokkoli|blumenkohl|pilz|champignon|eisberg|kraeuter|frueh(?:kartoffel)?|rispe|beilagensalat|zucchini|kuerbis|rettich|radieschen|fenchel|sellerie|porree|lauch)/ },
   { cat: 'gewuerze-saucen', kw: /\b(senf|ketchup|mayo|mayonnaise|sauce|sosse|dressing|essig|oel|gewuerz|pfeffer|salz|paprikapulver|currypulver|bruehe|maggi|knorr|tomatensosse|pesto)\b/ },
   // No `dose`/`konserve` here — too many drink offers come "im 6er-Pack Dose"
   // and would mis-bucket into vorrat. Pasta, pulses, baking staples only.

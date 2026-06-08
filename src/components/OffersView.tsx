@@ -243,7 +243,7 @@ export function OffersView({
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 pb-12">
+          <div className="flex flex-col gap-4 pb-12">
             {grouped.map(({ cat, offers: bandOffers }) => {
               const [fg, bg] = COLORS[cat];
               return (
@@ -252,20 +252,27 @@ export function OffersView({
                   className="overflow-hidden rounded-2xl bg-[var(--color-surface)]"
                   style={{ boxShadow: 'var(--shadow-sm)' }}
                 >
-                  {/* aisle band — mirrors ShelfGroup */}
+                  {/* aisle band — louder than ShelfGroup's main-list version
+                      because in the Angebote view it doubles as navigation,
+                      not just decoration. Bigger icon chip, larger label,
+                      taller padding so each band reads as its own shelf. */}
                   <header
-                    className="flex items-center gap-2.5 px-3.5 py-2"
+                    className="flex items-center gap-3 px-4 py-3.5"
                     style={{ background: bg, color: fg }}
                   >
-                    <span className="shrink-0 text-[15px] leading-none" aria-hidden>
+                    <span
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl text-[18px] leading-none"
+                      style={{ background: 'rgba(255,255,255,0.55)' }}
+                      aria-hidden
+                    >
                       {GLYPH[cat]}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-[12.5px] font-bold tracking-[-0.01em]">
+                    <span className="min-w-0 flex-1 truncate text-[15.5px] font-extrabold tracking-[-0.01em]">
                       {CATEGORY_LABELS[cat]}
                     </span>
                     <span
-                      className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold tabular-nums"
-                      style={{ background: 'rgba(255,255,255,0.6)', color: fg }}
+                      className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full px-2 text-[12px] font-bold tabular-nums"
+                      style={{ background: 'rgba(255,255,255,0.65)', color: fg }}
                     >
                       {bandOffers.length}
                     </span>
