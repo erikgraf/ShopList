@@ -14,12 +14,22 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    // Explicitly route /api/* and /__offers/* to the Worker first; the
+    // default routing hands GET navigation requests to ASSETS which would
+    // otherwise short-circuit our handlers with the SPA shell.
+    "run_worker_first": ["/api/*", "/__offers/*"]
   },
   "kv_namespaces": [
     {
       "binding": "SHARED_LISTS",
       "id": "ea14cba7a27d4038b18023667ea6a1db"
     }
-  ]
+  ],
+  // Weekly offers fetcher — see worker/offers.ts. German chains rotate
+  // their Wochenangebote Mon + Thu; cron fires both mornings at 06:00 UTC
+  // (07:00 CET / 08:00 CEST in Berlin). Phase 1 is log-only.
+  "triggers": {
+    "crons": ["0 6 * * 1,4"]
+  }
 }

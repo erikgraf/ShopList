@@ -1,22 +1,25 @@
 /**
- * Cloudflare Worker entry point. Combines the shared-list sync API with the
- * static asset bundle from `dist/` so a single Worker serves the whole app:
+ * Cloudflare Worker entry point. Combines the shared-list sync API, the
+ * scheduled weekly-offers fetcher, and the static asset bundle from `dist/`
+ * so a single Worker serves the whole app:
  *
  *   POST   /api/sync             create a new shared list, return { cloudId, blob }
  *   GET    /api/sync/:cloudId    fetch the current blob (404 if unknown)
  *   POST   /api/sync/:cloudId    merge a client snapshot (LWW per item)
  *   DELETE /api/sync/:cloudId    revoke share
+ *   GET    /__offers/run         (dev only) trigger the offers fetch and log;
+ *                                gated on !request.cf so it's unreachable in prod
  *   anything else                served from ASSETS (the dist/ bundle), with
  *                                SPA fallback handled by the bundle config
  *
- * Replaces the old Pages Functions layout (`functions/api/sync/*.ts`).
- * Cloudflare's auto-PR migrated this project from Pages to the new
- * Workers + Static Assets model, so the API needs to live in a Worker
- * rather than in route-file conventions.
+ * The scheduled handler runs on the cron triggers in wrangler.jsonc (weekly,
+ * see Phase 1 in worker/offers.ts). It currently logs only.
  *
  * Auth model is still "possession of cloudId == access". State lives in
  * the SHARED_LISTS KV namespace bound via `wrangler.jsonc`.
  */
+
+import { runOffers } from './offers';
 
 export interface Env {
   SHARED_LISTS: KVNamespace;
@@ -195,11 +198,25 @@ async function handleSync(request: Request, env: Env, url: URL): Promise<Respons
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === '/api/sync' || url.pathname.startsWith('/api/sync/')) {
       return handleSync(request, env, url);
+    }
+
+    // Dev-only offers trigger. Gated on the hostname being a loopback so
+    // the route is unreachable from the deployed *.workers.dev origin — and
+    // it's gated cleanly even though wrangler dev now populates a mocked
+    // `request.cf`. Logs surface via `wrangler tail` / `wrangler dev` stdout.
+    if (
+      url.pathname === '/__offers/run' &&
+      (url.hostname === 'localhost' || url.hostname === '127.0.0.1')
+    ) {
+      ctx.waitUntil(runOffers().then(() => undefined));
+      return new Response('offers run kicked off — see wrangler tail / dev console\n', {
+        headers: { 'content-type': 'text/plain' },
+      });
     }
 
     // Everything else: hand off to the static asset bundle. The
@@ -208,5 +225,17 @@ export default {
     // so client-side routes (the React app) and the SPA fallback all
     // work without us reimplementing the logic here.
     return env.ASSETS.fetch(request);
+  },
+
+  /**
+   * Cron handler. Wired in wrangler.jsonc → "triggers.crons". German
+   * weekly offers typically rotate Mon and Thu, so the cron fires both
+   * mornings (06:00 UTC ≈ 07:00 CET / 08:00 CEST Berlin).
+   *
+   * Phase 1: log-only. Persistence (KV / D1) lands in Phase 2 once we've
+   * reviewed the normalized shape and the per-chain coverage holds.
+   */
+  async scheduled(_event: ScheduledController, _env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(runOffers().then(() => undefined));
   },
 };
