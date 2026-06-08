@@ -124,18 +124,57 @@ if (snapText) {
 // Aggregated JSON for piping. By-chain counts are already in the
 // console.log() output from runOffers(); this adds the full list so
 // downstream tools can grep / jq through the actual records.
-process.stdout.write(
-  JSON.stringify(
-    {
-      generated_at: new Date().toISOString(),
-      total: offers.length,
-      by_store: offers.reduce<Record<string, number>>((acc, o) => {
-        acc[o.store] = (acc[o.store] ?? 0) + 1;
-        return acc;
-      }, {}),
-      offers,
-    },
-    null,
-    2,
-  ) + '\n',
-);
+const result = {
+  generated_at: new Date().toISOString(),
+  total: offers.length,
+  by_store: offers.reduce<Record<string, number>>((acc, o) => {
+    acc[o.store] = (acc[o.store] ?? 0) + 1;
+    return acc;
+  }, {}),
+  offers,
+};
+
+process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+
+// Optional one-shot push to a running wrangler dev. Use with:
+//   node scripts/run-offers.ts --write
+// or set INGEST_URL to point at a remote (once auth is in place):
+//   INGEST_URL=https://shoplist.ceviche-cornet-6j.workers.dev/api/offers/ingest node ...
+//
+// Crucial: when HTTPS_PROXY is set, the global undici dispatcher routes
+// EVERY fetch through Decodo — including the localhost POST. Use Node's
+// raw http module for the loopback path so it bypasses the proxy.
+if (process.argv.includes('--write')) {
+  const ingestUrl = process.env.INGEST_URL ?? 'http://localhost:8788/api/offers/ingest';
+  const u = new URL(ingestUrl);
+  const isLoopback = u.hostname === 'localhost' || u.hostname === '127.0.0.1';
+  const body = JSON.stringify(result);
+  try {
+    if (isLoopback) {
+      const http = await import('node:http');
+      const resStatus = await new Promise<{ status: number; text: string }>((res, rej) => {
+        const req = http.request(
+          {
+            method: 'POST', hostname: u.hostname, port: u.port || 80, path: u.pathname,
+            headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) },
+          },
+          (r) => {
+            let buf = '';
+            r.on('data', (c) => (buf += c));
+            r.on('end', () => res({ status: r.statusCode ?? 0, text: buf.trim() }));
+          },
+        );
+        req.on('error', rej);
+        req.write(body); req.end();
+      });
+      process.stderr.write(`[ingest] ${ingestUrl} → ${resStatus.status} ${resStatus.text}\n`);
+    } else {
+      const r = await fetch(ingestUrl, {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body,
+      });
+      process.stderr.write(`[ingest] ${ingestUrl} → ${r.status} ${(await r.text()).trim()}\n`);
+    }
+  } catch (e) {
+    process.stderr.write(`[ingest] failed: ${(e as Error).message}\n`);
+  }
+}

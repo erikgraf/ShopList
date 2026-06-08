@@ -8,6 +8,7 @@ import { FilterSheet } from './components/FilterSheet';
 import { StoreChips } from './components/StoreChips';
 import { ListSwitcher } from './components/ListSwitcher';
 import { applyFilter, computeFacets, emptyFilter } from './facets';
+import { enrichItemsWithOffers, useOffers } from './offers';
 import {
   clearChecked,
   ensureDefaultList,
@@ -78,8 +79,16 @@ export default function App() {
 
   const actionList = actionListId ? lists.find((l) => l.id === actionListId) : null;
 
-  const facets = useMemo(() => computeFacets(items, filter), [items, filter]);
-  const filtered = useMemo(() => applyFilter(items, filter), [items, filter]);
+  // Pull the cached offers blob and stamp `item.offer` per the active Meine %
+  // tier *before* computing facets / filtering, so every count downstream
+  // reflects the current matching strictness.
+  const offersBlob = useOffers();
+  const enriched = useMemo(
+    () => enrichItemsWithOffers(items, offersBlob.offers, filter.offersTier),
+    [items, offersBlob, filter.offersTier],
+  );
+  const facets = useMemo(() => computeFacets(enriched, filter), [enriched, filter]);
+  const filtered = useMemo(() => applyFilter(enriched, filter), [enriched, filter]);
   // The single active store, if any — drives per-store brand pinning when
   // adding items, and per-store brand display in rows.
   const activeStore = filter.stores.size === 1 ? [...filter.stores][0] : undefined;
@@ -150,9 +159,9 @@ export default function App() {
         {/* chip row: "Meine %" offers toggle, then the store chips */}
         <div className="flex items-center gap-2">
           <OffersToggle
-            active={filter.offersOnly}
+            tier={filter.offersTier}
             count={facets.offers}
-            onToggle={() => setFilter({ ...filter, offersOnly: !filter.offersOnly })}
+            onChange={(next) => setFilter({ ...filter, offersTier: next })}
           />
           <span className="h-[18px] w-px shrink-0 bg-[var(--color-border-strong)]" />
           <div className="min-w-0 flex-1">
@@ -165,7 +174,7 @@ export default function App() {
 
       <main className="flex-1 px-4 pt-2 pb-32">
         {open.length === 0 && done.length === 0 && (
-          <EmptyState filtered={items.length > 0} offersOnly={filter.offersOnly} />
+          <EmptyState filtered={items.length > 0} offersActive={filter.offersTier !== null} />
         )}
 
         {grouped.map(([category, rows]) => (
@@ -264,7 +273,7 @@ function groupByCategory(items: Item[]): Array<[Category, Item[]]> {
   return out;
 }
 
-function EmptyState({ filtered, offersOnly }: { filtered: boolean; offersOnly: boolean }) {
+function EmptyState({ filtered, offersActive }: { filtered: boolean; offersActive: boolean }) {
   return (
     <div
       className="mt-12 rounded-3xl bg-[var(--color-surface)] p-8 text-center"
@@ -286,13 +295,13 @@ function EmptyState({ filtered, offersOnly }: { filtered: boolean; offersOnly: b
         </svg>
       </div>
       <p className="text-base font-medium text-[var(--color-text)]">
-        {offersOnly
+        {offersActive
           ? 'Keine Angebote auf deiner Liste.'
           : filtered
             ? 'Mit diesen Filtern steht nichts auf der Liste.'
             : 'Deine Liste ist noch leer.'}
       </p>
-      {!filtered && !offersOnly && (
+      {!filtered && !offersActive && (
         <p className="mt-2 text-sm text-[var(--color-muted)]">
           Tippe oben, um Produkte hinzuzufügen — oder scanne einen Barcode.
         </p>

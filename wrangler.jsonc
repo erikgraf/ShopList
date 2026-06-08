@@ -15,10 +15,15 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    // Explicitly route /api/* and /__offers/* to the Worker first; the
-    // default routing hands GET navigation requests to ASSETS which would
-    // otherwise short-circuit our handlers with the SPA shell.
-    "run_worker_first": ["/api/*", "/__offers/*"]
+    // Route every request through the Worker first; the Worker itself
+    // hands non-API requests off to `env.ASSETS.fetch(request)` as the
+    // last step. The previous array-form pattern (`["/api/*", …]`)
+    // didn't reliably catch GET navigations on api/* paths in wrangler
+    // dev — assets binding's `Sec-Fetch-Mode: navigate` heuristic
+    // overrode it and served the SPA shell. Boolean-form `true` is
+    // unambiguous and matches what the Worker code already does
+    // (`return env.ASSETS.fetch(request)` is the explicit fall-through).
+    "run_worker_first": true
   },
   "kv_namespaces": [
     {

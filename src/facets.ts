@@ -2,14 +2,25 @@ import type { Category, Item, Store } from './types';
 
 export type Status = 'open' | 'done';
 
+/** "Meine %" sub-selector. Drives how an item is considered "on offer":
+ *  - `marken`     — exact identity: offer.ean === item.barcode (or brand+name overlap)
+ *  - `produkte`   — Stage-2 taxonomy L3 match: offer.taxonomy_l3 === item.taxonomyL3
+ *                   (e.g. "any Pils" for an item resolved to `pils`)
+ *  - `kategorien` — Stage-2 taxonomy L2 match: offer.taxonomy_l2 === item.taxonomyL2
+ *                   (e.g. "any Bier" for an item under `bier`)
+ *  - `alle`       — any offer-bearing item, no taxonomy gate
+ *
+ *  The actual `item.offer` value is populated in App.tsx before filtering by
+ *  joining the items against the cached /api/offers blob at the active tier. */
+export type OffersTier = 'marken' | 'produkte' | 'kategorien' | 'alle';
+
 export interface FilterState {
   stores: Set<Store>;
   categories: Set<Category>;
   brands: Set<string>;
   statuses: Set<Status>;
-  /** "Meine %" — when true, restrict to items currently on offer (item.offer
-   *  set). A scalar boolean rather than a Set: it's a single on/off facet. */
-  offersOnly: boolean;
+  /** "Meine %" — null when off, otherwise the active match tier. */
+  offersTier: OffersTier | null;
 }
 
 export const emptyFilter = (): FilterState => ({
@@ -17,7 +28,7 @@ export const emptyFilter = (): FilterState => ({
   categories: new Set(),
   brands: new Set(),
   statuses: new Set(),
-  offersOnly: false,
+  offersTier: null,
 });
 
 export function isEmpty(f: FilterState): boolean {
@@ -26,7 +37,7 @@ export function isEmpty(f: FilterState): boolean {
     !f.categories.size &&
     !f.brands.size &&
     !f.statuses.size &&
-    !f.offersOnly
+    !f.offersTier
   );
 }
 
@@ -36,7 +47,7 @@ export function countFilters(f: FilterState): number {
     f.categories.size +
     f.brands.size +
     f.statuses.size +
-    (f.offersOnly ? 1 : 0)
+    (f.offersTier ? 1 : 0)
   );
 }
 
@@ -62,7 +73,7 @@ function predicates(f: FilterState): Predicates {
   };
   const category = (it: Item): boolean => !f.categories.size || f.categories.has(it.category);
   const brand = (it: Item): boolean => !f.brands.size || (!!it.brand && f.brands.has(it.brand));
-  const offer = (it: Item): boolean => !f.offersOnly || !!it.offer;
+  const offer = (it: Item): boolean => !f.offersTier || !!it.offer;
 
   return {
     matchesStore: store,

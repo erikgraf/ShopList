@@ -205,6 +205,43 @@ export default {
       return handleSync(request, env, url);
     }
 
+    // ── Offers cache ────────────────────────────────────────────────────
+    //   GET  /api/offers          → return the current offers blob from KV
+    //   POST /api/offers/ingest   → replace it (dev-gated by hostname; auth
+    //                                token comes later, before any deploy)
+    if (url.pathname === '/api/offers' && request.method === 'GET') {
+      const blob = await env.SHARED_LISTS.get('offers:current');
+      if (!blob) {
+        return new Response(JSON.stringify({ offers: [], total: 0, fetched_at: null }), {
+          headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+        });
+      }
+      return new Response(blob, {
+        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      });
+    }
+    if (url.pathname === '/api/offers/ingest' && request.method === 'POST') {
+      // Hostname-gated for now (loopback only). Replace with a bearer-token
+      // check (`OFFERS_INGEST_TOKEN` in the worker env) before deploying.
+      if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
+        return new Response('forbidden\n', { status: 403, headers: { 'content-type': 'text/plain' } });
+      }
+      const body = await request.text();
+      try {
+        const parsed = JSON.parse(body) as { offers?: unknown };
+        if (!Array.isArray(parsed.offers)) throw new Error('missing offers[] array');
+      } catch (e) {
+        return new Response(`bad request: ${(e as Error).message}\n`, {
+          status: 400, headers: { 'content-type': 'text/plain' },
+        });
+      }
+      // 8-day TTL so a missed cron doesn't leave stale data forever (and
+      // also pricing/availability has a short shelf life — weekly offers
+      // rotate every Mon/Thu).
+      await env.SHARED_LISTS.put('offers:current', body, { expirationTtl: 8 * 24 * 60 * 60 });
+      return new Response('ok\n', { headers: { 'content-type': 'text/plain' } });
+    }
+
     // Dev-only offers trigger. Gated on the hostname being a loopback so
     // the route is unreachable from the deployed *.workers.dev origin — and
     // it's gated cleanly even though wrangler dev now populates a mocked
