@@ -175,6 +175,14 @@ export interface Item {
    *  `offer` so the row badge can read "−N % · Aldi" instead of just the
    *  percent. Transient — populated each render from the offers blob. */
   offerStore?: string;
+  /** Current sale price in EUR (e.g. 3.33). Transient — drives the row's
+   *  dedicated offer line so the user can see the actual euro figure
+   *  without opening the Angebote view. */
+  offerPrice?: number;
+  /** Euro savings vs the strike-through price — usually `was_price -
+   *  price`. Transient. Used to render the "Spare €1,26" half of the
+   *  offer line. Absent when the offer doesn't carry a was_price. */
+  offerSavings?: number;
   name: string;
   /** Global/default brand — what to show when no store filter is active, and
    *  the last-resort fallback when neither a per-store pick nor a suggestion

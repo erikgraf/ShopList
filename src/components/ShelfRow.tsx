@@ -99,56 +99,50 @@ export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Sto
               >
                 {item.name}
               </div>
-              {/* second line — brand on the left, offer badge on the right
-                  with `shrink-0` so the brand truncates first, not the badge */}
-              {(displayBrand || item.offer) && (
-                <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
-                  {displayBrand && (
-                    <button
-                      type="button"
-                      onClick={() => setBrandOpen(true)}
-                      aria-label="Marke wählen"
-                      className={`min-w-0 truncate text-[12px] ${
-                        displaySuggested ? 'italic text-[var(--color-muted)]' : 'text-[var(--color-muted)]'
-                      }`}
-                    >
-                      {displayBrand}
-                    </button>
-                  )}
-                  {item.offer ? (
-                    <OfferBadge percent={item.offer} store={item.offerStore} />
-                  ) : null}
-                </div>
+              {displayBrand && (
+                <button
+                  type="button"
+                  onClick={() => setBrandOpen(true)}
+                  aria-label="Marke wählen"
+                  className={`mt-0.5 block min-w-0 max-w-full truncate text-[12px] ${
+                    displaySuggested ? 'italic text-[var(--color-muted)]' : 'text-[var(--color-muted)]'
+                  }`}
+                >
+                  {displayBrand}
+                </button>
               )}
             </>
           ) : (
-            <>
-              <div
-                className={`truncate text-[15.5px] font-medium leading-tight text-[var(--color-text)] ${
-                  item.checked ? 'line-through' : ''
-                }`}
-              >
-                {item.name}
-                {displayBrand && (
-                  <button
-                    type="button"
-                    onClick={() => setBrandOpen(true)}
-                    className="text-[0.82em] font-normal text-[var(--color-muted)]"
-                  >
-                    {' · '}
-                    {displayBrand}
-                  </button>
-                )}
-              </div>
-              {/* Offer badge gets its own short line so the brand line above
-                  can truncate without clipping it. */}
-              {item.offer ? (
-                <div className="mt-0.5">
-                  <OfferBadge percent={item.offer} store={item.offerStore} />
-                </div>
-              ) : null}
-            </>
+            <div
+              className={`truncate text-[15.5px] font-medium leading-tight text-[var(--color-text)] ${
+                item.checked ? 'line-through' : ''
+              }`}
+            >
+              {item.name}
+              {displayBrand && (
+                <button
+                  type="button"
+                  onClick={() => setBrandOpen(true)}
+                  className="text-[0.82em] font-normal text-[var(--color-muted)]"
+                >
+                  {' · '}
+                  {displayBrand}
+                </button>
+              )}
+            </div>
           )}
+
+          {/* Dedicated offer line under the name/brand. Mint-coral accent
+              so the deal pops without shouting; carries store + sale price
+              + savings + discount %. Only rendered when there's a match. */}
+          {item.offer ? (
+            <OfferLine
+              percent={item.offer}
+              store={item.offerStore}
+              price={item.offerPrice}
+              savings={item.offerSavings}
+            />
+          ) : null}
         </div>
 
         {/* quantity stepper — inline, no sheet needed for ±1; tap the number to
@@ -202,25 +196,54 @@ export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Sto
   );
 }
 
-/** Small price-cut chip on a row. Shows the discount percent and (optionally)
- *  the store the offer is at — e.g. "−27 % · Aldi". The store dot mirrors
- *  the brand-dot colour used in StoreChips so it's recognisable at a glance. */
-function OfferBadge({ percent, store }: { percent: number; store?: string }) {
+/** Dedicated row-level offer ribbon. Sits under name/brand and shows
+ *  everything the user needs to decide "is this deal worth it?" at a glance:
+ *  the store, the current sale price, the euro savings, and the discount %.
+ *  Uses the offer-soft accent so it reads as a unit and doesn't compete with
+ *  the row's primary content for attention. */
+function OfferLine({
+  percent,
+  store,
+  price,
+  savings,
+}: {
+  percent: number;
+  store?: string;
+  price?: number;
+  savings?: number;
+}) {
+  const fmtEur = (n: number) => `€${n.toFixed(2).replace('.', ',')}`;
   return (
-    <span className="ml-1.5 inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-[var(--color-offer-soft)] px-1.5 py-px align-[13%] text-[10.5px] font-bold text-[var(--color-offer)]">
-      <span>−{percent}&thinsp;%</span>
+    <div
+      className="mt-1 inline-flex w-fit max-w-full flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-md bg-[var(--color-offer-soft)] px-1.5 py-0.5 text-[11.5px] font-semibold text-[var(--color-offer)]"
+    >
       {store && (
-        <>
-          <span aria-hidden className="opacity-60">·</span>
+        <span className="inline-flex items-center gap-1">
           <span
             aria-hidden
-            className="h-[5px] w-[5px] shrink-0 rounded-full"
+            className="h-[6px] w-[6px] shrink-0 rounded-full"
             style={{ background: STORE_DOT[store] ?? 'currentColor' }}
           />
-          <span className="font-bold">{STORE_LABEL[store] ?? store}</span>
+          <span>{STORE_LABEL[store] ?? store}</span>
+        </span>
+      )}
+      {price !== undefined && (
+        <>
+          <span aria-hidden className="opacity-50">·</span>
+          <span className="font-extrabold tabular-nums">{fmtEur(price)}</span>
         </>
       )}
-    </span>
+      {savings !== undefined && savings > 0 && (
+        <>
+          <span aria-hidden className="opacity-50">·</span>
+          <span className="tabular-nums">Spare {fmtEur(savings)}</span>
+        </>
+      )}
+      <>
+        <span aria-hidden className="opacity-50">·</span>
+        <span className="tabular-nums">−{percent}&thinsp;%</span>
+      </>
+    </div>
   );
 }
 

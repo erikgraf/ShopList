@@ -143,7 +143,17 @@ export function attachOfferMeta(items: Item[], offers: Offer[]): Item[] {
     if (!best) return it;
     const discount =
       best.discount_pct !== undefined && best.discount_pct < 0 ? -best.discount_pct : undefined;
-    return { ...it, offer: discount ?? it.offer, offerStore: best.store };
+    const savings =
+      best.was_price !== undefined && best.price !== undefined && best.was_price > best.price
+        ? Math.round((best.was_price - best.price) * 100) / 100
+        : undefined;
+    return {
+      ...it,
+      offer: discount ?? it.offer,
+      offerStore: best.store,
+      offerPrice: best.price,
+      offerSavings: savings,
+    };
   });
 }
 
