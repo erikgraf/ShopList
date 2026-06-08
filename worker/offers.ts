@@ -81,13 +81,18 @@ async function fetchAldi(): Promise<Offer[]> {
     return [];
   }
 
-  const tileRe =
-    /<a[^>]+class="[^"]*product-tile__link[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
+  // Attributes can come in either order in the rendered HTML (href= is
+  // sometimes before class=, sometimes after). Match the <a>…</a> by the
+  // class anywhere in the opening tag, then pull `href` out of the captured
+  // attribute block separately.
+  const tileRe = /<a\s([^>]*class="[^"]*product-tile__link[^"]*"[^>]*)>([\s\S]*?)<\/a>/g;
   const out: Offer[] = [];
 
   let m: RegExpExecArray | null;
   while ((m = tileRe.exec(html))) {
-    const [, href, tile] = m;
+    const [, attrs, tile] = m;
+    const hrefMatch = attrs.match(/href="([^"]+)"/);
+    const href = hrefMatch ? hrefMatch[1] : '';
     const grab = (re: RegExp): string => {
       const r = tile.match(re);
       return r ? decode(r[1]) : '';
@@ -157,6 +162,10 @@ async function fetchDm(): Promise<Offer[]> {
   if (products[0]) {
     const sampleKeys = Object.keys(products[0]).slice(0, 12);
     console.log(`[dm] resultCount=${data.resultCount} sample keys=${JSON.stringify(sampleKeys)}`);
+    // One-time dump of the first product so we can see where prices/URLs live
+    if (process.env.DEBUG_DM === '1') {
+      console.log('[dm] first product full JSON:\n' + JSON.stringify(products[0], null, 2));
+    }
   }
 
   return products
