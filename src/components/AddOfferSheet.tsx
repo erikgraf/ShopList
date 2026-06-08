@@ -9,9 +9,8 @@
  */
 import { useState } from 'react';
 import { addItemFromProduct } from '../store';
-import type { Category, Product, Store } from '../types';
-import { CATEGORY_LABELS } from '../types';
-import type { Offer } from '../offers';
+import type { Product, Store } from '../types';
+import { type Offer, categorizeOffer } from '../offers';
 
 const KNOWN_STORES = new Set<Store>(['aldi', 'lidl', 'rewe', 'edeka', 'dm', 'rossmann']);
 
@@ -21,9 +20,10 @@ function offerToProduct(o: Offer): Product {
   // category default. (Netto/Kaufland — coming later — won't be in `Store`
   // until we expand that enum.)
   const stores = KNOWN_STORES.has(o.store as Store) ? [o.store as Store] : undefined;
-  const category = (
-    o.category && o.category in CATEGORY_LABELS ? o.category : 'sonstiges'
-  ) as Category;
+  // Use the same Angebote-view categorisation rules to bucket the new Item —
+  // so a Soft Cake added from the Angebote view lands in Süßes & Knabberei on
+  // the main list, not in Sonstiges.
+  const category = categorizeOffer(o);
   return {
     id: `offer:${o.store}:${o.ean ?? o.source_url}`,
     name: o.name,

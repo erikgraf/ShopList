@@ -20,8 +20,11 @@
  */
 import { useMemo, useState } from 'react';
 import type { OffersTier } from '../facets';
-import { type Offer, stripDiacritics, doesOfferMatchHistory } from '../offers';
+import { type Offer, stripDiacritics, doesOfferMatchHistory, categorizeOffer } from '../offers';
 import { useAllItems, useLists, useRecent } from '../store';
+import type { Category } from '../types';
+import { CATEGORY_LABELS, CATEGORY_ORDER } from '../types';
+import { COLORS, GLYPH } from '../icons';
 import { OfferCard } from './OfferCard';
 import { AddOfferSheet } from './AddOfferSheet';
 
@@ -121,17 +124,30 @@ export function OffersView({
     return out;
   }, [filtered, allItems, lists]);
 
-  // Cosmetic sort: deepest discount first, then everything else by name.
-  const sorted = useMemo(
-    () =>
-      [...filtered].sort((a, b) => {
+  // Group filtered offers by ShopList Category — same walk-through-the-store
+  // order the main list uses (Obst & Gemüse → Brot → Milch → … → Sonstiges).
+  // Within each band, deepest discount first then name. Drops empty bands so
+  // the view doesn't render hollow headers.
+  const grouped = useMemo(() => {
+    const byCat = new Map<Category, Offer[]>();
+    for (const o of filtered) {
+      const cat = categorizeOffer(o);
+      const bucket = byCat.get(cat);
+      if (bucket) bucket.push(o);
+      else byCat.set(cat, [o]);
+    }
+    for (const [, list] of byCat) {
+      list.sort((a, b) => {
         const da = a.discount_pct ?? 0;
         const db = b.discount_pct ?? 0;
-        if (da !== db) return da - db; // more-negative first
+        if (da !== db) return da - db;
         return stripDiacritics(a.name).localeCompare(stripDiacritics(b.name));
-      }),
-    [filtered],
-  );
+      });
+    }
+    return CATEGORY_ORDER.flatMap<{ cat: Category; offers: Offer[] }>((c) =>
+      byCat.has(c) ? [{ cat: c, offers: byCat.get(c)! }] : [],
+    );
+  }, [filtered]);
 
   // German chains rotate weekly offers Mon–Sat. Derive the validity window
   // from `generated_at` (when the cron last ran): find the Monday of that
@@ -208,9 +224,11 @@ export function OffersView({
         </div>
       </div>
 
-      {/* Offers list */}
+      {/* Offers list — grouped by ShopList category, same walk-the-store
+          order as the main list. Each category gets an aisle band with
+          icon + label + count, mirroring ShelfGroup. */}
       <div className="flex-1 overflow-y-auto px-3 py-3">
-        {sorted.length === 0 ? (
+        {grouped.length === 0 ? (
           <div
             className="mt-6 rounded-3xl bg-[var(--color-surface)] p-8 text-center"
             style={{ boxShadow: 'var(--shadow-sm)' }}
@@ -225,20 +243,51 @@ export function OffersView({
             </p>
           </div>
         ) : (
-          <ul className="flex flex-col gap-2 pb-12">
-            {sorted.map((o, i) => {
-              const key = `${o.store}|${o.source_url}`;
+          <div className="flex flex-col gap-3 pb-12">
+            {grouped.map(({ cat, offers: bandOffers }) => {
+              const [fg, bg] = COLORS[cat];
               return (
-                <li key={`${key}-${i}`}>
-                  <OfferCard
-                    offer={o}
-                    onLists={listsByOffer.get(key) ?? []}
-                    onAdd={() => setPickup(o)}
-                  />
-                </li>
+                <section
+                  key={cat}
+                  className="overflow-hidden rounded-2xl bg-[var(--color-surface)]"
+                  style={{ boxShadow: 'var(--shadow-sm)' }}
+                >
+                  {/* aisle band — mirrors ShelfGroup */}
+                  <header
+                    className="flex items-center gap-2.5 px-3.5 py-2"
+                    style={{ background: bg, color: fg }}
+                  >
+                    <span className="shrink-0 text-[15px] leading-none" aria-hidden>
+                      {GLYPH[cat]}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-[12.5px] font-bold tracking-[-0.01em]">
+                      {CATEGORY_LABELS[cat]}
+                    </span>
+                    <span
+                      className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold tabular-nums"
+                      style={{ background: 'rgba(255,255,255,0.6)', color: fg }}
+                    >
+                      {bandOffers.length}
+                    </span>
+                  </header>
+                  <ul className="flex flex-col gap-2 p-2">
+                    {bandOffers.map((o, i) => {
+                      const key = `${o.store}|${o.source_url}`;
+                      return (
+                        <li key={`${key}-${i}`}>
+                          <OfferCard
+                            offer={o}
+                            onLists={listsByOffer.get(key) ?? []}
+                            onAdd={() => setPickup(o)}
+                          />
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
               );
             })}
-          </ul>
+          </div>
         )}
       </div>
 
