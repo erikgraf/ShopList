@@ -34,6 +34,35 @@ const TIER_LABEL: Record<OffersTier, string> = {
 
 const TIERS: OffersTier[] = ['marken', 'produkte', 'kategorien', 'alle'];
 
+/** Monday-of-the-week → Saturday window for the given timestamp. German
+ *  chains rotate Mo–Sa, so this is the right shape for the "Gültig" stamp.
+ *  Sundays (rare for the cron) round forward to the next Monday. */
+function weeklyOfferRange(generatedAt: string | null): { from: Date; to: Date } | null {
+  if (!generatedAt) return null;
+  const at = new Date(generatedAt);
+  if (Number.isNaN(at.getTime())) return null;
+  const day = at.getDay(); // 0 = Sun, 1 = Mon, …, 6 = Sat
+  const mondayDelta = day === 0 ? 1 : 1 - day;
+  const from = new Date(at);
+  from.setDate(at.getDate() + mondayDelta);
+  from.setHours(0, 0, 0, 0);
+  const to = new Date(from);
+  to.setDate(from.getDate() + 5);
+  return { from, to };
+}
+
+/** "09. – 14. Jun" when from + to share a month, else "29. Mai – 03. Jun". */
+function formatRange(from: Date, to: Date): string {
+  const dayMonth = (d: Date) =>
+    d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' });
+  const sameMonthSameYear =
+    from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+  if (sameMonthSameYear) {
+    return `${String(from.getDate()).padStart(2, '0')}. – ${dayMonth(to)}`;
+  }
+  return `${dayMonth(from)} – ${dayMonth(to)}`;
+}
+
 export function OffersView({
   offers,
   generatedAt,
@@ -79,9 +108,14 @@ export function OffersView({
     [filtered],
   );
 
-  const weekLabel = generatedAt
-    ? new Date(generatedAt).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })
-    : null;
+  // German chains rotate weekly offers Mon–Sat. Derive the validity window
+  // from `generated_at` (when the cron last ran): find the Monday of that
+  // week, Saturday = Monday + 5 days. ALDI Süd's listing page itself doesn't
+  // surface explicit `priceValidUntil`; if we ever extract it per-product
+  // (the /produkt/ JSON-LD doesn't carry it today either) this fallback
+  // gives way to the real value.
+  const validRange = useMemo(() => weeklyOfferRange(generatedAt), [generatedAt]);
+  const validLabel = validRange ? formatRange(validRange.from, validRange.to) : null;
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-[var(--color-bg)]">
@@ -103,8 +137,10 @@ export function OffersView({
         <div className="flex min-w-0 flex-1 items-baseline gap-2">
           <h1 className="truncate text-[20px] font-extrabold text-[var(--color-text)]">Angebote</h1>
           <span className="text-sm text-[var(--color-muted)]">{offers.length}</span>
-          {weekLabel && (
-            <span className="ml-auto text-[12px] text-[var(--color-muted)]">Stand {weekLabel}</span>
+          {validLabel && (
+            <span className="ml-auto whitespace-nowrap text-[12px] font-medium text-[var(--color-muted)]">
+              Gültig {validLabel}
+            </span>
           )}
         </div>
       </header>
