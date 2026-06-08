@@ -3,12 +3,13 @@ import { SearchBar } from './components/SearchBar';
 import { ShelfGroup } from './components/ShelfGroup';
 import { ShelfRow } from './components/ShelfRow';
 import { OffersToggle } from './components/OffersToggle';
+import { OffersView } from './components/OffersView';
 import { ActiveFilters } from './components/ActiveFilters';
 import { FilterSheet } from './components/FilterSheet';
 import { StoreChips } from './components/StoreChips';
 import { ListSwitcher } from './components/ListSwitcher';
 import { applyFilter, computeFacets, emptyFilter } from './facets';
-import { enrichItemsWithOffers, useOffers } from './offers';
+import { useOffers } from './offers';
 import {
   clearChecked,
   ensureDefaultList,
@@ -45,6 +46,7 @@ export default function App() {
   const [filter, setFilter] = useState(emptyFilter);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
+  const [offersViewOpen, setOffersViewOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [newListOpen, setNewListOpen] = useState(false);
   const [actionListId, setActionListId] = useState<string | null>(null);
@@ -79,16 +81,12 @@ export default function App() {
 
   const actionList = actionListId ? lists.find((l) => l.id === actionListId) : null;
 
-  // Pull the cached offers blob and stamp `item.offer` per the active Meine %
-  // tier *before* computing facets / filtering, so every count downstream
-  // reflects the current matching strictness.
+  // Cached offers blob — used by the Meine % entry pill (count badge) and the
+  // OffersView when it's open. The list rows themselves no longer get
+  // auto-stamped item.offer; only adding an offer via the AddOfferSheet sets it.
   const offersBlob = useOffers();
-  const enriched = useMemo(
-    () => enrichItemsWithOffers(items, offersBlob.offers, filter.offersTier),
-    [items, offersBlob, filter.offersTier],
-  );
-  const facets = useMemo(() => computeFacets(enriched, filter), [enriched, filter]);
-  const filtered = useMemo(() => applyFilter(enriched, filter), [enriched, filter]);
+  const facets = useMemo(() => computeFacets(items, filter), [items, filter]);
+  const filtered = useMemo(() => applyFilter(items, filter), [items, filter]);
   // The single active store, if any — drives per-store brand pinning when
   // adding items, and per-store brand display in rows.
   const activeStore = filter.stores.size === 1 ? [...filter.stores][0] : undefined;
@@ -158,11 +156,7 @@ export default function App() {
 
         {/* chip row: "Meine %" offers toggle, then the store chips */}
         <div className="flex items-center gap-2">
-          <OffersToggle
-            tier={filter.offersTier}
-            count={facets.offers}
-            onChange={(next) => setFilter({ ...filter, offersTier: next })}
-          />
+          <OffersToggle count={offersBlob.total} onOpen={() => setOffersViewOpen(true)} />
           <span className="h-[18px] w-px shrink-0 bg-[var(--color-border-strong)]" />
           <div className="min-w-0 flex-1">
             <StoreChips filter={filter} facets={facets} onChange={setFilter} />
@@ -174,7 +168,7 @@ export default function App() {
 
       <main className="flex-1 px-4 pt-2 pb-32">
         {open.length === 0 && done.length === 0 && (
-          <EmptyState filtered={items.length > 0} offersActive={filter.offersTier !== null} />
+          <EmptyState filtered={items.length > 0} offersActive={false} />
         )}
 
         {grouped.map(([category, rows]) => (
@@ -229,6 +223,14 @@ export default function App() {
             onClose={() => setShopOpen(false)}
           />
         </Suspense>
+      )}
+
+      {offersViewOpen && (
+        <OffersView
+          offers={offersBlob.offers}
+          generatedAt={offersBlob.generated_at}
+          onClose={() => setOffersViewOpen(false)}
+        />
       )}
 
       {newListOpen && (

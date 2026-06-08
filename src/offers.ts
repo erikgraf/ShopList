@@ -7,9 +7,12 @@
  *   { generated_at, total, by_store, offers: Offer[] }
  *
  * This module: fetches once at app start, caches in memory + localStorage with
- * a 1 h TTL, and provides `matchItemToOffer(item, offers, tier)` which the
- * filter pipeline calls to populate `item.offer` (= best discount_pct under
- * the selected tier) before `applyFilter` runs.
+ * a 1 h TTL, and provides `doesOfferMatchItems(offer, items, tier)` — the
+ * predicate the new Angebote view (OffersView) uses to filter the feed by tier.
+ *
+ * Note: the old `enrichItemsWithOffers` / `bestOfferForItem` (which stamped
+ * `item.offer` on the user's list) is gone — the redesigned UI browses offers
+ * directly rather than badging existing list items.
  */
 import { useEffect, useState } from 'react';
 import type { Item } from './types';
@@ -22,8 +25,8 @@ export interface Offer {
   ean?: string;
   price?: number;
   was_price?: number;
-  /** Negative integer when discounted (-20, -15, …). The UI flips the sign
-   *  for the badge. Absent when the chain doesn't surface a strikethrough. */
+  /** Negative integer when discounted (-20, -15, …). UI flips the sign for
+   *  the badge. Absent when the chain doesn't surface a strikethrough. */
   discount_pct?: number;
   unit?: string;
   image?: string;
@@ -44,11 +47,9 @@ interface OffersBlob {
 
 const CACHE_KEY = 'offers:cache:v1';
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 h
-
 const EMPTY: OffersBlob = { generated_at: null, total: 0, offers: [] };
 
 async function fetchOffers(): Promise<OffersBlob> {
-  // Cache hit?
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (raw) {
@@ -56,10 +57,8 @@ async function fetchOffers(): Promise<OffersBlob> {
       if (Date.now() - at < CACHE_TTL_MS) return blob;
     }
   } catch {
-    // localStorage unreachable (Safari private mode etc.) — silently fall
-    // through to network.
+    // localStorage unreachable (Safari private mode etc.) — fall through to network.
   }
-  // Network. Same-origin so no CORS issue.
   try {
     const res = await fetch('/api/offers', { cache: 'no-store' });
     if (!res.ok) return EMPTY;
@@ -75,7 +74,7 @@ async function fetchOffers(): Promise<OffersBlob> {
   }
 }
 
-/** Tiny React hook: fetches /api/offers once at mount, returns the blob. */
+/** Fetch /api/offers on mount; return the blob. */
 export function useOffers(): OffersBlob {
   const [blob, setBlob] = useState<OffersBlob>(EMPTY);
   useEffect(() => {
@@ -90,74 +89,43 @@ export function useOffers(): OffersBlob {
   return blob;
 }
 
-const stripDiacritics = (s: string): string =>
+export const stripDiacritics = (s: string): string =>
   s
     .toLowerCase()
     .replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ß/g, 'ss')
     .normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 /**
- * For a single item, find the best matching offer at the chosen tier. Returns
- * the negative discount_pct of the best match (smallest number, i.e. biggest
- * discount), or undefined if no match.
+ * Does this offer fit the user's list under the given tier?
+ *   alle       — always yes (browse mode)
+ *   marken     — exact match against any item: EAN / barcode OR brand+name overlap
+ *   produkte   — offer.taxonomy_l3 ∈ {item.taxonomyL3} of any item
+ *   kategorien — offer.taxonomy_l2 ∈ {item.taxonomyL2} of any item
  */
-export function bestOfferForItem(
-  item: Item,
-  offers: Offer[],
-  tier: OffersTier | null,
-): number | undefined {
-  if (!tier || offers.length === 0) return undefined;
-
-  const itemBrand = item.brand ? stripDiacritics(item.brand) : '';
-  const itemName  = stripDiacritics(item.name);
-
-  let best: number | undefined;
-  for (const o of offers) {
-    let hit = false;
-    switch (tier) {
-      case 'marken':
-        // exact: EAN / barcode match, or brand match with a name-token overlap
-        if (item.barcode && o.ean && o.ean === item.barcode) hit = true;
-        else if (
-          itemBrand &&
-          o.brand &&
-          stripDiacritics(o.brand).includes(itemBrand) &&
-          itemName.split(' ').some((tok) => tok.length > 3 && stripDiacritics(o.name).includes(tok))
-        ) hit = true;
-        break;
-      case 'produkte':
-        hit = !!(item.taxonomyL3 && o.taxonomy_l3 && o.taxonomy_l3 === item.taxonomyL3);
-        break;
-      case 'kategorien':
-        hit = !!(item.taxonomyL2 && o.taxonomy_l2 && o.taxonomy_l2 === item.taxonomyL2);
-        break;
-      case 'alle':
-        // Loose: any offer in the same ShopList Category, or any offer at all
-        // when neither carries one. Avoids matching toilet paper to bananas
-        // when the data IS rich enough to distinguish.
-        if (o.category && o.category === item.category) hit = true;
-        else if (!o.category) hit = true;
-        break;
-    }
-    if (!hit) continue;
-    const d = o.discount_pct ?? 0;
-    if (best === undefined || d < best) best = d;
-  }
-  return best;
-}
-
-/** Returns a NEW items array with `item.offer` set per the tier-based match.
- *  Items with no match keep their existing `offer` (which is usually
- *  undefined since we don't persist auto-derived discounts). */
-export function enrichItemsWithOffers(
+export function doesOfferMatchItems(
+  offer: Offer,
   items: Item[],
-  offers: Offer[],
-  tier: OffersTier | null,
-): Item[] {
-  if (!tier) return items;
-  return items.map((it) => {
-    const d = bestOfferForItem(it, offers, tier);
-    if (d === undefined) return it;
-    return { ...it, offer: -d /* badge wants positive percent */ };
+  tier: OffersTier,
+): boolean {
+  if (tier === 'alle') return true;
+  if (tier === 'produkte') {
+    if (!offer.taxonomy_l3) return false;
+    return items.some((i) => i.taxonomyL3 === offer.taxonomy_l3);
+  }
+  if (tier === 'kategorien') {
+    if (!offer.taxonomy_l2) return false;
+    return items.some((i) => i.taxonomyL2 === offer.taxonomy_l2);
+  }
+  // marken
+  const offerBrand = offer.brand ? stripDiacritics(offer.brand) : '';
+  const offerName  = stripDiacritics(offer.name);
+  return items.some((it) => {
+    if (offer.ean && it.barcode && offer.ean === it.barcode) return true;
+    if (!offerBrand || !it.brand) return false;
+    const itemBrand = stripDiacritics(it.brand);
+    if (!offerBrand.includes(itemBrand) && !itemBrand.includes(offerBrand)) return false;
+    const itName = stripDiacritics(it.name);
+    return itName.split(' ').some((tok) => tok.length > 3 && offerName.includes(tok))
+        || offerName.split(' ').some((tok) => tok.length > 3 && itName.includes(tok));
   });
 }
