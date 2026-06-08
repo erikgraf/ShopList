@@ -69,18 +69,52 @@ const parseEUR = (s: string | undefined): number | undefined => {
 // Fresh-products category. Akamai blocks HEAD but lets GET through.
 // Page is server-rendered AEM; tiles follow `product-tile__*` BEM classes.
 
-async function fetchAldi(): Promise<Offer[]> {
-  const URL =
-    'https://www.aldi-sued.de/produkte/wochenangebote/frischeprodukte-im-angebot/k/1588161427299187';
-  const res = await fetch(URL, { headers: { 'User-Agent': UA } });
-  const html = await res.text();
-  const tileMatches = (html.match(/product-tile__link/g) || []).length;
-  console.log(`[aldi] status=${res.status} bytes=${html.length} product-tile__link hits=${tileMatches}`);
-  if (!res.ok) {
-    console.warn(`[aldi] non-ok status ${res.status} — body head: ${html.slice(0, 200).replace(/\s+/g, ' ')}`);
-    return [];
-  }
+// The three weekly-offers sub-categories. Frischeprodukte are "good prices"
+// (rarely tagged with a percentage); Eigenmarken and Markenprodukte are
+// where the explicit −N % / was-price badges live, so those two unlock
+// `discount_pct` / `was_price` populating end-to-end.
+const ALDI_CATEGORIES = [
+  { id: 'frischeprodukte', url: 'https://www.aldi-sued.de/produkte/wochenangebote/frischeprodukte-im-angebot/k/1588161427299187' },
+  { id: 'eigenmarken',     url: 'https://www.aldi-sued.de/produkte/wochenangebote/eigenmarken-im-angebot/k/1588161427299188' },
+  { id: 'markenprodukte',  url: 'https://www.aldi-sued.de/produkte/wochenangebote/markenprodukte-im-angebot/k/1588161427299189' },
+];
 
+async function fetchAldi(): Promise<Offer[]> {
+  // Fan out over the three sub-categories in parallel and merge.
+  const settled = await Promise.allSettled(
+    ALDI_CATEGORIES.map(async ({ id, url }) => {
+      const res = await fetch(url, { headers: { 'User-Agent': UA } });
+      const html = await res.text();
+      const hits = (html.match(/product-tile__link/g) || []).length;
+      console.log(`[aldi:${id}] status=${res.status} bytes=${html.length} product-tile__link hits=${hits}`);
+      if (!res.ok) {
+        console.warn(`[aldi:${id}] non-ok status ${res.status} — body head: ${html.slice(0, 200).replace(/\s+/g, ' ')}`);
+        return [];
+      }
+      return parseAldiTiles(html);
+    }),
+  );
+
+  // Merge + dedup by source_url (a SKU can occasionally appear under both
+  // Frischeprodukte and Eigenmarken if Aldi categorizes loosely).
+  const seen = new Set<string>();
+  const out: Offer[] = [];
+  let drops = 0;
+  for (const r of settled) {
+    if (r.status !== 'fulfilled') continue;
+    for (const o of r.value) {
+      const key = o.source_url || o.name;
+      if (seen.has(key)) { drops++; continue; }
+      seen.add(key);
+      out.push(o);
+    }
+  }
+  if (drops) console.log(`[aldi] deduped ${drops} cross-category duplicates`);
+  return out;
+}
+
+// Same parser, just factored out so each category page reuses it.
+function parseAldiTiles(html: string): Offer[] {
   // Attributes can come in either order in the rendered HTML (href= is
   // sometimes before class=, sometimes after). Match the <a>…</a> by the
   // class anywhere in the opening tag, then pull `href` out of the captured
@@ -103,18 +137,25 @@ async function fetchAldi(): Promise<Offer[]> {
 
     const brand = grab(/class="product-tile__brandname"[^>]*>\s*<p[^>]*>([^<]+?)<\/p>/);
     const unit  = grab(/class="product-tile__unit-of-measurement"[^>]*>\s*<p>([^<]+?)<\/p>/);
-    const sale  = grab(/class="base-price__discounted"[^>]*>\s*<span>([^<]+?)<\/span>/);
-    const reg   = grab(/class="base-price__regular"[^>]*>\s*<span>([^<]+?)<\/span>/);
-    const was   = grab(/class="base-price__was-price"[^>]*>([^<]+?)</);
-    const disc  = grab(/class="base-price__discount-tag[^"]*"[^>]*>([^<]+?)</);
-    const img   = grab(/src="([^"]+aldiprodeu[^"]+)"/);
+    // Prices live inside <ins>/<del>, but the cleanest signal is the
+    // aria-label that screen-reader markup carries on each price element:
+    //   aria-label="Reduzierter Preis: 0,79 €"   ← sale price
+    //   aria-label="Originalpreis: 0,99 €"       ← was price
+    //   aria-label="Spare 20%"                   ← discount tag
+    // Tiles without a discount only have a `base-price__regular` block; for
+    // those we fall back to the inner text of <ins>/<span> for the regular.
+    const sale = grab(/aria-label="Reduzierter Preis:\s*([^"]+?)"/);
+    const was  = grab(/aria-label="Originalpreis:\s*([^"]+?)"/);
+    const disc = grab(/aria-label="Spare\s*([^"]+?)"/);
+    const reg  = grab(/class="base-price__regular"[^>]*>\s*<(?:span|ins)>([^<]+?)<\/(?:span|ins)>/);
+    const img  = grab(/src="([^"]+aldiprodeu[^"]+)"/);
 
     const price = parseEUR(sale || reg);
     const was_price = parseEUR(was);
     let discount_pct: number | undefined;
     if (disc) {
       const n = parseInt(disc.replace(/[^\-0-9]/g, ''), 10);
-      if (Number.isFinite(n)) discount_pct = n < 0 ? n : -n;
+      if (Number.isFinite(n) && n > 0) discount_pct = -n;
     } else if (was_price && price && was_price > price) {
       discount_pct = -Math.round((1 - price / was_price) * 100);
     }
@@ -281,17 +322,62 @@ interface ReweProduct {
 // missed because the real container is a <div class="article-tile…">).
 
 async function fetchNetto(): Promise<Offer[]> {
-  const URL = 'https://www.netto-online.de/angebote/';
+  // /angebote/ leans toward non-food (Balkonkraftwerk, Whirlpool, …) on
+  // Netto MD. The Lebensmittel sub-category is where the grocery deals live.
+  const URL = 'https://www.netto-online.de/lebensmittel-angebote/c-N07941';
   const res = await fetch(URL, { headers: { 'User-Agent': UA } });
   if (!res.ok) {
     console.warn(`[netto] status ${res.status}`);
     return [];
   }
   const html = await res.text();
-  const tileCandidates = (html.match(/class="[^"]*article-tile[^"]*"/g) || []).length;
-  console.log(`[netto] candidate tiles seen: ${tileCandidates} (parser TBD)`);
-  // TODO: finalize tile selectors + extract.
-  return [];
+
+  // Each Netto tile is a <... class="product-list__item …"> wrapper.
+  // Inside: product__title (name), product__current-price--digits-after-comma
+  // for the EUR sale price, product__current-price--digits-before-comma is
+  // the cents string, plus tc-product-name / tc-product-price tracker
+  // duplicates. We don't extract a "was price" yet — Netto reveals it via
+  // a tooltip that's only in the page after a JS render.
+  const tileRe = /<[^>]+class="[^"]*\bproduct-list__item\b[^"]*"[^>]*>([\s\S]*?)<\/article>|<[^>]+class="[^"]*\bproduct-list__item\b[^"]*"[^>]*>([\s\S]*?)<\/li>/g;
+  // The tile is wrapped in either <article> or <li> depending on the section;
+  // fall back to a generic pattern if neither closes nearby.
+
+  const out: Offer[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = tileRe.exec(html))) {
+    const tile = m[1] ?? m[2] ?? '';
+    const grab = (re: RegExp): string => {
+      const r = tile.match(re);
+      return r ? decode(r[1]) : '';
+    };
+
+    // Title text sits directly inside the title element (no inner wrapper).
+    const name =
+      grab(/class="[^"]*\bproduct__title\b[^"]*"[^>]*>\s*([^<]+?)\s*</) ||
+      grab(/class="[^"]*\btc-product-name\b[^"]*"[^>]*>\s*([^<]+?)\s*</);
+    if (!name) continue;
+
+    // The price block on Netto is `<strong>NN.<span …digits-after-comma>CC</span></strong>`
+    // — the euros are literal text, only the cents are wrapped in a span.
+    // Strip tags inside the <strong> and let parseEUR handle the rest.
+    const priceBlock = grab(
+      /<div[^>]*class="[^"]*\btc-product-price\b[^"]*"[^>]*>\s*<strong>([\s\S]*?)<\/strong>/,
+    );
+    const price = parseEUR(priceBlock.replace(/<[^>]+>/g, ''));
+
+    const brand = grab(/class="[^"]*\bproduct__brand\b[^"]*"[^>]*>([^<]+?)</);
+    const img   = grab(/src="([^"]+netto-online\.de[^"]+\.(?:jpg|webp|png)[^"]*)"/);
+
+    out.push({
+      store: 'netto',
+      name,
+      brand: brand || undefined,
+      price,
+      image: img || undefined,
+      source_url: 'https://www.netto-online.de/angebote/',
+    });
+  }
+  return out;
 }
 
 // ─── Lidl Plus ──────────────────────────────────────────────
