@@ -48,6 +48,13 @@ export interface Offer {
   valid_from?: string;       // ISO date
   valid_until?: string;
   source_url: string;
+  /** Enrichment populated downstream (by the ingest CLI / KV writer), not by
+   *  the fetchers themselves — they only know the raw chain data. These are
+   *  what the Meine % tier filter actually joins on at runtime. */
+  generic_name?: string;
+  taxonomy_l3?: string;
+  taxonomy_l2?: string;
+  category?: string;         // ShopList Category slug (obst-gemuese, getraenke, …)
 }
 
 // ─── tiny helpers ───────────────────────────────────────────

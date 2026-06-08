@@ -75,6 +75,52 @@ type Offer = Awaited<ReturnType<typeof runOffers>>[number];
 
 const offers: Offer[] = await runOffers();
 
+// ─── Enrichment: EAN → snapshot lookup ─────────────────────────────────
+// DM's offers carry GTIN-13 for free; for those we can copy taxonomy_l3 /
+// taxonomy_l2 / generic_name / category directly from the snapshot row that
+// share the same code. ALDI / Netto don't expose EANs on the listing — for
+// those we'd need name-based fuzzy matching against data/llm-generic-names.csv
+// in a Phase-3 step. Logged as remaining gap.
+const snapPath = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'off-de-snapshot.csv');
+const snapText = await readFile(snapPath, 'utf8').catch(() => '');
+if (snapText) {
+  const [header, ...lines] = snapText.split('\n').filter(Boolean);
+  const cols = header.split(',');
+  const idx = (n: string) => cols.indexOf(n);
+  const iCode = idx('code'), iGeneric = idx('generic');
+  const iL3 = idx('taxonomy_l3'), iL2 = idx('taxonomy_l2'), iCat = idx('category');
+  if (iCode >= 0) {
+    type EnrichRow = { generic?: string; l3?: string; l2?: string; cat?: string };
+    const byCode = new Map<string, EnrichRow>();
+    for (const line of lines) {
+      const f = line.split(',');
+      const code = f[iCode];
+      if (!code) continue;
+      byCode.set(code, {
+        generic: iGeneric >= 0 ? f[iGeneric] : undefined,
+        l3: iL3 >= 0 ? f[iL3] : undefined,
+        l2: iL2 >= 0 ? f[iL2] : undefined,
+        cat: iCat >= 0 ? f[iCat] : undefined,
+      });
+    }
+    let enriched = 0;
+    for (const o of offers) {
+      if (!o.ean) continue;
+      const hit = byCode.get(o.ean);
+      if (!hit) continue;
+      o.generic_name = hit.generic || undefined;
+      o.taxonomy_l3 = hit.l3 || undefined;
+      o.taxonomy_l2 = hit.l2 || undefined;
+      o.category = hit.cat || undefined;
+      enriched++;
+    }
+    process.stderr.write(
+      `[enrich] EAN→snapshot: ${enriched}/${offers.filter((o) => o.ean).length} offers with EAN ` +
+        `enriched (${offers.length - offers.filter((o) => o.ean).length} have no EAN — name-based match TBD)\n`,
+    );
+  }
+}
+
 // Aggregated JSON for piping. By-chain counts are already in the
 // console.log() output from runOffers(); this adds the full list so
 // downstream tools can grep / jq through the actual records.

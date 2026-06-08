@@ -400,20 +400,43 @@ def join_snapshot() -> None:
     with open(LABELS_CSV, newline="", encoding="utf-8") as f:
         labels = {r["code"]: r["generic_product_llm"] for r in csv.DictReader(f)}
 
+    # Stage 2 enrichment: also fold in taxonomy_l3 (and l2 via parent walk) so
+    # the snapshot row carries the L3 id directly — no runtime CSV lookup
+    # needed in the app. Falls through gracefully if the taxonomy files
+    # haven't been generated yet (taxonomy.csv lives under data/).
+    tax_map_path = ROOT / "data" / "taxonomy-map.csv"
+    tax_nodes_path = ROOT / "data" / "taxonomy.csv"
+    name_to_l3: dict[str, str] = {}
+    l3_to_l2: dict[str, str] = {}
+    if tax_map_path.exists():
+        with open(tax_map_path, newline="", encoding="utf-8") as f:
+            name_to_l3 = {r["llm_name"]: r["taxonomy_id"] for r in csv.DictReader(f)}
+    if tax_nodes_path.exists():
+        with open(tax_nodes_path, newline="", encoding="utf-8") as f:
+            for n in csv.DictReader(f):
+                if n.get("parent") and n.get("id"):
+                    l3_to_l2[n["id"]] = n["parent"]
+
     with open(SNAPSHOT_CSV, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         fields = list(reader.fieldnames or [])
         rows = list(reader)
 
-    if "generic" not in fields:
-        fields.append("generic")
+    for col in ("generic", "taxonomy_l3", "taxonomy_l2"):
+        if col not in fields:
+            fields.append(col)
 
-    hits = 0
+    hits = tax_hits = 0
     for r in rows:
         g = labels.get(r.get("code", ""), "")
         r["generic"] = g
         if g:
             hits += 1
+        l3 = name_to_l3.get(g, "") if g else ""
+        r["taxonomy_l3"] = l3
+        r["taxonomy_l2"] = l3_to_l2.get(l3, "") if l3 else ""
+        if l3:
+            tax_hits += 1
 
     with open(SNAPSHOT_CSV, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore", lineterminator="\n")
@@ -423,6 +446,8 @@ def join_snapshot() -> None:
     n = len(rows)
     print(f"Patched {SNAPSHOT_CSV}")
     print(f"  {hits}/{n} rows got a generic name ({100*hits//n if n else 0}%)")
+    if name_to_l3:
+        print(f"  {tax_hits}/{n} rows got a taxonomy_l3 ({100*tax_hits//n if n else 0}%)")
     miss = n - hits
     if miss:
         print(f"  {miss} rows unlabeled (codes not in {LABELS_CSV.name})")

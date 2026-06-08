@@ -129,6 +129,12 @@ export interface Product {
    *  the key for finding offers/alternatives across brands, and a strong signal
    *  for resolving the curated `genericId`. See data/README "generic names". */
   genericName?: string;
+  /** Stage-2 taxonomy ids walked from `genericName` via data/taxonomy-map.csv
+   *  at snapshot-join time. Drives the "Meine Produkte" (L3, e.g. `pils`) and
+   *  "Meine Kategorien" (L2, e.g. `bier`) tiers of offer matching. Optional
+   *  because the 145 unmapped LLM names and any 0-coverage row will be blank. */
+  taxonomyL3?: string;
+  taxonomyL2?: string;
   barcode?: string;
   /** Stores where this is typically bought; empty = inferred from category */
   stores?: Store[];
@@ -154,6 +160,11 @@ export interface Item {
    *  at add-time (see `Product.genericName`). Persisted so a later offers/
    *  alternatives feature can match this item to deals without re-deriving it. */
   genericName?: string;
+  /** Stage-2 taxonomy ids carried over from the snapshot Product. L3 ≈
+   *  product type ("pils"), L2 ≈ category umbrella ("bier"). Used by the
+   *  Meine % tier filter to match offers without a runtime taxonomy walk. */
+  taxonomyL3?: string;
+  taxonomyL2?: string;
   /** Current discount percent if this item is on offer. Populated by the
    *  offers service — matches `genericName` / barcode against deal data (see
    *  `data/llm-generic-names.csv` and the taxonomy artefact). Absent = not on
