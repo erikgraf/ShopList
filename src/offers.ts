@@ -15,8 +15,20 @@
  * directly rather than badging existing list items.
  */
 import { useEffect, useState } from 'react';
-import type { Item } from './types';
 import type { OffersTier } from './facets';
+
+/** Minimum shape needed to match an offer against. Both `Item` (a row on a
+ *  shopping list) and `RecentProduct` (something the user has previously
+ *  added / searched / bought) satisfy this — and the Meine % filter uses
+ *  the *RecentProduct* set so matches reflect long-term taste rather than
+ *  whatever happens to be on the list this minute. */
+export interface OfferMatchKey {
+  barcode?: string;
+  brand?: string;
+  name: string;
+  taxonomyL3?: string;
+  taxonomyL2?: string;
+}
 
 export interface Offer {
   store: string;
@@ -96,36 +108,45 @@ export const stripDiacritics = (s: string): string =>
     .normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 /**
- * Does this offer fit the user's list under the given tier?
+ * Does this offer fit the user's *shopping history* under the given tier?
+ *
  *   alle       — always yes (browse mode)
- *   marken     — exact match against any item: EAN / barcode OR brand+name overlap
- *   produkte   — offer.taxonomy_l3 ∈ {item.taxonomyL3} of any item
- *   kategorien — offer.taxonomy_l2 ∈ {item.taxonomyL2} of any item
+ *   marken     — exact match against anything the user has shopped before:
+ *                EAN / barcode OR brand+name overlap
+ *   produkte   — offer.taxonomy_l3 matches any past product's taxonomyL3
+ *   kategorien — offer.taxonomy_l2 matches any past product's taxonomyL2
+ *
+ * `history` is normally `useRecent()` — products the user has added,
+ * scanned, or searched before. Matching the *current list* would force the
+ * user to put something on today's list before any tier could light up;
+ * past shoppings reflect long-term taste.
  */
-export function doesOfferMatchItems(
+export function doesOfferMatchHistory(
   offer: Offer,
-  items: Item[],
+  history: OfferMatchKey[],
   tier: OffersTier,
 ): boolean {
   if (tier === 'alle') return true;
   if (tier === 'produkte') {
     if (!offer.taxonomy_l3) return false;
-    return items.some((i) => i.taxonomyL3 === offer.taxonomy_l3);
+    return history.some((p) => p.taxonomyL3 === offer.taxonomy_l3);
   }
   if (tier === 'kategorien') {
     if (!offer.taxonomy_l2) return false;
-    return items.some((i) => i.taxonomyL2 === offer.taxonomy_l2);
+    return history.some((p) => p.taxonomyL2 === offer.taxonomy_l2);
   }
   // marken
   const offerBrand = offer.brand ? stripDiacritics(offer.brand) : '';
   const offerName  = stripDiacritics(offer.name);
-  return items.some((it) => {
-    if (offer.ean && it.barcode && offer.ean === it.barcode) return true;
-    if (!offerBrand || !it.brand) return false;
-    const itemBrand = stripDiacritics(it.brand);
-    if (!offerBrand.includes(itemBrand) && !itemBrand.includes(offerBrand)) return false;
-    const itName = stripDiacritics(it.name);
-    return itName.split(' ').some((tok) => tok.length > 3 && offerName.includes(tok))
-        || offerName.split(' ').some((tok) => tok.length > 3 && itName.includes(tok));
+  return history.some((p) => {
+    if (offer.ean && p.barcode && offer.ean === p.barcode) return true;
+    if (!offerBrand || !p.brand) return false;
+    const pastBrand = stripDiacritics(p.brand);
+    if (!offerBrand.includes(pastBrand) && !pastBrand.includes(offerBrand)) return false;
+    const pName = stripDiacritics(p.name);
+    return (
+      pName.split(' ').some((t) => t.length > 3 && offerName.includes(t)) ||
+      offerName.split(' ').some((t) => t.length > 3 && pName.includes(t))
+    );
   });
 }

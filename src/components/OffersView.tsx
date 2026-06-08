@@ -20,8 +20,8 @@
  */
 import { useMemo, useState } from 'react';
 import type { OffersTier } from '../facets';
-import { type Offer, stripDiacritics, doesOfferMatchItems } from '../offers';
-import { useItems } from '../store';
+import { type Offer, stripDiacritics, doesOfferMatchHistory } from '../offers';
+import { useRecent } from '../store';
 import { OfferCard } from './OfferCard';
 import { AddOfferSheet } from './AddOfferSheet';
 
@@ -43,26 +43,29 @@ export function OffersView({
   generatedAt: string | null;
   onClose: () => void;
 }) {
-  const items = useItems();
+  // Match against the user's *shopping history* (everything they've added
+  // before, kept in the `recents` Dexie table) rather than the current
+  // shopping list. The current list is what they need *today*; the history
+  // reflects long-term taste — which is what "Meine Marken / Produkte /
+  // Kategorien" should track.
+  const history = useRecent();
   const [tier, setTier] = useState<OffersTier>('alle');
   const [pickup, setPickup] = useState<Offer | null>(null);
 
-  // Filter the feed by tier — Alle is the default, the other three require
-  // an item-match. Counts pre-computed per tier so we can show them in chips.
   const counts = useMemo(() => {
     return TIERS.reduce<Record<OffersTier, number>>(
       (acc, t) => {
-        acc[t] = offers.filter((o) => doesOfferMatchItems(o, items, t)).length;
+        acc[t] = offers.filter((o) => doesOfferMatchHistory(o, history, t)).length;
         return acc;
       },
       { marken: 0, produkte: 0, kategorien: 0, alle: 0 },
     );
-  }, [offers, items]);
+  }, [offers, history]);
 
   const filtered = useMemo(() => {
     if (tier === 'alle') return offers;
-    return offers.filter((o) => doesOfferMatchItems(o, items, tier));
-  }, [offers, items, tier]);
+    return offers.filter((o) => doesOfferMatchHistory(o, history, tier));
+  }, [offers, history, tier]);
 
   // Cosmetic sort: deepest discount first, then everything else by name.
   const sorted = useMemo(
@@ -157,7 +160,7 @@ export function OffersView({
             <p className="mt-2 text-sm text-[var(--color-muted)]">
               {tier === 'alle'
                 ? 'Der Worker hat noch keine Daten gespeichert. Lauf `node scripts/run-offers.ts --write`.'
-                : 'Versuche "Alle" — oder lege erst ein paar Produkte auf deine Liste.'}
+                : 'Versuche "Alle" — oder kaufe erstmal Produkte ein, dann lernt die Liste deine Marken.'}
             </p>
           </div>
         ) : (
