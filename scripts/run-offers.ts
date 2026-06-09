@@ -41,22 +41,28 @@ const { readFile } = await import('node:fs/promises');
 const { dirname, resolve } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
 
-let proxyUrl = process.env.HTTPS_PROXY ?? process.env.HTTP_PROXY ?? '';
-if (!proxyUrl) {
+// Read a key out of .dev.vars (the same gitignored file `wrangler dev` reads).
+const devVar = async (key: string): Promise<string> => {
   try {
     const here = dirname(fileURLToPath(import.meta.url));
     const text = await readFile(resolve(here, '..', '.dev.vars'), 'utf8');
     for (const line of text.split('\n')) {
-      const m = line.match(/^\s*HTTPS_PROXY\s*=\s*(.+?)\s*$/);
-      if (m) {
-        proxyUrl = m[1].replace(/^['"]|['"]$/g, '');
-        break;
-      }
+      const m = line.match(new RegExp(`^\\s*${key}\\s*=\\s*(.+?)\\s*$`));
+      if (m) return m[1].replace(/^['"]|['"]$/g, '');
     }
   } catch {
-    // .dev.vars absent — fine, runs unproxied.
+    // .dev.vars absent — fine.
   }
-}
+  return '';
+};
+
+let proxyUrl = process.env.HTTPS_PROXY ?? process.env.HTTP_PROXY ?? '';
+if (!proxyUrl) proxyUrl = await devVar('HTTPS_PROXY');
+
+// Bearer token for POST /api/offers/ingest. process env wins (CI), else
+// .dev.vars. Empty = no token sent (loopback dev where the worker has no
+// OFFERS_INGEST_TOKEN configured still accepts the write).
+const ingestToken = process.env.OFFERS_INGEST_TOKEN || (await devVar('OFFERS_INGEST_TOKEN'));
 if (proxyUrl) {
   const { setGlobalDispatcher, ProxyAgent } = await import('undici');
   setGlobalDispatcher(new ProxyAgent(proxyUrl));
@@ -136,44 +142,51 @@ const result = {
 
 process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 
-// Optional one-shot push to a running wrangler dev. Use with:
-//   node scripts/run-offers.ts --write
-// or set INGEST_URL to point at a remote (once auth is in place):
-//   INGEST_URL=https://shoplist.ceviche-cornet-6j.workers.dev/api/offers/ingest node ...
+// Optional one-shot push to the offers ingest endpoint. Use with:
+//   node scripts/run-offers.ts --write                       # → local wrangler dev
+//   INGEST_URL=https://…/api/offers/ingest node … --write    # → production
 //
-// Crucial: when HTTPS_PROXY is set, the global undici dispatcher routes
-// EVERY fetch through Decodo — including the localhost POST. Use Node's
-// raw http module for the loopback path so it bypasses the proxy.
+// Auth: sends `Authorization: Bearer <OFFERS_INGEST_TOKEN>` when the token is
+// available (process env or .dev.vars). Production requires it; local wrangler
+// dev accepts loopback writes without it (unless .dev.vars sets one, in which
+// case it's sent and validated on both ends).
+//
+// Transport: posts via Node's raw http/https modules rather than global
+// fetch() ON PURPOSE — when HTTPS_PROXY is set, undici's global dispatcher
+// would otherwise route this POST through the German residential proxy too.
+// The ingest target (localhost or Cloudflare) must be reached directly.
 if (process.argv.includes('--write')) {
   const ingestUrl = process.env.INGEST_URL ?? 'http://localhost:8788/api/offers/ingest';
   const u = new URL(ingestUrl);
-  const isLoopback = u.hostname === 'localhost' || u.hostname === '127.0.0.1';
   const body = JSON.stringify(result);
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+    'content-length': String(Buffer.byteLength(body)),
+  };
+  if (ingestToken) headers['authorization'] = `Bearer ${ingestToken}`;
   try {
-    if (isLoopback) {
-      const http = await import('node:http');
-      const resStatus = await new Promise<{ status: number; text: string }>((res, rej) => {
-        const req = http.request(
-          {
-            method: 'POST', hostname: u.hostname, port: u.port || 80, path: u.pathname,
-            headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) },
-          },
-          (r) => {
-            let buf = '';
-            r.on('data', (c) => (buf += c));
-            r.on('end', () => res({ status: r.statusCode ?? 0, text: buf.trim() }));
-          },
-        );
-        req.on('error', rej);
-        req.write(body); req.end();
-      });
-      process.stderr.write(`[ingest] ${ingestUrl} → ${resStatus.status} ${resStatus.text}\n`);
-    } else {
-      const r = await fetch(ingestUrl, {
-        method: 'POST', headers: { 'content-type': 'application/json' }, body,
-      });
-      process.stderr.write(`[ingest] ${ingestUrl} → ${r.status} ${(await r.text()).trim()}\n`);
-    }
+    const mod = u.protocol === 'https:' ? await import('node:https') : await import('node:http');
+    const resStatus = await new Promise<{ status: number; text: string }>((res, rej) => {
+      const req = mod.request(
+        {
+          method: 'POST',
+          hostname: u.hostname,
+          port: u.port || (u.protocol === 'https:' ? 443 : 80),
+          path: u.pathname,
+          headers,
+        },
+        (r) => {
+          let buf = '';
+          r.on('data', (c) => (buf += c));
+          r.on('end', () => res({ status: r.statusCode ?? 0, text: buf.trim() }));
+        },
+      );
+      req.on('error', rej);
+      req.write(body);
+      req.end();
+    });
+    const authNote = ingestToken ? ' (bearer)' : '';
+    process.stderr.write(`[ingest] ${ingestUrl}${authNote} → ${resStatus.status} ${resStatus.text}\n`);
   } catch (e) {
     process.stderr.write(`[ingest] failed: ${(e as Error).message}\n`);
   }
