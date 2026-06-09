@@ -14,6 +14,11 @@ interface RawRow {
   /** LLM-derived generic product name (joined by code in build). May be absent
    *  if the snapshot hasn't been through `llm-generic-name.py join`. */
   generic?: string;
+  /** Stage-2 taxonomy ids enriched at join time from data/taxonomy-map.csv +
+   *  data/taxonomy.csv. Optional — absent rows simply won't match the
+   *  Produkte / Kategorien tiers of the Meine % filter. */
+  taxonomy_l3?: string;
+  taxonomy_l2?: string;
 }
 
 interface IndexedProduct {
@@ -60,6 +65,8 @@ function toProduct(r: RawRow): Product {
     image: r.image || undefined,
     category: r.category,
     genericName: r.generic || undefined,
+    taxonomyL3: r.taxonomy_l3 || undefined,
+    taxonomyL2: r.taxonomy_l2 || undefined,
     barcode: r.code || undefined,
     stores: parseStores(r.stores, r.category),
   };

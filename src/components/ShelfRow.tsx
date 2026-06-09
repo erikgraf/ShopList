@@ -98,14 +98,13 @@ export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Sto
                 }`}
               >
                 {item.name}
-                {item.offer ? <OfferBadge percent={item.offer} /> : null}
               </div>
               {displayBrand && (
                 <button
                   type="button"
                   onClick={() => setBrandOpen(true)}
                   aria-label="Marke wählen"
-                  className={`mt-0.5 truncate text-[12px] ${
+                  className={`mt-0.5 block min-w-0 max-w-full truncate text-[12px] ${
                     displaySuggested ? 'italic text-[var(--color-muted)]' : 'text-[var(--color-muted)]'
                   }`}
                 >
@@ -130,9 +129,20 @@ export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Sto
                   {displayBrand}
                 </button>
               )}
-              {item.offer ? <OfferBadge percent={item.offer} /> : null}
             </div>
           )}
+
+          {/* Dedicated offer line under the name/brand. Mint-coral accent
+              so the deal pops without shouting; carries store + sale price
+              + savings + discount %. Only rendered when there's a match. */}
+          {item.offer ? (
+            <OfferLine
+              percent={item.offer}
+              store={item.offerStore}
+              price={item.offerPrice}
+              savings={item.offerSavings}
+            />
+          ) : null}
         </div>
 
         {/* quantity stepper — inline, no sheet needed for ±1; tap the number to
@@ -186,10 +196,70 @@ export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Sto
   );
 }
 
-function OfferBadge({ percent }: { percent: number }) {
+/** Dedicated row-level offer ribbon. Sits under name/brand and shows
+ *  everything the user needs to decide "is this deal worth it?" at a glance:
+ *  the store, the current sale price, the euro savings, and the discount %.
+ *  Uses the offer-soft accent so it reads as a unit and doesn't compete with
+ *  the row's primary content for attention. */
+function OfferLine({
+  percent,
+  store,
+  price,
+  savings,
+}: {
+  percent: number;
+  store?: string;
+  price?: number;
+  savings?: number;
+}) {
+  const fmtEur = (n: number) => `€${n.toFixed(2).replace('.', ',')}`;
   return (
-    <span className="ml-1.5 inline-flex items-center whitespace-nowrap rounded-md bg-[var(--color-offer-soft)] px-1.5 py-px align-[13%] text-[10.5px] font-bold text-[var(--color-offer)]">
-      −{percent}&thinsp;%
-    </span>
+    <div
+      className="mt-1 inline-flex w-fit max-w-full flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-md bg-[var(--color-offer-soft)] px-1.5 py-0.5 text-[11.5px] font-semibold text-[var(--color-offer)]"
+    >
+      {store && (
+        <span className="inline-flex items-center gap-1">
+          <span
+            aria-hidden
+            className="h-[6px] w-[6px] shrink-0 rounded-full"
+            style={{ background: STORE_DOT[store] ?? 'currentColor' }}
+          />
+          <span>{STORE_LABEL[store] ?? store}</span>
+        </span>
+      )}
+      {price !== undefined && (
+        <>
+          <span aria-hidden className="opacity-50">·</span>
+          <span className="font-extrabold tabular-nums">{fmtEur(price)}</span>
+        </>
+      )}
+      {savings !== undefined && savings > 0 && (
+        <>
+          <span aria-hidden className="opacity-50">·</span>
+          <span className="tabular-nums">Spare {fmtEur(savings)}</span>
+        </>
+      )}
+      <>
+        <span aria-hidden className="opacity-50">·</span>
+        <span className="tabular-nums">−{percent}&thinsp;%</span>
+      </>
+    </div>
   );
 }
+
+// Small mirror of the StoreChips brand-dot palette so the offer pill on the
+// row reads as "the same store" as the chip without importing the chip itself.
+const STORE_LABEL: Record<string, string> = {
+  aldi: 'Aldi', dm: 'DM', rewe: 'Rewe', edeka: 'Edeka', lidl: 'Lidl',
+  netto: 'Netto', kaufland: 'Kaufland', rossmann: 'Rossmann',
+};
+const STORE_DOT: Record<string, string> = {
+  aldi:    'var(--store-aldi, #1b4a9c)',
+  dm:      'var(--store-dm, #0a2a6b)',
+  rewe:    'var(--store-rewe, #cc0a1e)',
+  edeka:   'var(--store-edeka, #1f72b8)',
+  lidl:    'var(--store-lidl, #0a5bb5)',
+  netto:   '#ffd400',
+  kaufland:'#e10915',
+  rossmann:'var(--store-rossmann, #c4022e)',
+};

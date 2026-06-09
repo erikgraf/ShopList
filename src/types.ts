@@ -129,6 +129,12 @@ export interface Product {
    *  the key for finding offers/alternatives across brands, and a strong signal
    *  for resolving the curated `genericId`. See data/README "generic names". */
   genericName?: string;
+  /** Stage-2 taxonomy ids walked from `genericName` via data/taxonomy-map.csv
+   *  at snapshot-join time. Drives the "Meine Produkte" (L3, e.g. `pils`) and
+   *  "Meine Kategorien" (L2, e.g. `bier`) tiers of offer matching. Optional
+   *  because the 145 unmapped LLM names and any 0-coverage row will be blank. */
+  taxonomyL3?: string;
+  taxonomyL2?: string;
   barcode?: string;
   /** Stores where this is typically bought; empty = inferred from category */
   stores?: Store[];
@@ -154,12 +160,29 @@ export interface Item {
    *  at add-time (see `Product.genericName`). Persisted so a later offers/
    *  alternatives feature can match this item to deals without re-deriving it. */
   genericName?: string;
+  /** Stage-2 taxonomy ids carried over from the snapshot Product. L3 ≈
+   *  product type ("pils"), L2 ≈ category umbrella ("bier"). Used by the
+   *  Meine % tier filter to match offers without a runtime taxonomy walk. */
+  taxonomyL3?: string;
+  taxonomyL2?: string;
   /** Current discount percent if this item is on offer. Populated by the
    *  offers service — matches `genericName` / barcode against deal data (see
    *  `data/llm-generic-names.csv` and the taxonomy artefact). Absent = not on
    *  offer. Drives the "Meine %" filter and the −N % row badge. Optional, so
    *  no Dexie migration is required. */
   offer?: number;
+  /** Store the matching offer is at (e.g. "aldi", "dm"). Set alongside
+   *  `offer` so the row badge can read "−N % · Aldi" instead of just the
+   *  percent. Transient — populated each render from the offers blob. */
+  offerStore?: string;
+  /** Current sale price in EUR (e.g. 3.33). Transient — drives the row's
+   *  dedicated offer line so the user can see the actual euro figure
+   *  without opening the Angebote view. */
+  offerPrice?: number;
+  /** Euro savings vs the strike-through price — usually `was_price -
+   *  price`. Transient. Used to render the "Spare €1,26" half of the
+   *  offer line. Absent when the offer doesn't carry a was_price. */
+  offerSavings?: number;
   name: string;
   /** Global/default brand — what to show when no store filter is active, and
    *  the last-resort fallback when neither a per-store pick nor a suggestion

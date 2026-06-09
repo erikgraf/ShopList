@@ -236,9 +236,11 @@ export async function addItemFromProduct(
     const next: Item = {
       ...dup,
       quantity: dup.quantity + quantity,
-      // Backfill the generic name onto pre-existing items added before this
-      // field (or before the snapshot carried it).
+      // Backfill metadata onto pre-existing items added before these fields
+      // existed (or before the snapshot carried them).
       genericName: dup.genericName ?? p.genericName,
+      taxonomyL3: dup.taxonomyL3 ?? p.taxonomyL3,
+      taxonomyL2: dup.taxonomyL2 ?? p.taxonomyL2,
       updatedAt: Date.now(),
     };
     // If we're at a specific store and the duplicate doesn't yet have a
@@ -266,6 +268,8 @@ export async function addItemFromProduct(
     productId: p.id,
     genericId,
     genericName: p.genericName,
+    taxonomyL3: p.taxonomyL3,
+    taxonomyL2: p.taxonomyL2,
     name: displayName,
     brand: p.brand,
     brandByStore,
@@ -452,6 +456,26 @@ export function useItems(): Item[] {
           a.addedAt - b.addedAt,
       );
       setItems(visible);
+    };
+    refresh();
+    return onChange(refresh);
+  }, []);
+  return items;
+}
+
+/**
+ * All items across every list — used by the Angebote view so an offer can
+ * surface "this is on your Wocheneinkauf list" badges, regardless of which
+ * list is currently active. Like `useItems`, strips soft-delete tombstones.
+ */
+export function useAllItems(): Item[] {
+  const [items, setItems] = useState<Item[]>([]);
+  useEffect(() => {
+    let alive = true;
+    const refresh = async () => {
+      const all = await db.items.toArray();
+      if (!alive) return;
+      setItems(all.filter((it) => !it.deletedAt));
     };
     refresh();
     return onChange(refresh);

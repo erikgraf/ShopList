@@ -14,12 +14,27 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    // Route every request through the Worker first; the Worker itself
+    // hands non-API requests off to `env.ASSETS.fetch(request)` as the
+    // last step. The previous array-form pattern (`["/api/*", …]`)
+    // didn't reliably catch GET navigations on api/* paths in wrangler
+    // dev — assets binding's `Sec-Fetch-Mode: navigate` heuristic
+    // overrode it and served the SPA shell. Boolean-form `true` is
+    // unambiguous and matches what the Worker code already does
+    // (`return env.ASSETS.fetch(request)` is the explicit fall-through).
+    "run_worker_first": true
   },
   "kv_namespaces": [
     {
       "binding": "SHARED_LISTS",
       "id": "ea14cba7a27d4038b18023667ea6a1db"
     }
-  ]
+  ],
+  // Weekly offers fetcher — see worker/offers.ts. German chains rotate
+  // their Wochenangebote Mon + Thu; cron fires both mornings at 06:00 UTC
+  // (07:00 CET / 08:00 CEST in Berlin). Phase 1 is log-only.
+  "triggers": {
+    "crons": ["0 6 * * 1,4"]
+  }
 }
