@@ -24,6 +24,22 @@ import { runOffers } from './offers';
 export interface Env {
   SHARED_LISTS: KVNamespace;
   ASSETS: Fetcher;
+  /** Shared secret guarding POST /api/offers/ingest. Set in production with
+   *  `wrangler secret put OFFERS_INGEST_TOKEN`; mirrored in `.dev.vars`
+   *  (gitignored) for local runs. When unset, ingest falls back to
+   *  loopback-only so a misconfigured deploy never accepts anonymous writes. */
+  OFFERS_INGEST_TOKEN?: string;
+}
+
+/** Constant-time-ish string compare. Not cryptographically perfect (length is
+ *  observable, JS string indexing isn't guaranteed constant-time) but for a
+ *  256-bit random token it removes the trivial early-exit timing signal of
+ *  `===`. Good enough for an offers-ingest guard. */
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
 }
 
 interface SyncedItem {
@@ -221,9 +237,16 @@ export default {
       });
     }
     if (url.pathname === '/api/offers/ingest' && request.method === 'POST') {
-      // Hostname-gated for now (loopback only). Replace with a bearer-token
-      // check (`OFFERS_INGEST_TOKEN` in the worker env) before deploying.
-      if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
+      // Auth: when OFFERS_INGEST_TOKEN is configured (always, in production),
+      // require a matching `Authorization: Bearer <token>`. Only when it's
+      // *unset* do we fall back to loopback-only — that keeps a misconfigured
+      // deploy (no secret) from ever accepting anonymous writes, and means the
+      // production boundary never depends on a spoofable Host header.
+      const expected = env.OFFERS_INGEST_TOKEN ?? '';
+      const provided = (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
+      const isLoopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+      const authed = expected ? safeEqual(provided, expected) : isLoopback;
+      if (!authed) {
         return new Response('forbidden\n', { status: 403, headers: { 'content-type': 'text/plain' } });
       }
       const body = await request.text();
