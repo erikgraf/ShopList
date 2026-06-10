@@ -87,26 +87,25 @@ const offers: Offer[] = await runOffers();
 // share the same code. ALDI / Netto don't expose EANs on the listing — for
 // those we'd need name-based fuzzy matching against data/llm-generic-names.csv
 // in a Phase-3 step. Logged as remaining gap.
-const snapPath = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'off-de-snapshot.csv');
-const snapText = await readFile(snapPath, 'utf8').catch(() => '');
-if (snapText) {
-  const [header, ...lines] = snapText.split('\n').filter(Boolean);
-  const cols = header.split(',');
-  const idx = (n: string) => cols.indexOf(n);
-  const iCode = idx('code'), iGeneric = idx('generic');
-  const iL3 = idx('taxonomy_l3'), iL2 = idx('taxonomy_l2'), iCat = idx('category');
-  if (iCode >= 0) {
+// Quote-aware parse via the shared parser — product names contain commas
+// ("Bresso Traditionelle, Feine Kräuter"), so a naive line.split(',') shifts
+// every column after `name` and writes garbage into the enrichment fields.
+// Skip the whole read when no offer carries an EAN (ALDI/Netto don't).
+const withEan = offers.filter((o) => o.ean).length;
+if (withEan > 0) {
+  const { parseCSV } = await import('../src/csv.ts');
+  const snapPath = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'off-de-snapshot.csv');
+  const snapText = await readFile(snapPath, 'utf8').catch(() => '');
+  if (snapText) {
     type EnrichRow = { generic?: string; l3?: string; l2?: string; cat?: string };
     const byCode = new Map<string, EnrichRow>();
-    for (const line of lines) {
-      const f = line.split(',');
-      const code = f[iCode];
-      if (!code) continue;
-      byCode.set(code, {
-        generic: iGeneric >= 0 ? f[iGeneric] : undefined,
-        l3: iL3 >= 0 ? f[iL3] : undefined,
-        l2: iL2 >= 0 ? f[iL2] : undefined,
-        cat: iCat >= 0 ? f[iCat] : undefined,
+    for (const r of parseCSV(snapText)) {
+      if (!r.code) continue;
+      byCode.set(r.code, {
+        generic: r.generic,
+        l3: r.taxonomy_l3,
+        l2: r.taxonomy_l2,
+        cat: r.category,
       });
     }
     let enriched = 0;
@@ -121,10 +120,12 @@ if (snapText) {
       enriched++;
     }
     process.stderr.write(
-      `[enrich] EAN→snapshot: ${enriched}/${offers.filter((o) => o.ean).length} offers with EAN ` +
-        `enriched (${offers.length - offers.filter((o) => o.ean).length} have no EAN — name-based match TBD)\n`,
+      `[enrich] EAN→snapshot: ${enriched}/${withEan} offers with EAN enriched ` +
+        `(${offers.length - withEan} have no EAN — name-based match TBD)\n`,
     );
   }
+} else {
+  process.stderr.write('[enrich] no offers carry an EAN — snapshot read skipped\n');
 }
 
 // Aggregated JSON for piping. By-chain counts are already in the
@@ -172,7 +173,8 @@ if (process.argv.includes('--write')) {
           method: 'POST',
           hostname: u.hostname,
           port: u.port || (u.protocol === 'https:' ? 443 : 80),
-          path: u.pathname,
+          // pathname + search: a `?query` on INGEST_URL must reach the server.
+          path: u.pathname + u.search,
           headers,
         },
         (r) => {
@@ -181,6 +183,8 @@ if (process.argv.includes('--write')) {
           r.on('end', () => res({ status: r.statusCode ?? 0, text: buf.trim() }));
         },
       );
+      // A hung server must not stall the weekly run forever.
+      req.setTimeout(30_000, () => req.destroy(new Error('ingest timeout after 30s')));
       req.on('error', rej);
       req.write(body);
       req.end();

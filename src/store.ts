@@ -6,6 +6,7 @@ import { resolveGeneric } from './generics';
 import {
   DEFAULT_LIST_ID,
   DEFAULT_LIST_NAME,
+  type Category,
   type Item,
   type Product,
   type RecentProduct,
@@ -181,11 +182,34 @@ function uid(): string {
   return `id_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/** Offer snapshot persisted onto an Item when the user adds it from the
+ *  Angebote view. Travels through `addItemFromProduct` so the write happens
+ *  on the ONE shared mutation path (updatedAt + emitChange + dup-merge all
+ *  apply) instead of a second raw `db.items.put` racing behind it. */
+export interface OfferMeta {
+  offer?: number;
+  offerStore?: string;
+  offerPrice?: number;
+  offerSavings?: number;
+  offerValidUntil?: number;
+}
+
 export async function addItemFromProduct(
   p: Product,
-  opts: { quantity?: number; pinToStore?: Store } = {},
+  opts: {
+    quantity?: number;
+    pinToStore?: Store;
+    /** Force this category on BOTH the create and dup-merge paths. The
+     *  dup-merge path deliberately preserves the existing category for
+     *  ordinary adds; offer-adds know better (categorizeOffer) and need to
+     *  win — e.g. re-adding an Avocado offer must not leave the merged item
+     *  in Sonstiges. */
+    categoryOverride?: Category;
+    /** Stamp these offer fields on the resulting item (create or merge). */
+    offerMeta?: OfferMeta;
+  } = {},
 ): Promise<Item> {
-  const { quantity = 1, pinToStore } = opts;
+  const { quantity = 1, pinToStore, categoryOverride, offerMeta } = opts;
   const activeList = getActiveListId();
   const all = await db.items.where('listId').equals(activeList).toArray();
   const open = all.filter((it) => !it.checked);
@@ -241,6 +265,10 @@ export async function addItemFromProduct(
       genericName: dup.genericName ?? p.genericName,
       taxonomyL3: dup.taxonomyL3 ?? p.taxonomyL3,
       taxonomyL2: dup.taxonomyL2 ?? p.taxonomyL2,
+      // Ordinary adds preserve the user's category; offer-adds override it
+      // and refresh the offer snapshot (see opts docs).
+      ...(categoryOverride ? { category: categoryOverride } : {}),
+      ...(offerMeta ?? {}),
       updatedAt: Date.now(),
     };
     // If we're at a specific store and the duplicate doesn't yet have a
@@ -274,7 +302,7 @@ export async function addItemFromProduct(
     brand: p.brand,
     brandByStore,
     image: p.image,
-    category: p.category,
+    category: categoryOverride ?? p.category,
     barcode: p.barcode,
     stores,
     quantity,
@@ -285,6 +313,7 @@ export async function addItemFromProduct(
     position: max + 1,
     icon: p.icon,
     sizes: p.sizes,
+    ...(offerMeta ?? {}),
   };
   await db.items.put(item);
   await bumpRecent(p);

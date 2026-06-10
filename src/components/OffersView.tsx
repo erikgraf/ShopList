@@ -20,7 +20,15 @@
  */
 import { useMemo, useState } from 'react';
 import type { OffersTier } from '../facets';
-import { type Offer, stripDiacritics, doesOfferMatchHistory, categorizeOffer } from '../offers';
+import {
+  type Offer,
+  stripDiacritics,
+  doesOfferMatchHistory,
+  categorizeOffer,
+  offerKey,
+  weeklyOfferRange,
+  formatRange,
+} from '../offers';
 import { useAllItems, useLists, useRecent } from '../store';
 import type { Category } from '../types';
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '../types';
@@ -36,35 +44,6 @@ const TIER_LABEL: Record<OffersTier, string> = {
 };
 
 const TIERS: OffersTier[] = ['marken', 'produkte', 'kategorien', 'alle'];
-
-/** Monday-of-the-week → Saturday window for the given timestamp. German
- *  chains rotate Mo–Sa, so this is the right shape for the "Gültig" stamp.
- *  Sundays (rare for the cron) round forward to the next Monday. */
-function weeklyOfferRange(generatedAt: string | null): { from: Date; to: Date } | null {
-  if (!generatedAt) return null;
-  const at = new Date(generatedAt);
-  if (Number.isNaN(at.getTime())) return null;
-  const day = at.getDay(); // 0 = Sun, 1 = Mon, …, 6 = Sat
-  const mondayDelta = day === 0 ? 1 : 1 - day;
-  const from = new Date(at);
-  from.setDate(at.getDate() + mondayDelta);
-  from.setHours(0, 0, 0, 0);
-  const to = new Date(from);
-  to.setDate(from.getDate() + 5);
-  return { from, to };
-}
-
-/** "09. – 14. Jun" when from + to share a month, else "29. Mai – 03. Jun". */
-function formatRange(from: Date, to: Date): string {
-  const dayMonth = (d: Date) =>
-    d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' });
-  const sameMonthSameYear =
-    from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
-  if (sameMonthSameYear) {
-    return `${String(from.getDate()).padStart(2, '0')}. – ${dayMonth(to)}`;
-  }
-  return `${dayMonth(from)} – ${dayMonth(to)}`;
-}
 
 export function OffersView({
   offers,
@@ -105,13 +84,13 @@ export function OffersView({
   // Per-offer indicator: which (if any) of the user's lists currently
   // contain a marken-tier match (exact EAN or brand+name overlap) for this
   // offer? The OfferCard renders one chip per list — so users see at a
-  // glance "this deal hits something on Einkauf · Wocheneinkauf".
+  // glance "this deal hits something on Einkauf · Wocheneinkauf". Keyed by
+  // offerKey (NOT source_url — Netto offers share one constant URL).
   const listsByOffer = useMemo(() => {
     if (allItems.length === 0 || lists.length === 0) return new Map<string, string[]>();
     const listNameById = new Map(lists.map((l) => [l.id, l.name]));
     const out = new Map<string, string[]>();
     for (const o of filtered) {
-      const key = `${o.store}|${o.source_url}`;
       const hits = new Set<string>();
       for (const it of allItems) {
         if (doesOfferMatchHistory(o, [it], 'marken')) {
@@ -119,7 +98,7 @@ export function OffersView({
           if (name) hits.add(name);
         }
       }
-      if (hits.size) out.set(key, [...hits]);
+      if (hits.size) out.set(offerKey(o), [...hits]);
     }
     return out;
   }, [filtered, allItems, lists]);
@@ -278,10 +257,10 @@ export function OffersView({
                     </span>
                   </header>
                   <ul className="flex flex-col gap-2 p-2">
-                    {bandOffers.map((o, i) => {
-                      const key = `${o.store}|${o.source_url}`;
+                    {bandOffers.map((o) => {
+                      const key = offerKey(o);
                       return (
-                        <li key={`${key}-${i}`}>
+                        <li key={key}>
                           <OfferCard
                             offer={o}
                             onLists={listsByOffer.get(key) ?? []}
@@ -298,7 +277,9 @@ export function OffersView({
         )}
       </div>
 
-      {pickup && <AddOfferSheet offer={pickup} onClose={() => setPickup(null)} />}
+      {pickup && (
+        <AddOfferSheet offer={pickup} generatedAt={generatedAt} onClose={() => setPickup(null)} />
+      )}
     </div>
   );
 }

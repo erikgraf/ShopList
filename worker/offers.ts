@@ -339,20 +339,23 @@ async function fetchNetto(): Promise<Offer[]> {
   }
   const html = await res.text();
 
-  // Each Netto tile is a <... class="product-list__item …"> wrapper.
-  // Inside: product__title (name), product__current-price--digits-after-comma
-  // for the EUR sale price, product__current-price--digits-before-comma is
-  // the cents string, plus tc-product-name / tc-product-price tracker
-  // duplicates. We don't extract a "was price" yet — Netto reveals it via
-  // a tooltip that's only in the page after a JS render.
-  const tileRe = /<[^>]+class="[^"]*\bproduct-list__item\b[^"]*"[^>]*>([\s\S]*?)<\/article>|<[^>]+class="[^"]*\bproduct-list__item\b[^"]*"[^>]*>([\s\S]*?)<\/li>/g;
-  // The tile is wrapped in either <article> or <li> depending on the section;
-  // fall back to a generic pattern if neither closes nearby.
+  // Each Netto tile is a <... class="product-list__item …"> wrapper, but the
+  // wrapper ELEMENT varies (<article> / <li> / <div>) per section. Matching
+  // "tile open … wrapper close-tag" is fragile: with mixed wrappers a lazy
+  // [\s\S]*? can run from an <li>-tile to a distant </article> and swallow
+  // every tile in between. So instead, split the document AT each tile start
+  // — each chunk runs to just before the next tile, no close-tag needed.
+  // Inside a tile: product__title (name as direct text), tc-product-price
+  // `<strong>NN.<span>CC</span></strong>` (euros literal, cents wrapped).
+  // No was-price yet: Netto reveals it via a JS-rendered tooltip.
+  const chunks = html.split(/(?=<[a-z][^>]*class="[^"]*\bproduct-list__item\b)/);
+  chunks.shift(); // preamble before the first tile
 
   const out: Offer[] = [];
-  let m: RegExpExecArray | null;
-  while ((m = tileRe.exec(html))) {
-    const tile = m[1] ?? m[2] ?? '';
+  for (const raw of chunks) {
+    // The final chunk runs to the end of the document — cap it so footer
+    // markup can't bleed into the image/href grabs.
+    const tile = raw.slice(0, 6000);
     const grab = (re: RegExp): string => {
       const r = tile.match(re);
       return r ? decode(r[1]) : '';
@@ -364,24 +367,65 @@ async function fetchNetto(): Promise<Offer[]> {
       grab(/class="[^"]*\btc-product-name\b[^"]*"[^>]*>\s*([^<]+?)\s*</);
     if (!name) continue;
 
-    // The price block on Netto is `<strong>NN.<span …digits-after-comma>CC</span></strong>`
-    // — the euros are literal text, only the cents are wrapped in a span.
-    // Strip tags inside the <strong> and let parseEUR handle the rest.
-    const priceBlock = grab(
-      /<div[^>]*class="[^"]*\btc-product-price\b[^"]*"[^>]*>\s*<strong>([\s\S]*?)<\/strong>/,
-    );
+    // Two price variants in the wild:
+    //  - shop tiles:  <div class="… tc-product-price"><strong>NN.<span>CC</span></strong>
+    //  - flyer tiles: <ins class="product__current-price tc-product-price"> NN.<span>CC</span><span>*</span></ins>
+    // Either way the euros are literal text and the cents sit in a span —
+    // strip tags and let parseEUR sort it out.
+    const priceBlock =
+      grab(/<div[^>]*class="[^"]*\btc-product-price\b[^"]*"[^>]*>\s*<strong>([\s\S]*?)<\/strong>/) ||
+      grab(/<ins[^>]*class="[^"]*\btc-product-price\b[^"]*"[^>]*>([\s\S]*?)<\/ins>/);
     const price = parseEUR(priceBlock.replace(/<[^>]+>/g, ''));
+
+    // Flyer tiles also carry the strikethrough UVP and an explicit percent
+    // badge ("-29 %") — the was-price we previously believed needed a JS
+    // render.
+    const was_price = parseEUR(
+      grab(/<del[^>]*class="[^"]*\bproduct__old-price\b[^"]*"[^>]*>([\s\S]*?)<\/del>/).replace(/UVP/i, ''),
+    );
+    const discRaw = grab(/class="[^"]*\bproduct__percent-saving__text\b[^"]*"[^>]*>([\s\S]*?)</);
+    let discount_pct: number | undefined;
+    const dn = parseInt(discRaw.replace(/[^\-0-9]/g, ''), 10);
+    if (Number.isFinite(dn) && dn !== 0) discount_pct = dn > 0 ? -dn : dn;
+    if (discount_pct === undefined && was_price && price && was_price > price) {
+      discount_pct = -Math.round((1 - price / was_price) * 100);
+    }
+
+    // The add-to-wishlist href carries structured params: BundleText (unit,
+    // e.g. "1 kg") and ValidTo — free metadata, no extra fetch.
+    const unitRaw = grab(/[?&]BundleText=([^&"]*)/);
+    const unit = unitRaw ? decodeURIComponent(unitRaw.replace(/\+/g, ' ')).trim() : '';
+    const validToRaw = grab(/[?&]ValidTo=([^&"]*)/);
+    const validTo = validToRaw
+      ? decodeURIComponent(validToRaw.replace(/\+/g, ' ')).slice(0, 10)
+      : '';
 
     const brand = grab(/class="[^"]*\bproduct__brand\b[^"]*"[^>]*>([^<]+?)</);
     const img   = grab(/src="([^"]+netto-online\.de[^"]+\.(?:jpg|webp|png)[^"]*)"/);
+
+    // Per-product detail link when the tile carries one; else a name-slug
+    // fragment. source_url must be DISTINCT per offer — a constant URL made
+    // every Netto offer share one identity downstream (dup-merged items,
+    // colliding list-chip keys).
+    const href = grab(/<a[^>]+href="(\/[^"]+|https?:\/\/[^"]+)"/);
+    const slug = name.toLowerCase().replace(/[^a-z0-9äöüß]+/gi, '-').replace(/^-+|-+$/g, '');
+    const source_url = href
+      ? href.startsWith('http')
+        ? href
+        : `https://www.netto-online.de${href}`
+      : `${URL}#${slug}`;
 
     out.push({
       store: 'netto',
       name,
       brand: brand || undefined,
       price,
+      was_price,
+      discount_pct,
+      unit: unit || undefined,
       image: img || undefined,
-      source_url: 'https://www.netto-online.de/angebote/',
+      valid_until: validTo || undefined,
+      source_url,
     });
   }
   return out;
