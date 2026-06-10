@@ -369,7 +369,6 @@ function offerMatchKey(o: Offer): string | null {
  *   produkte   — SAME PRODUCT TYPE via the managed synonym key, regardless of
  *                brand: "Tomaten" ↔ "Cherryrispentomaten", "Sprudel Lieler" ↔
  *                "Mineralwasser Gerolsteiner". (data/offer-synonyms.csv)
- *   kategorien — same ShopList category umbrella (Bier, Wein → Getränke)
  *
  * `history` is the union of past purchases (useRecent) and items on any
  * list; attachOfferMeta and the Angebote list-chips also call it with
@@ -381,11 +380,6 @@ export function doesOfferMatchHistory(
   tier: OffersTier,
 ): boolean {
   if (tier === 'alle') return true;
-
-  if (tier === 'kategorien') {
-    const cat = offer.category ?? categorizeOffer(offer);
-    return history.some((p) => p.category === cat);
-  }
 
   if (tier === 'produkte') {
     const oKey = offerMatchKey(offer);

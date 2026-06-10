@@ -37,11 +37,10 @@ import { AddOfferSheet } from './AddOfferSheet';
 const TIER_LABEL: Record<OffersTier, string> = {
   marken:     'Marken',
   produkte:   'Produkte',
-  kategorien: 'Kategorien',
   alle:       'Alle',
 };
 
-const TIERS: OffersTier[] = ['marken', 'produkte', 'kategorien', 'alle'];
+const TIERS: OffersTier[] = ['marken', 'produkte', 'alle'];
 
 export function OffersView({
   offers,
@@ -70,7 +69,7 @@ export function OffersView({
         acc[t] = offers.filter((o) => doesOfferMatchHistory(o, history, t)).length;
         return acc;
       },
-      { marken: 0, produkte: 0, kategorien: 0, alle: 0 },
+      { marken: 0, produkte: 0, alle: 0 },
     );
   }, [offers, history]);
 
