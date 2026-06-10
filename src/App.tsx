@@ -6,7 +6,7 @@ import { OffersToggle } from './components/OffersToggle';
 import { OffersView } from './components/OffersView';
 import { FilterRow } from './components/FilterRow';
 import { FilterSheet } from './components/FilterSheet';
-import { ListSwitcher } from './components/ListSwitcher';
+import { ListDropdown } from './components/ListDropdown';
 import { applyFilter, computeFacets, emptyFilter } from './facets';
 import { attachOfferMeta, useOffers } from './offers';
 import {
@@ -108,14 +108,14 @@ export default function App() {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       <header className="safe-top sticky top-0 z-20 space-y-3 bg-[var(--color-bg)]/90 px-4 pt-4 pb-3 backdrop-blur-md">
-        {/* title wheel — list creation lives inside the wheel as the
-            trailing "+ Neue Liste" entry (the standalone big-plus button is
-            gone; header redesign "Option A+"). */}
-        <ListSwitcher
+        {/* title dropdown — tap the list name to switch lists, reach each
+            list's actions (ellipsis), or create a new one. Replaced the
+            scroll-snap wheel: one tap shows everything, no scroll physics. */}
+        <ListDropdown
           lists={lists}
           activeListId={activeListId}
           onSwitch={setActiveListId}
-          onLongPress={setActionListId}
+          onOpenActions={setActionListId}
           onNewList={() => setNewListOpen(true)}
         />
 
