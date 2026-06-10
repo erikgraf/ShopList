@@ -7,7 +7,7 @@
  * full card; the button is a visual affordance only (matches how the rest of
  * the app handles row clicks).
  */
-import type { Offer } from '../offers';
+import { type Offer, offerValidityLabel } from '../offers';
 
 /** Store color cues, mirrored from .gitignored StoreChips brand-dot map.
  *  Kept literal here so the card has a visible "Aldi" / "DM" / … chip even
@@ -40,6 +40,7 @@ export function OfferCard({
   onAdd: () => void;
 }) {
   const fmt = (n: number) => n.toFixed(2).replace('.', ',');
+  const validity = offerValidityLabel(offer);
   return (
     <button
       type="button"
@@ -103,6 +104,17 @@ export function OfferCard({
               }}
             >
               {offer.discount_pct}%
+            </span>
+          )}
+          {/* Per-offer validity — stores are mixed in the feed, so each card
+              carries its own window. */}
+          {validity && (
+            <span className="inline-flex items-center gap-0.5 whitespace-nowrap text-[10.5px] font-medium text-[var(--color-muted)]">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" strokeLinecap="round" />
+              </svg>
+              {validity}
             </span>
           )}
         </div>

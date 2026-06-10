@@ -30,7 +30,17 @@ const BrandSheet = lazy(() =>
  * Brand resolution, qty pill, and brand pill behaviour are carried over 1:1
  * from the original ItemRow so the store-aware brand suggestions keep working.
  */
-export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Store[] }) {
+export function ShelfRow({
+  item,
+  activeStores,
+  onOfferClick,
+}: {
+  item: Item;
+  activeStores: Store[];
+  /** Tapping the offer line opens the replace-with-offer sheet. Omitted on
+   *  the done/erledigt list where swapping a bought item makes no sense. */
+  onOfferClick?: (item: Item) => void;
+}) {
   const iconName = item.icon ?? catalogIconFor(item.productId);
   const prefs = usePreferences();
   const [qtyOpen, setQtyOpen] = useState(false);
@@ -141,6 +151,14 @@ export function ShelfRow({ item, activeStores }: { item: Item; activeStores: Sto
               store={item.offerStore}
               price={item.offerPrice}
               savings={item.offerSavings}
+              onClick={
+                onOfferClick
+                  ? (e) => {
+                      e.stopPropagation();
+                      onOfferClick(item);
+                    }
+                  : undefined
+              }
             />
           ) : null}
         </div>
@@ -206,16 +224,24 @@ function OfferLine({
   store,
   price,
   savings,
+  onClick,
 }: {
   percent: number;
   store?: string;
   price?: number;
   savings?: number;
+  onClick?: (e: React.MouseEvent) => void;
 }) {
   const fmtEur = (n: number) => `€${n.toFixed(2).replace('.', ',')}`;
+  const Tag = onClick ? 'button' : 'div';
   return (
-    <div
-      className="mt-1 inline-flex w-fit max-w-full flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-md bg-[var(--color-offer-soft)] px-1.5 py-0.5 text-[11.5px] font-semibold text-[var(--color-offer)]"
+    <Tag
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+      aria-label={onClick ? 'Angebot übernehmen' : undefined}
+      className={`mt-1 inline-flex w-fit max-w-full flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-md bg-[var(--color-offer-soft)] px-1.5 py-0.5 text-[11.5px] font-semibold text-[var(--color-offer)] ${
+        onClick ? 'transition-press active:opacity-70' : ''
+      }`}
     >
       {store && (
         <span className="inline-flex items-center gap-1">
@@ -243,7 +269,7 @@ function OfferLine({
         <span aria-hidden className="opacity-50">·</span>
         <span className="tabular-nums">−{percent}&thinsp;%</span>
       </>
-    </div>
+    </Tag>
   );
 }
 

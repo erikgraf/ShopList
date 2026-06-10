@@ -26,8 +26,6 @@ import {
   doesOfferMatchHistory,
   categorizeOffer,
   offerKey,
-  weeklyOfferRange,
-  formatRange,
 } from '../offers';
 import { useAllItems, useLists, useRecent } from '../store';
 import type { Category } from '../types';
@@ -93,7 +91,7 @@ export function OffersView({
     for (const o of filtered) {
       const hits = new Set<string>();
       for (const it of allItems) {
-        if (doesOfferMatchHistory(o, [it], 'marken')) {
+        if (doesOfferMatchHistory(o, [it], 'produkte')) {
           const name = listNameById.get(it.listId);
           if (name) hits.add(name);
         }
@@ -128,15 +126,6 @@ export function OffersView({
     );
   }, [filtered]);
 
-  // German chains rotate weekly offers Mon–Sat. Derive the validity window
-  // from `generated_at` (when the cron last ran): find the Monday of that
-  // week, Saturday = Monday + 5 days. ALDI Süd's listing page itself doesn't
-  // surface explicit `priceValidUntil`; if we ever extract it per-product
-  // (the /produkt/ JSON-LD doesn't carry it today either) this fallback
-  // gives way to the real value.
-  const validRange = useMemo(() => weeklyOfferRange(generatedAt), [generatedAt]);
-  const validLabel = validRange ? formatRange(validRange.from, validRange.to) : null;
-
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-[var(--color-bg)]">
       {/* Header */}
@@ -157,11 +146,6 @@ export function OffersView({
         <div className="flex min-w-0 flex-1 items-baseline gap-2">
           <h1 className="truncate text-[20px] font-extrabold text-[var(--color-text)]">Angebote</h1>
           <span className="text-sm text-[var(--color-muted)]">{offers.length}</span>
-          {validLabel && (
-            <span className="ml-auto whitespace-nowrap text-[12px] font-medium text-[var(--color-muted)]">
-              Gültig {validLabel}
-            </span>
-          )}
         </div>
       </header>
 

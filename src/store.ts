@@ -331,6 +331,66 @@ async function bumpRecent(p: Product): Promise<void> {
   await db.recent.put(next);
 }
 
+/**
+ * Replace a list item with a concrete offer SKU — the "Angebot übernehmen"
+ * action. The generic "Tomaten" becomes "Cherryrispentomaten 200 g" at Aldi
+ * with the offer's price snapshot, pinned to that store, but keeps its place
+ * + quantity on the list. Goes through the one mutation path (updatedAt +
+ * emitChange + sync ordering).
+ */
+export async function replaceItemWithOffer(
+  itemId: string,
+  offer: {
+    name: string;
+    brand?: string;
+    image?: string;
+    ean?: string;
+    store: string;
+    price?: number;
+    was_price?: number;
+    discount_pct?: number;
+    valid_until?: string;
+    category?: Category;
+    generic_name?: string;
+    taxonomy_l3?: string;
+    taxonomy_l2?: string;
+  },
+): Promise<void> {
+  const it = await db.items.get(itemId);
+  if (!it) return;
+  const store = (['aldi', 'lidl', 'rewe', 'edeka', 'dm', 'rossmann'] as Store[]).includes(
+    offer.store as Store,
+  )
+    ? (offer.store as Store)
+    : undefined;
+  const savings =
+    offer.was_price !== undefined && offer.price !== undefined && offer.was_price > offer.price
+      ? Math.round((offer.was_price - offer.price) * 100) / 100
+      : undefined;
+  const validUntil =
+    (offer.valid_until ? new Date(offer.valid_until).getTime() : NaN) ||
+    Date.now() + 7 * 24 * 60 * 60 * 1000;
+  await db.items.put({
+    ...it,
+    name: offer.name,
+    brand: offer.brand ?? it.brand,
+    image: offer.image ?? it.image,
+    barcode: offer.ean ?? it.barcode,
+    category: offer.category ?? it.category,
+    genericName: offer.generic_name ?? it.genericName,
+    taxonomyL3: offer.taxonomy_l3 ?? it.taxonomyL3,
+    taxonomyL2: offer.taxonomy_l2 ?? it.taxonomyL2,
+    stores: store ? [store] : it.stores,
+    offer: offer.discount_pct !== undefined && offer.discount_pct < 0 ? -offer.discount_pct : undefined,
+    offerStore: offer.store,
+    offerPrice: offer.price,
+    offerSavings: savings,
+    offerValidUntil: validUntil,
+    updatedAt: Date.now(),
+  });
+  emitChange();
+}
+
 export async function updateQuantity(id: string, delta: number): Promise<void> {
   const it = await db.items.get(id);
   if (!it) return;

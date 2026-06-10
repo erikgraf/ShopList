@@ -18,10 +18,12 @@ export function ShelfGroup({
   category,
   rows,
   activeStores,
+  onOfferClick,
 }: {
   category: Category;
   rows: Item[];
   activeStores: Store[];
+  onOfferClick?: (item: Item) => void;
 }) {
   const [fg, bg] = COLORS[category];
   return (
@@ -51,7 +53,7 @@ export function ShelfGroup({
       {/* gap-free rows, hairline divided */}
       <div className="divide-y divide-[var(--color-border)]">
         {rows.map((it) => (
-          <ShelfRow key={it.id} item={it} activeStores={activeStores} />
+          <ShelfRow key={it.id} item={it} activeStores={activeStores} onOfferClick={onOfferClick} />
         ))}
       </div>
     </div>

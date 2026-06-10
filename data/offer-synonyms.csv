@@ -1,0 +1,67 @@
+match_key,synonyms
+tomaten,tomate|tomaten|cherrytomate|cherrytomaten|kirschtomate|kirschtomaten|rispentomate|rispentomaten|cherryrispentomaten|datteltomate|datteltomaten|cocktailtomate|cocktailtomaten|strauchtomate|strauchtomaten|romatomate|romatomaten|minirispentomaten|snacktomaten
+gurke,gurke|gurken|salatgurke|minigurke|mini-gurken|snackgurke|landgurke
+paprika,paprika|spitzpaprika|snackpaprika|paprikaschote|gemuesepaprika
+zwiebel,zwiebel|zwiebeln|gemuesezwiebel|rote zwiebel|speisezwiebel|schalotte|schalotten
+kartoffel,kartoffel|kartoffeln|speisekartoffel|speisefruehkartoffel|fruehkartoffel|drilling|drillinge|festkochend|vorwiegend festkochend
+moehre,moehre|moehren|karotte|karotten|bundmoehren|wurzeln
+salat,salat|kopfsalat|eisbergsalat|eisberg|feldsalat|rucola|romanasalat|blattsalat|beilagensalat
+champignon,champignon|champignons|pilz|pilze|egerling|kraeuterseitling|austernpilz
+aubergine,aubergine|auberginen|melanzani
+zucchini,zucchini
+brokkoli,brokkoli|broccoli
+blumenkohl,blumenkohl|karfiol
+apfel,apfel|aepfel|tafelapfel|boskoop|elstar|braeburn|jonagold|pinklady
+banane,banane|bananen|chiquita
+birne,birne|birnen
+trauben,traube|trauben|weintrauben|tafeltrauben
+beeren,erdbeere|erdbeeren|heidelbeere|heidelbeeren|blaubeere|blaubeeren|himbeere|himbeeren|brombeere|brombeeren
+zitrusfrucht,orange|orangen|mandarine|mandarinen|clementine|clementinen|zitrone|zitronen|limette|limetten|grapefruit
+melone,melone|wassermelone|honigmelone|cantaloupe|galiamelone
+mineralwasser,mineralwasser|sprudel|sprudelwasser|tafelwasser|sodawasser|selters|quellwasser|heilwasser|wasser medium|wasser still|wasser classic|wasser naturell
+saft,saft|fruchtsaft|direktsaft|apfelsaft|orangensaft|multivitaminsaft|nektar|fruchtsaftgetraenk|schorle|apfelschorle
+limonade,limonade|limo|cola|cola light|cola zero|fanta|sprite|brause|eistee|energy drink|energydrink
+bier,bier|pils|pilsener|helles|lager|weizenbier|weissbier|hefeweizen|export|radler|alkoholfreies bier|bockbier|kellerbier
+wein,wein|rotwein|weisswein|rosewein|rose|merlot|primitivo|riesling|chardonnay|pinot|grauburgunder|spaetburgunder|cuvee|secco|prosecco|sekt|grauer burgunder|gruener veltliner
+spirituose,vodka|wodka|gin|rum|whisky|whiskey|likoer|aperitif|aperitivo|spritz|sprizz|bacardi|jaegermeister
+kaffee,kaffee|filterkaffee|kaffeebohnen|espresso|caffe crema|kaffeepads|kaffeekapseln|loeslicher kaffee|coffeeb
+tee,tee|schwarztee|gruentee|kraeutertee|fruechtetee|pfefferminztee|kamillentee
+milch,milch|vollmilch|h-milch|haltbare milch|frischmilch|fettarme milch|laktosefreie milch|weidemilch|heumilch|bio-milch|protein-milch|proteinmilch
+joghurt,joghurt|jogurt|naturjoghurt|fruchtjoghurt|griechischer joghurt|joghurt mit der ecke|skyr|trinkjoghurt
+quark,quark|speisequark|magerquark|sahnequark|kraeuterquark|topfen
+sahne,sahne|schlagsahne|schmand|creme fraiche|kochsahne|sauerrahm|saure sahne|creme legere
+frischkaese,frischkaese|frischkaesezubereitung|doppelrahmfrischkaese|kraeuterfrischkaese|almette|philadelphia
+kaese,kaese|gouda|edamer|emmentaler|bergkaese|schnittkaese|scheibenkaese|reibekaese|geriebener kaese|mozzarella|feta|hirtenkaese|camembert|brie
+butter,butter|deutsche markenbutter|suessrahmbutter|streichfett|halbfettbutter
+ei,ei|eier|freilandeier|bodenhaltung|bio-eier|frische eier
+schnitzel,schnitzel|schweineschnitzel|putenschnitzel|haehnchenschnitzel|schnitzelsortiment|minutenschnitzel
+hackfleisch,hackfleisch|hack|gemischtes hack|rinderhack|gehacktes|mett|tatar
+haehnchen,haehnchen|haehnchenbrust|haehnchenschenkel|haehnchenfilet|gefluegel|haehnchen-ministeaks|haehnchenkeule|haehncheninnenfilet
+schwein,schweinefleisch|schweineschnitzel|schweinebraten|schweinefilet|schweinenacken|kotelett|schweinebauch|bauchfleisch
+rind,rindfleisch|rindersteak|rindersteaks|minutensteaks|rinderbraten|gulasch|rouladen|steak|hueftsteak|rumpsteak
+wurst,wurst|aufschnitt|salami|fleischwurst|lyoner|teewurst|leberwurst|mettwurst|cabanossi|wiener|bockwurst
+bratwurst,bratwurst|rostbratwurst|nuernberger|bratwuerste|grillwurst|schweine-bratwurst|bruzzler|bruzzelkracher
+schinken,schinken|kochschinken|katenschinken|serranoschinken|parmaschinken|rohschinken|gekochter schinken
+lachs,lachs|raeucherlachs|lachsfilet|graved lachs|lachsschinken
+fisch,fisch|fischstaebchen|backfisch|seelachs|kabeljau|forelle|matjes|hering|thunfisch|garnelen|scampi|fischfilet
+wurstaufstrich,bratwurst|fleischspiesse|fleischspiess|grillspiess|spiesse|minutensteaks
+brot,brot|vollkornbrot|toastbrot|toast|mischbrot|roggenbrot|sonnenblumenbrot|eiweissbrot|dinkelbrot|bauernbrot
+broetchen,broetchen|broetchen|semmel|broetchen|laugenbroetchen|laugengebaeck|brezel|baguette|ciabatta
+butterkeks,muesli|muesliriegel|muesli-riegel|cornflakes|haferflocken|porridge|knuspermuesli
+schokolade,schokolade|schoko|tafelschokolade|vollmilchschokolade|zartbitter|nussschokolade|milka|ritter sport|kinderschokolade|pralinen
+suessigkeit,gummibaerchen|fruchtgummi|haribo|bonbon|lakritz|kaubonbon|fruchtkaramellen|toffee
+chips,chips|kartoffelchips|stapelchips|flips|erdnussflips|tortillachips|nachos|cracker|salzstangen
+nuss,nuss|nuesse|cashew|cashewkerne|mandeln|walnuss|haselnuss|erdnuss|pistazien|studentenfutter|nuss-mix|nussmix
+kekse,kekse|butterkekse|doppelkeks|biscuit|biscoff|spekulatius|printen|cookies
+nudeln,nudeln|pasta|spaghetti|penne|fusilli|spirelli|maccaroni|tagliatelle|lasagne|spaetzle
+reis,reis|basmatireis|basmati|jasminreis|langkornreis|milchreis|risottoreis|parboiled
+mehl,mehl|weizenmehl|dinkelmehl|vollkornmehl|backmehl
+oel,oel|olivenoel|sonnenblumenoel|rapsoel|speiseoel|bratoel
+senf,senf|dijonsenf|mittelscharfer senf|suesser senf
+ketchup,ketchup|tomatenketchup|gewuerzketchup
+sauce,sauce|soße|sosse|grillsauce|bbq-sauce|mayonnaise|mayo|remoulade|dressing|salatdressing|pesto
+fertiggericht,pizza|tiefkuehlpizza|flammkuchen|lasagne|maultaschen|kartoffelpueree|pommes|kroketten
+eis,eis|eiscreme|speiseeis|eis am stiel|magnum|cornetto|familieneis
+toilettenpapier,toilettenpapier|klopapier|klopapier|feuchttuecher
+waschmittel,waschmittel|vollwaschmittel|colorwaschmittel|weichspueler|waschpulver
+spuelmittel,spuelmittel|geschirrspuelmittel|spuelmaschinentabs|geschirrtabs

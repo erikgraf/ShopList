@@ -7,6 +7,7 @@ import { OffersView } from './components/OffersView';
 import { FilterRow } from './components/FilterRow';
 import { FilterSheet } from './components/FilterSheet';
 import { ListDropdown } from './components/ListDropdown';
+import { ReplaceOfferSheet } from './components/ReplaceOfferSheet';
 import { applyFilter, computeFacets, emptyFilter } from './facets';
 import { attachOfferMeta, useOffers } from './offers';
 import {
@@ -46,6 +47,7 @@ export default function App() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
   const [offersViewOpen, setOffersViewOpen] = useState(false);
+  const [replaceTarget, setReplaceTarget] = useState<Item | null>(null);
   const [shopOpen, setShopOpen] = useState(false);
   const [newListOpen, setNewListOpen] = useState(false);
   const [actionListId, setActionListId] = useState<string | null>(null);
@@ -142,7 +144,13 @@ export default function App() {
         )}
 
         {grouped.map(([category, rows]) => (
-          <ShelfGroup key={category} category={category} rows={rows} activeStores={activeStores} />
+          <ShelfGroup
+            key={category}
+            category={category}
+            rows={rows}
+            activeStores={activeStores}
+            onOfferClick={setReplaceTarget}
+          />
         ))}
 
         {done.length > 0 && (
@@ -200,6 +208,14 @@ export default function App() {
           offers={offersBlob.offers}
           generatedAt={offersBlob.generated_at}
           onClose={() => setOffersViewOpen(false)}
+        />
+      )}
+
+      {replaceTarget && (
+        <ReplaceOfferSheet
+          item={replaceTarget}
+          offers={offersBlob.offers}
+          onClose={() => setReplaceTarget(null)}
         />
       )}
 

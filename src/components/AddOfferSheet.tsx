@@ -62,9 +62,12 @@ export function AddOfferSheet({
       const product = offerToProduct(offer);
       // Snapshot of the deal, persisted WITH the item through the one shared
       // mutation path (single write; updatedAt + emitChange + sync ordering
-      // all apply). Valid until the end of the offer week, else 7 days.
+      // all apply). Prefer the offer's real valid_until; fall back to the
+      // fetch-week end, else +7 days.
       const offerValidUntil =
-        weeklyOfferRange(generatedAt)?.to.getTime() ?? Date.now() + 7 * 24 * 60 * 60 * 1000;
+        (offer.valid_until ? new Date(offer.valid_until).getTime() : NaN) ||
+        weeklyOfferRange(generatedAt)?.to.getTime() ||
+        Date.now() + 7 * 24 * 60 * 60 * 1000;
       const offerMeta: OfferMeta = {
         offerStore: offer.store,
         offerValidUntil,
