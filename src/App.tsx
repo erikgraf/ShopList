@@ -120,12 +120,6 @@ export default function App() {
           <OffersToggle count={offersBlob.total} onOpen={() => setOffersViewOpen(true)} />
         </div>
 
-        {/* open / done count (no progress bar) */}
-        <div className="text-xs font-medium text-[var(--color-muted)]">
-          <strong className="text-[var(--color-accent-strong)]">{open.length}</strong> offen
-          {done.length > 0 ? ` · ${done.length} erledigt` : ''}
-        </div>
-
         <SearchBar
           onScanClick={() => setScanOpen(true)}
           onShopModeClick={() => setShopOpen(true)}
