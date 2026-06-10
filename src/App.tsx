@@ -98,8 +98,6 @@ export default function App() {
 
   const open = filtered.filter((it) => !it.checked);
   const done = filtered.filter((it) => it.checked);
-  const total = open.length + done.length;
-  const progress = total > 0 ? Math.round((done.length / total) * 100) : 0;
 
   const grouped = useMemo(() => groupByCategory(open), [open]);
 
@@ -108,32 +106,24 @@ export default function App() {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       <header className="safe-top sticky top-0 z-20 space-y-3 bg-[var(--color-bg)]/90 px-4 pt-4 pb-3 backdrop-blur-md">
-        {/* title dropdown — tap the list name to switch lists, reach each
-            list's actions (ellipsis), or create a new one. Replaced the
-            scroll-snap wheel: one tap shows everything, no scroll physics. */}
-        <ListDropdown
-          lists={lists}
-          activeListId={activeListId}
-          onSwitch={setActiveListId}
-          onOpenActions={setActionListId}
-          onNewList={() => setNewListOpen(true)}
-        />
-
-        {/* count + shopping progress bar + Meine % entry. The % pill is
-            navigation (opens the Angebote view), so it sits with status —
-            not in the filter row. */}
+        {/* title row: list dropdown (left) + Meine % entry (right). */}
         <div className="flex items-center gap-3">
-          <div className="shrink-0 text-xs font-medium text-[var(--color-muted)]">
-            <strong className="text-[var(--color-accent-strong)]">{open.length}</strong> offen
-            {done.length > 0 ? ` · ${done.length} erledigt` : ''}
-          </div>
-          <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-[var(--color-surface-2)]">
-            <div
-              className="h-full rounded-full bg-[var(--color-accent)] transition-[width] duration-300"
-              style={{ width: `${progress}%` }}
+          <div className="min-w-0 flex-1">
+            <ListDropdown
+              lists={lists}
+              activeListId={activeListId}
+              onSwitch={setActiveListId}
+              onOpenActions={setActionListId}
+              onNewList={() => setNewListOpen(true)}
             />
           </div>
           <OffersToggle count={offersBlob.total} onOpen={() => setOffersViewOpen(true)} />
+        </div>
+
+        {/* open / done count (no progress bar) */}
+        <div className="text-xs font-medium text-[var(--color-muted)]">
+          <strong className="text-[var(--color-accent-strong)]">{open.length}</strong> offen
+          {done.length > 0 ? ` · ${done.length} erledigt` : ''}
         </div>
 
         <SearchBar
