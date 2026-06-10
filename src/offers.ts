@@ -46,6 +46,10 @@ export interface Offer {
   discount_pct?: number;
   unit?: string;
   image?: string;
+  /** ISO dates bounding the offer's validity. Every offer carries both after
+   *  ingest (Netto from its href, ALDI/DM from the Mon–Sat fetch week). */
+  valid_from?: string;
+  valid_until?: string;
   source_url: string;
   // Enrichment fields populated by the ingest CLI before the blob is stored.
   generic_name?: string;
@@ -257,6 +261,27 @@ export function formatRange(from: Date, to: Date): string {
     return `${String(from.getDate()).padStart(2, '0')}. – ${dayMonth(to)}`;
   }
   return `${dayMonth(from)} – ${dayMonth(to)}`;
+}
+
+/** Per-offer "Gültig 08. – 13. Jun" from the offer's ISO validity strings.
+ *  Returns null when neither date is set. Handles a missing endpoint by
+ *  showing the one we have ("bis 13. Jun" / "ab 08. Jun"). */
+export function offerValidityLabel(o: {
+  valid_from?: string;
+  valid_until?: string;
+}): string | null {
+  const parse = (s?: string): Date | null => {
+    if (!s) return null;
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+  const from = parse(o.valid_from);
+  const to = parse(o.valid_until);
+  if (from && to) return formatRange(from, to);
+  const dayMonth = (d: Date) => d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' });
+  if (to) return `bis ${dayMonth(to)}`;
+  if (from) return `ab ${dayMonth(from)}`;
+  return null;
 }
 
 /**

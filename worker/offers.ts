@@ -72,6 +72,33 @@ const parseEUR = (s: string | undefined): number | undefined => {
   return parseFloat(m[1].replace(',', '.'));
 };
 
+const pad = (n: number) => String(n).padStart(2, '0');
+const isoDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+/**
+ * Validity window for offers whose page doesn't carry explicit per-offer
+ * dates. German weekly-offer pages (ALDI "Wochenangebote", Netto's grocery
+ * page) show exactly this Mon–Sat week, so deriving it from the fetch date is
+ * accurate, not a guess. Sundays round forward to the next Monday.
+ */
+export function currentOfferWeek(now: Date = new Date()): { from: string; until: string } {
+  const day = now.getDay(); // 0 Sun … 6 Sat
+  const mondayDelta = day === 0 ? 1 : 1 - day;
+  const from = new Date(now);
+  from.setDate(now.getDate() + mondayDelta);
+  const until = new Date(from);
+  until.setDate(from.getDate() + 5);
+  return { from: isoDate(from), until: isoDate(until) };
+}
+
+/** Parse a German "DD.MM.YY" (or "DD.MM.YYYY") to an ISO date, else "". */
+function germanDateToISO(s: string): string {
+  const m = s.match(/(\d{2})\.(\d{2})\.(\d{2,4})/);
+  if (!m) return '';
+  const yr = m[3].length === 2 ? `20${m[3]}` : m[3];
+  return `${yr}-${m[2]}-${m[1]}`;
+}
+
 // ─── ALDI Süd ───────────────────────────────────────────────
 // Fresh-products category. Akamai blocks HEAD but lets GET through.
 // Page is server-rendered AEM; tiles follow `product-tile__*` BEM classes.
@@ -395,9 +422,15 @@ async function fetchNetto(): Promise<Offer[]> {
     // e.g. "1 kg") and ValidTo — free metadata, no extra fetch.
     const unitRaw = grab(/[?&]BundleText=([^&"]*)/);
     const unit = unitRaw ? decodeURIComponent(unitRaw.replace(/\+/g, ' ')).trim() : '';
+    // ValidTo → until (e.g. "2026-06-13 20:00:00"); ValidityPeriod carries
+    // the human "gültig von Montag, 08.06.26 - Samstag, 13.06.26" → von.
     const validToRaw = grab(/[?&]ValidTo=([^&"]*)/);
     const validTo = validToRaw
       ? decodeURIComponent(validToRaw.replace(/\+/g, ' ')).slice(0, 10)
+      : '';
+    const periodRaw = grab(/[?&]ValidityPeriod=([^&"]*)/);
+    const validFrom = periodRaw
+      ? germanDateToISO(decodeURIComponent(periodRaw.replace(/\+/g, ' ')))
       : '';
 
     const brand = grab(/class="[^"]*\bproduct__brand\b[^"]*"[^>]*>([^<]+?)</);
@@ -424,6 +457,7 @@ async function fetchNetto(): Promise<Offer[]> {
       discount_pct,
       unit: unit || undefined,
       image: img || undefined,
+      valid_from: validFrom || undefined,
       valid_until: validTo || undefined,
       source_url,
     });
@@ -475,6 +509,17 @@ export async function runOffers(): Promise<Offer[]> {
       console.error(`[${store}] FAILED:`, r.reason);
     }
   });
+
+  // Every offer must carry a validity window. Netto extracts real dates from
+  // its tile hrefs; ALDI/DM weekly-offer pages don't expose per-offer dates,
+  // so they inherit the current Mon–Sat offer week (accurate: the pages are
+  // definitionally "this week's offers"). Stores are mixed in the feed, so
+  // each offer carries its own window for the per-card "Gültig …" stamp.
+  const week = currentOfferWeek();
+  for (const o of all) {
+    if (!o.valid_from) o.valid_from = week.from;
+    if (!o.valid_until) o.valid_until = week.until;
+  }
 
   console.log(
     `[offers] total=${all.length} elapsed=${Date.now() - t0}ms by-store=` +
