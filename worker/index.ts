@@ -1,25 +1,26 @@
 /**
  * Cloudflare Worker entry point. Combines the shared-list sync API, the
- * scheduled weekly-offers fetcher, and the static asset bundle from `dist/`
- * so a single Worker serves the whole app:
+ * weekly-offers cache, and the static asset bundle from `dist/` so a single
+ * Worker serves the whole app:
  *
  *   POST   /api/sync             create a new shared list, return { cloudId, blob }
  *   GET    /api/sync/:cloudId    fetch the current blob (404 if unknown)
  *   POST   /api/sync/:cloudId    merge a client snapshot (LWW per item)
  *   DELETE /api/sync/:cloudId    revoke share
- *   GET    /__offers/run         (dev only) trigger the offers fetch and log;
- *                                gated on !request.cf so it's unreachable in prod
+ *   GET    /api/offers           current offers blob from KV
+ *   POST   /api/offers/ingest    replace it (bearer-token authed)
  *   anything else                served from ASSETS (the dist/ bundle), with
  *                                SPA fallback handled by the bundle config
  *
- * The scheduled handler runs on the cron triggers in wrangler.jsonc (weekly,
- * see Phase 1 in worker/offers.ts). It currently logs only.
+ * Offers are INGESTED, not fetched here: Akamai blocks ALDI/Netto from
+ * Cloudflare egress IPs, so `scripts/run-offers.ts --write` runs the
+ * fetchers from a residential IP and POSTs the result in. (There used to be
+ * a log-only cron + /__offers/run dev route — removed: they persisted
+ * nothing and read like an auto-refresh that didn't exist.)
  *
  * Auth model is still "possession of cloudId == access". State lives in
  * the SHARED_LISTS KV namespace bound via `wrangler.jsonc`.
  */
-
-import { runOffers } from './offers';
 
 export interface Env {
   SHARED_LISTS: KVNamespace;
@@ -61,6 +62,14 @@ interface SyncedItem {
   position?: number;
   icon?: string;
   sizes?: number[];
+  /** Offer snapshot persisted when an item is added from the Angebote view
+   *  (see src/types.ts Item). Declared here so the sync contract is honest —
+   *  the merge stores whole objects, so these ride along either way. */
+  offer?: number;
+  offerStore?: string;
+  offerPrice?: number;
+  offerSavings?: number;
+  offerValidUntil?: number;
 }
 
 interface SyncedList {
@@ -258,25 +267,12 @@ export default {
           status: 400, headers: { 'content-type': 'text/plain' },
         });
       }
-      // 8-day TTL so a missed cron doesn't leave stale data forever (and
-      // also pricing/availability has a short shelf life — weekly offers
-      // rotate every Mon/Thu).
-      await env.SHARED_LISTS.put('offers:current', body, { expirationTtl: 8 * 24 * 60 * 60 });
+      // No expirationTtl: the blob stays until the next ingest replaces it.
+      // An 8-day TTL turned one skipped weekly run into a BLANK Angebote
+      // view; week-old offers with a visible "Gültig" window beat nothing.
+      // Staleness is self-describing via generated_at.
+      await env.SHARED_LISTS.put('offers:current', body);
       return new Response('ok\n', { headers: { 'content-type': 'text/plain' } });
-    }
-
-    // Dev-only offers trigger. Gated on the hostname being a loopback so
-    // the route is unreachable from the deployed *.workers.dev origin — and
-    // it's gated cleanly even though wrangler dev now populates a mocked
-    // `request.cf`. Logs surface via `wrangler tail` / `wrangler dev` stdout.
-    if (
-      url.pathname === '/__offers/run' &&
-      (url.hostname === 'localhost' || url.hostname === '127.0.0.1')
-    ) {
-      ctx.waitUntil(runOffers().then(() => undefined));
-      return new Response('offers run kicked off — see wrangler tail / dev console\n', {
-        headers: { 'content-type': 'text/plain' },
-      });
     }
 
     // Everything else: hand off to the static asset bundle. The
@@ -285,17 +281,5 @@ export default {
     // so client-side routes (the React app) and the SPA fallback all
     // work without us reimplementing the logic here.
     return env.ASSETS.fetch(request);
-  },
-
-  /**
-   * Cron handler. Wired in wrangler.jsonc → "triggers.crons". German
-   * weekly offers typically rotate Mon and Thu, so the cron fires both
-   * mornings (06:00 UTC ≈ 07:00 CET / 08:00 CEST Berlin).
-   *
-   * Phase 1: log-only. Persistence (KV / D1) lands in Phase 2 once we've
-   * reviewed the normalized shape and the per-chain coverage holds.
-   */
-  async scheduled(_event: ScheduledController, _env: Env, ctx: ExecutionContext): Promise<void> {
-    ctx.waitUntil(runOffers().then(() => undefined));
   },
 };

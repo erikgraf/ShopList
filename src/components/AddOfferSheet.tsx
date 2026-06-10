@@ -8,11 +8,11 @@
  * −N % badge that ShelfRow already paints.
  */
 import { useState } from 'react';
-import { addItemFromProduct } from '../store';
-import type { Product, Store } from '../types';
-import { type Offer, categorizeOffer } from '../offers';
+import { addItemFromProduct, type OfferMeta } from '../store';
+import { STORES, type Product, type Store } from '../types';
+import { type Offer, categorizeOffer, stripDiacritics, weeklyOfferRange } from '../offers';
 
-const KNOWN_STORES = new Set<Store>(['aldi', 'lidl', 'rewe', 'edeka', 'dm', 'rossmann']);
+const KNOWN_STORES = new Set<Store>(STORES.map((s) => s.id));
 
 function offerToProduct(o: Offer): Product {
   // Cast offer.store to Store only if it's one of the curated 6; otherwise leave
@@ -20,12 +20,15 @@ function offerToProduct(o: Offer): Product {
   // category default. (Netto/Kaufland — coming later — won't be in `Store`
   // until we expand that enum.)
   const stores = KNOWN_STORES.has(o.store as Store) ? [o.store as Store] : undefined;
-  // Use the same Angebote-view categorisation rules to bucket the new Item —
-  // so a Soft Cake added from the Angebote view lands in Süßes & Knabberei on
-  // the main list, not in Sonstiges.
+  // Same categorisation rules as the Angebote view bands, so the added item
+  // lands on the matching shelf of the main list.
   const category = categorizeOffer(o);
+  // Identity falls back to a name slug, NOT source_url — Netto offers share
+  // one constant landing URL, and a constant id would make every second
+  // Netto add dup-merge into the first (quantity bump + metadata overwrite).
+  const slug = stripDiacritics(o.name).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   return {
-    id: `offer:${o.store}:${o.ean ?? o.source_url}`,
+    id: `offer:${o.store}:${o.ean ?? slug}`,
     name: o.name,
     brand: o.brand,
     image: o.image,
@@ -38,7 +41,17 @@ function offerToProduct(o: Offer): Product {
   };
 }
 
-export function AddOfferSheet({ offer, onClose }: { offer: Offer; onClose: () => void }) {
+export function AddOfferSheet({
+  offer,
+  generatedAt,
+  onClose,
+}: {
+  offer: Offer;
+  /** Feed timestamp — bounds the persisted offer snapshot to the offer week
+   *  (`Item.offerValidUntil`) so the row badge expires with the rotation. */
+  generatedAt: string | null;
+  onClose: () => void;
+}) {
   const [qty, setQty] = useState(1);
   const [busy, setBusy] = useState(false);
 
@@ -47,17 +60,14 @@ export function AddOfferSheet({ offer, onClose }: { offer: Offer; onClose: () =>
     setBusy(true);
     try {
       const product = offerToProduct(offer);
-      const item = await addItemFromProduct(product, { quantity: qty });
-      // Always overwrite the persisted Item with: (a) the offer-derived
-      // category, so even the dup-merge path (which preserves the OLD
-      // category by design) gets the new bucket; (b) the full offer
-      // metadata, so ShelfRow's OfferLine paints "−N % · ●Aldi · €X,YZ ·
-      // Spare €A,BC" immediately and survives the next cron rotation
-      // even if attachOfferMeta loses the match.
-      const next: typeof item = {
-        ...item,
-        category: product.category,
+      // Snapshot of the deal, persisted WITH the item through the one shared
+      // mutation path (single write; updatedAt + emitChange + sync ordering
+      // all apply). Valid until the end of the offer week, else 7 days.
+      const offerValidUntil =
+        weeklyOfferRange(generatedAt)?.to.getTime() ?? Date.now() + 7 * 24 * 60 * 60 * 1000;
+      const offerMeta: OfferMeta = {
         offerStore: offer.store,
+        offerValidUntil,
         ...(offer.discount_pct !== undefined && offer.discount_pct < 0
           ? { offer: -offer.discount_pct }
           : {}),
@@ -68,8 +78,11 @@ export function AddOfferSheet({ offer, onClose }: { offer: Offer; onClose: () =>
           ? { offerSavings: Math.round((offer.was_price - offer.price) * 100) / 100 }
           : {}),
       };
-      const { db } = await import('../db');
-      await db.items.put(next);
+      await addItemFromProduct(product, {
+        quantity: qty,
+        categoryOverride: product.category,
+        offerMeta,
+      });
       onClose();
     } finally {
       setBusy(false);

@@ -165,24 +165,33 @@ export interface Item {
    *  Meine % tier filter to match offers without a runtime taxonomy walk. */
   taxonomyL3?: string;
   taxonomyL2?: string;
-  /** Current discount percent if this item is on offer. Populated by the
-   *  offers service — matches `genericName` / barcode against deal data (see
-   *  `data/llm-generic-names.csv` and the taxonomy artefact). Absent = not on
-   *  offer. Drives the "Meine %" filter and the −N % row badge. Optional, so
-   *  no Dexie migration is required. */
+  /** Offer metadata quartet (offer / offerStore / offerPrice / offerSavings).
+   *  Two lifecycles share these fields:
+   *
+   *  1. PERSISTED SNAPSHOT — written once when the user adds an item from
+   *     the Angebote view (via `addItemFromProduct`'s `offerMeta` option),
+   *     together with `offerValidUntil` so the deal expires with the weekly
+   *     rotation instead of living forever.
+   *  2. RENDER-TIME REFRESH — `attachOfferMeta` re-joins items against the
+   *     live offers blob each render; a fresh Marken-tier match overrides
+   *     the display, an expired snapshot is hidden (the transient copy gets
+   *     the fields cleared; Dexie keeps the stale values harmlessly).
+   *
+   *  `offer` is the positive discount percent driving the −N % badge. */
   offer?: number;
-  /** Store the matching offer is at (e.g. "aldi", "dm"). Set alongside
-   *  `offer` so the row badge can read "−N % · Aldi" instead of just the
-   *  percent. Transient — populated each render from the offers blob. */
+  /** Store the offer is at (e.g. "aldi", "dm") — lets the row read
+   *  "−N % · Aldi". */
   offerStore?: string;
-  /** Current sale price in EUR (e.g. 3.33). Transient — drives the row's
-   *  dedicated offer line so the user can see the actual euro figure
-   *  without opening the Angebote view. */
+  /** Sale price in EUR (e.g. 3.33) for the row's offer line. */
   offerPrice?: number;
-  /** Euro savings vs the strike-through price — usually `was_price -
-   *  price`. Transient. Used to render the "Spare €1,26" half of the
-   *  offer line. Absent when the offer doesn't carry a was_price. */
+  /** Euro savings vs the strike-through price (`was_price - price`),
+   *  rendered as "Spare €1,26". Absent without a was_price. */
   offerSavings?: number;
+  /** Epoch ms when the persisted offer snapshot stops being shown —
+   *  set at add-time to the end of the offer week (Mon–Sa). Items added
+   *  before this field existed are treated as expired snapshots (shown
+   *  only while the live feed still matches). */
+  offerValidUntil?: number;
   name: string;
   /** Global/default brand — what to show when no store filter is active, and
    *  the last-resort fallback when neither a per-store pick nor a suggestion
