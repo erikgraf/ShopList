@@ -20,6 +20,7 @@
 import { useEffect, useState } from 'react';
 import type { Category, Item } from './types';
 import type { OffersTier } from './facets';
+import { resolveMatchKey } from './offer-match';
 
 /** Minimum shape needed to match an offer against. Both `Item` (a row on a
  *  shopping list) and `RecentProduct` (something the user has previously
@@ -30,6 +31,8 @@ export interface OfferMatchKey {
   barcode?: string;
   brand?: string;
   name: string;
+  genericName?: string;
+  category?: Category;
   taxonomyL3?: string;
   taxonomyL2?: string;
 }
@@ -285,14 +288,14 @@ export function offerValidityLabel(o: {
 }
 
 /**
- * For each item, find the best DISCOUNTED Marken-tier offer (deepest discount
- * wins) and return a NEW items array with the full badge quartet stamped:
- * offer (positive percent), offerStore, offerPrice, offerSavings — always all
- * four from the SAME offer, never an old percent mixed with a new price.
+ * For each item, find the best DISCOUNTED offer of the SAME PRODUCT TYPE
+ * (produkte tier — the managed synonym match, so "Tomaten" on the list lights
+ * up with a "Cherryrispentomaten" deal) and return a NEW items array with the
+ * full badge quartet stamped: offer (positive percent), offerStore,
+ * offerPrice, offerSavings — always all four from the SAME offer.
  *
- * Marken-tier only because the badge has to mean "this exact thing is on
- * offer right now"; non-discounted feed entries (DM's search results include
- * regular-price products) never badge a row.
+ * Deepest discount wins. Non-discounted feed entries (DM's search results
+ * include regular-price products) never badge a row.
  *
  * Items with no live match keep their persisted add-time snapshot while
  * `offerValidUntil` is in the future; expired or legacy (no validity)
@@ -302,10 +305,15 @@ export function offerValidityLabel(o: {
 export function attachOfferMeta(items: Item[], offers: Offer[]): Item[] {
   const now = Date.now();
   return items.map((it) => {
+    const single = [it];
     let best: Offer | undefined;
     for (const o of offers) {
       if (o.discount_pct === undefined || o.discount_pct >= 0) continue;
-      if (!doesOfferMatchHistory(o, [it], 'marken')) continue;
+      // Same product type (Tomaten ↔ Cherryrispentomaten) OR exact identity
+      // (a scanned item whose barcode equals the offer's EAN, even when the
+      // name doesn't resolve to a synonym key).
+      if (!doesOfferMatchHistory(o, single, 'produkte') && !doesOfferMatchHistory(o, single, 'marken'))
+        continue;
       if (!best || o.discount_pct < (best.discount_pct as number)) best = o;
     }
     if (best) {
@@ -338,13 +346,22 @@ export function attachOfferMeta(items: Item[], offers: Offer[]): Item[] {
   });
 }
 
+/** Canonical product key for an item or offer — the offer's own name, an
+ *  item's genericName+name (genericName first so "Lieler" resolves via its
+ *  OFF generic "Mineralwasser"). Memoised inside resolveMatchKey. */
+function matchKeyFor(p: { name: string; genericName?: string }): string | null {
+  return resolveMatchKey(p.genericName ? `${p.genericName} ${p.name}` : p.name);
+}
+
 /**
  * Does this offer fit the user's *shopping history* under the given tier?
  *
  *   alle       — always yes (browse mode)
- *   marken     — exact match: EAN / barcode OR brand+name overlap
- *   produkte   — offer.taxonomy_l3 matches any entry's taxonomyL3
- *   kategorien — offer.taxonomy_l2 matches any entry's taxonomyL2
+ *   marken     — exact: EAN / barcode OR same brand + same product type
+ *   produkte   — SAME PRODUCT TYPE via the managed synonym key, regardless of
+ *                brand: "Tomaten" ↔ "Cherryrispentomaten", "Sprudel Lieler" ↔
+ *                "Mineralwasser Gerolsteiner". (data/offer-synonyms.csv)
+ *   kategorien — same ShopList category umbrella (Bier, Wein → Getränke)
  *
  * `history` is the union of past purchases (useRecent) and items on any
  * list; attachOfferMeta and the Angebote list-chips also call it with
@@ -356,26 +373,31 @@ export function doesOfferMatchHistory(
   tier: OffersTier,
 ): boolean {
   if (tier === 'alle') return true;
-  if (tier === 'produkte') {
-    if (!offer.taxonomy_l3) return false;
-    return history.some((p) => p.taxonomyL3 === offer.taxonomy_l3);
-  }
+
   if (tier === 'kategorien') {
-    if (!offer.taxonomy_l2) return false;
-    return history.some((p) => p.taxonomyL2 === offer.taxonomy_l2);
+    const cat = offer.category ?? categorizeOffer(offer);
+    return history.some((p) => p.category === cat);
   }
-  // marken
+
+  if (tier === 'produkte') {
+    const oKey = matchKeyFor(offer);
+    if (oKey) {
+      if (history.some((p) => matchKeyFor(p) === oKey)) return true;
+    }
+    // Fall back to taxonomy equality when both sides happen to carry it.
+    return !!offer.taxonomy_l3 && history.some((p) => p.taxonomyL3 === offer.taxonomy_l3);
+  }
+
+  // marken — exact identity: same SKU (EAN) or same brand + same product type.
   const offerBrand = offer.brand ? stripDiacritics(offer.brand) : '';
-  const offerName  = stripDiacritics(offer.name);
+  const oKey = matchKeyFor(offer);
   return history.some((p) => {
     if (offer.ean && p.barcode && offer.ean === p.barcode) return true;
     if (!offerBrand || !p.brand) return false;
     const pastBrand = stripDiacritics(p.brand);
     if (!offerBrand.includes(pastBrand) && !pastBrand.includes(offerBrand)) return false;
-    const pName = stripDiacritics(p.name);
-    return (
-      pName.split(' ').some((t) => t.length > 3 && offerName.includes(t)) ||
-      offerName.split(' ').some((t) => t.length > 3 && pName.includes(t))
-    );
+    // Brand matches — require the product type to line up too, so "ALDI"
+    // own-brand Tomaten and "ALDI" own-brand Schnitzel don't cross-match.
+    return !oKey || matchKeyFor(p) === oKey;
   });
 }

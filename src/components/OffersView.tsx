@@ -91,7 +91,7 @@ export function OffersView({
     for (const o of filtered) {
       const hits = new Set<string>();
       for (const it of allItems) {
-        if (doesOfferMatchHistory(o, [it], 'marken')) {
+        if (doesOfferMatchHistory(o, [it], 'produkte')) {
           const name = listNameById.get(it.listId);
           if (name) hits.add(name);
         }
