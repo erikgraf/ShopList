@@ -4,9 +4,8 @@ import { ShelfGroup } from './components/ShelfGroup';
 import { ShelfRow } from './components/ShelfRow';
 import { OffersToggle } from './components/OffersToggle';
 import { OffersView } from './components/OffersView';
-import { ActiveFilters } from './components/ActiveFilters';
+import { FilterRow } from './components/FilterRow';
 import { FilterSheet } from './components/FilterSheet';
-import { StoreChips } from './components/StoreChips';
 import { ListSwitcher } from './components/ListSwitcher';
 import { applyFilter, computeFacets, emptyFilter } from './facets';
 import { attachOfferMeta, useOffers } from './offers';
@@ -109,38 +108,20 @@ export default function App() {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       <header className="safe-top sticky top-0 z-20 space-y-3 bg-[var(--color-bg)]/90 px-4 pt-4 pb-3 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <ListSwitcher
-              lists={lists}
-              activeListId={activeListId}
-              onSwitch={setActiveListId}
-              onLongPress={setActionListId}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => setNewListOpen(true)}
-            aria-label="Neue Liste"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-white active:opacity-90 transition-press"
-            style={{ boxShadow: 'var(--shadow-md)' }}
-          >
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-            >
-              <path d="M12 5v14" />
-              <path d="M5 12h14" />
-            </svg>
-          </button>
-        </div>
+        {/* title wheel — list creation lives inside the wheel as the
+            trailing "+ Neue Liste" entry (the standalone big-plus button is
+            gone; header redesign "Option A+"). */}
+        <ListSwitcher
+          lists={lists}
+          activeListId={activeListId}
+          onSwitch={setActiveListId}
+          onLongPress={setActionListId}
+          onNewList={() => setNewListOpen(true)}
+        />
 
-        {/* count + shopping progress bar */}
+        {/* count + shopping progress bar + Meine % entry. The % pill is
+            navigation (opens the Angebote view), so it sits with status —
+            not in the filter row. */}
         <div className="flex items-center gap-3">
           <div className="shrink-0 text-xs font-medium text-[var(--color-muted)]">
             <strong className="text-[var(--color-accent-strong)]">{open.length}</strong> offen
@@ -152,6 +133,7 @@ export default function App() {
               style={{ width: `${progress}%` }}
             />
           </div>
+          <OffersToggle count={offersBlob.total} onOpen={() => setOffersViewOpen(true)} />
         </div>
 
         <SearchBar
@@ -160,16 +142,14 @@ export default function App() {
           pinToStore={activeStore}
         />
 
-        {/* chip row: "Meine %" offers toggle, then the store chips */}
-        <div className="flex items-center gap-2">
-          <OffersToggle count={offersBlob.total} onOpen={() => setOffersViewOpen(true)} />
-          <span className="h-[18px] w-px shrink-0 bg-[var(--color-border-strong)]" />
-          <div className="min-w-0 flex-1">
-            <StoreChips filter={filter} facets={facets} onChange={setFilter} />
-          </div>
-        </div>
-
-        <ActiveFilters filter={filter} onChange={setFilter} onOpenSheet={() => setSheetOpen(true)} />
+        {/* single control row: pinned filter chip + scrollable store chips
+            + removable active-filter chips */}
+        <FilterRow
+          filter={filter}
+          facets={facets}
+          onChange={setFilter}
+          onOpenSheet={() => setSheetOpen(true)}
+        />
       </header>
 
       <main className="flex-1 px-4 pt-2 pb-32">

@@ -7,13 +7,18 @@ interface Props {
   onSwitch: (id: string) => void;
   /** Tap-and-hold a list title for ~500 ms to open its action sheet
    *  (Umbenennen / Teilen / Löschen). Tapping the active title also fires
-   *  this, since the inline "Neue Liste" entry moved to a dedicated big-plus
-   *  button outside the wheel. Optional. */
+   *  this. Optional. */
   onLongPress?: (id: string) => void;
+  /** Renders a trailing "+ Neue Liste" entry at the end of the wheel —
+   *  list creation lives where the lists live (header redesign "Option A+"
+   *  removed the standalone big-plus button). Optional: omit to hide. */
+  onNewList?: () => void;
 }
 
 const LONG_PRESS_MS = 500;
 const LONG_PRESS_MOVE_TOLERANCE = 8;
+/** Sentinel itemRefs key for the trailing "+ Neue Liste" wheel entry. */
+const NEW_LIST_ID = '__new-list';
 /** Items more than (viewport-width / FADE_DIVISOR) away from the centre
  *  collapse to FADE_MIN opacity. Tuned by eye to match the iOS picker
  *  feel — nearest neighbours stay readable, far items fade to a hint. */
@@ -37,7 +42,7 @@ const FADE_MIN = 0.22;
  * 50vw spacers at both ends let the first/last list reach the centre even
  * though there's no real content past them.
  */
-export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Props) {
+export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress, onNewList }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
   const lastReportedRef = useRef<string>(activeListId);
@@ -102,6 +107,9 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Pro
         const viewportCenter = el.scrollLeft + el.clientWidth / 2;
         let best: { id: string; dist: number } | null = null;
         for (const [id, node] of itemRefs.current.entries()) {
+          // The "+ Neue Liste" tail fades like a list but can never become
+          // the active one — it's a button, not a list.
+          if (id === NEW_LIST_ID) continue;
           const itemCenter = node.offsetLeft + node.offsetWidth / 2;
           const dist = Math.abs(itemCenter - viewportCenter);
           if (!best || dist < best.dist) best = { id, dist };
@@ -230,6 +238,41 @@ export function ListSwitcher({ lists, activeListId, onSwitch, onLongPress }: Pro
               </div>
             );
           })}
+          {onNewList && (
+            <div
+              ref={(node) => {
+                if (node) itemRefs.current.set(NEW_LIST_ID, node);
+                else itemRefs.current.delete(NEW_LIST_ID);
+              }}
+              style={{
+                scrollSnapAlign: 'center',
+                opacity: opacities[NEW_LIST_ID] ?? 1,
+              }}
+              className="shrink-0 inline-flex items-baseline py-1 transition-opacity duration-150"
+            >
+              <button
+                type="button"
+                onClick={onNewList}
+                aria-label="Neue Liste"
+                className="inline-flex items-center gap-1 whitespace-nowrap text-base font-medium text-[var(--color-accent)] active:opacity-60 transition-press"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.6"
+                  strokeLinecap="round"
+                  aria-hidden
+                >
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+                <span>Neue Liste</span>
+              </button>
+            </div>
+          )}
           <div className="shrink-0" style={{ minWidth: '50vw' }} aria-hidden />
         </div>
       </div>
