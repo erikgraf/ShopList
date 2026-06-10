@@ -40,3 +40,28 @@ describe('user-reported matches', () => {
     );
   });
 });
+
+// Category gate: same word, different aisle → never a match.
+describe('category-scoped resolution', () => {
+  it('Haribo Erdbeeren (Süßes) does NOT resolve to the fruit key', () => {
+    const candy = resolveMatchKey('Haribo Erdbeeren', 'suesses-knabberei');
+    const fruit = resolveMatchKey('Erdbeeren 500 g', 'obst-gemuese');
+    expect(fruit).toBe('beeren');
+    expect(candy).toBe('suessigkeit'); // via the haribo brand surface
+    expect(candy).not.toBe(fruit);
+  });
+
+  it('the same name resolves differently per category', () => {
+    expect(resolveMatchKey('Erdbeeren', 'obst-gemuese')).toBe('beeren');
+    expect(resolveMatchKey('Erdbeeren', 'suesses-knabberei')).toBeNull();
+  });
+
+  it('category scoping does not break the true positives', () => {
+    expect(resolveMatchKey('Tomaten', 'obst-gemuese')).toBe(
+      resolveMatchKey('Cherryrispentomaten 200 g', 'obst-gemuese'),
+    );
+    expect(resolveMatchKey('Sprudel Lieler', 'getraenke')).toBe(
+      resolveMatchKey('Mineralwasser Gerolsteiner', 'getraenke'),
+    );
+  });
+});

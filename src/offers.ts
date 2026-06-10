@@ -346,11 +346,19 @@ export function attachOfferMeta(items: Item[], offers: Offer[]): Item[] {
   });
 }
 
-/** Canonical product key for an item or offer — the offer's own name, an
- *  item's genericName+name (genericName first so "Lieler" resolves via its
- *  OFF generic "Mineralwasser"). Memoised inside resolveMatchKey. */
-function matchKeyFor(p: { name: string; genericName?: string }): string | null {
-  return resolveMatchKey(p.genericName ? `${p.genericName} ${p.name}` : p.name);
+/** Canonical product key for a list entry — genericName+name (genericName
+ *  first so "Lieler" resolves via its OFF generic "Mineralwasser"), scoped
+ *  to the ITEM's category: a Süßes item can only resolve to Süßes keys, so
+ *  Haribo "Erdbeeren" never resolves to the fruit key. Memoised inside
+ *  resolveMatchKey. */
+function entryMatchKey(p: OfferMatchKey): string | null {
+  return resolveMatchKey(p.genericName ? `${p.genericName} ${p.name}` : p.name, p.category);
+}
+
+/** Canonical product key for an offer, scoped to the offer's category
+ *  (EAN-enriched when present, else the keyword bucketing). */
+function offerMatchKey(o: Offer): string | null {
+  return resolveMatchKey(o.name, o.category ?? categorizeOffer(o));
 }
 
 /**
@@ -380,9 +388,11 @@ export function doesOfferMatchHistory(
   }
 
   if (tier === 'produkte') {
-    const oKey = matchKeyFor(offer);
+    const oKey = offerMatchKey(offer);
     if (oKey) {
-      if (history.some((p) => matchKeyFor(p) === oKey)) return true;
+      // Keys are category-scoped, so equal keys imply the same aisle —
+      // Haribo "Erdbeeren" (Süßes) can never equal the fruit key.
+      if (history.some((p) => entryMatchKey(p) === oKey)) return true;
     }
     // Fall back to taxonomy equality when both sides happen to carry it.
     return !!offer.taxonomy_l3 && history.some((p) => p.taxonomyL3 === offer.taxonomy_l3);
@@ -390,7 +400,7 @@ export function doesOfferMatchHistory(
 
   // marken — exact identity: same SKU (EAN) or same brand + same product type.
   const offerBrand = offer.brand ? stripDiacritics(offer.brand) : '';
-  const oKey = matchKeyFor(offer);
+  const oKey = offerMatchKey(offer);
   return history.some((p) => {
     if (offer.ean && p.barcode && offer.ean === p.barcode) return true;
     if (!offerBrand || !p.brand) return false;
@@ -398,6 +408,6 @@ export function doesOfferMatchHistory(
     if (!offerBrand.includes(pastBrand) && !pastBrand.includes(offerBrand)) return false;
     // Brand matches — require the product type to line up too, so "ALDI"
     // own-brand Tomaten and "ALDI" own-brand Schnitzel don't cross-match.
-    return !oKey || matchKeyFor(p) === oKey;
+    return !oKey || entryMatchKey(p) === oKey;
   });
 }
