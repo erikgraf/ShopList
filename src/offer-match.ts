@@ -5,12 +5,19 @@
  * to a single canonical **match key** (`tomaten`, `mineralwasser`); two
  * things match when their keys are equal — even when they share no words.
  *
- * The synonym table is hand-managed in `data/offer-synonyms.csv` (one row per
- * canonical key, `|`-separated surface forms), reviewed at intervals. It's the
- * application-owned taxonomy the user asked for: stable, editable, decoupled
- * from the regenerable OFF/LLM taxonomy.
+ * Every key lives in exactly ONE ShopList category, and resolution is
+ * CATEGORY-SCOPED: a name only resolves against the keys of its own
+ * category. That's what keeps Haribo "Erdbeeren" (Süßes) from matching the
+ * fresh-fruit Erdbeeren offer (Obst & Gemüse) — same word, different aisle,
+ * never a match.
+ *
+ * The synonym table is hand-managed in `data/offer-synonyms.csv` (one row =
+ * canonical key, its category, `|`-separated surface forms), reviewed at
+ * intervals. It's the application-owned taxonomy the user asked for: stable,
+ * editable, decoupled from the regenerable OFF/LLM taxonomy.
  */
 import { parseCSV } from './csv';
+import type { Category } from './types';
 import synonymsCsv from '../data/offer-synonyms.csv?raw';
 
 /** Transliterate + lowercase so the input matches the CSV's written forms
@@ -26,24 +33,33 @@ function norm(s: string): string {
 interface SurfaceForm {
   surface: string;
   key: string;
+  category: string;
 }
 
-// Flattened (surface → key) list, built once at module load.
+// Flattened (surface → key, category) list, built once at module load.
 const SURFACES: SurfaceForm[] = (() => {
   const out: SurfaceForm[] = [];
   for (const row of parseCSV(synonymsCsv)) {
     const key = row.match_key?.trim();
+    const category = row.category?.trim() ?? '';
     if (!key) continue;
     for (const raw of (row.synonyms ?? '').split('|')) {
       const surface = norm(raw.trim());
-      if (surface) out.push({ surface, key });
+      if (surface) out.push({ surface, key, category });
     }
   }
   return out;
 })();
 
+const cache = new Map<string, string | null>();
+
 /**
  * Resolve a free-form product name to its canonical match key, or null.
+ *
+ * When `category` is given (it always is for list items, and offers get
+ * theirs from categorizeOffer), only keys of THAT category are considered —
+ * the hard gate against cross-aisle false positives. Without a category the
+ * whole table is searched (used by tests / loose callers).
  *
  * Scoring biases toward the German head noun (the suffix), so compounds and
  * modifiers resolve correctly without an explicit rule per variant:
@@ -54,24 +70,24 @@ const SURFACES: SurfaceForm[] = (() => {
  * "rispentomaten" beats "tomaten" (both → tomaten anyway) and "salat" can't
  * steal "Salatgurke" from "gurke".
  */
-const cache = new Map<string, string | null>();
-
-export function resolveMatchKey(name: string): string | null {
+export function resolveMatchKey(name: string, category?: Category | string): string | null {
   if (!name) return null;
-  const cached = cache.get(name);
+  const cacheKey = `${category ?? ''}|${name}`;
+  const cached = cache.get(cacheKey);
   if (cached !== undefined) return cached;
-  const result = resolveUncached(name);
-  cache.set(name, result);
+  const result = resolveUncached(name, category);
+  cache.set(cacheKey, result);
   return result;
 }
 
-function resolveUncached(name: string): string | null {
+function resolveUncached(name: string, category?: Category | string): string | null {
   const n = norm(name);
   const tokens = n.split(/[^a-z0-9]+/).filter(Boolean);
   let bestKey: string | null = null;
   let bestScore = 0;
 
-  for (const { surface, key } of SURFACES) {
+  for (const { surface, key, category: keyCat } of SURFACES) {
+    if (category && keyCat !== category) continue;
     let score = 0;
     if (surface.includes(' ')) {
       // multi-word surface — plain substring
