@@ -4,11 +4,12 @@ export type Status = 'open' | 'done';
 
 /** "Meine %" sub-selector — lives in the OffersView (not the main FilterState
  *  anymore). Drives which offers the user sees in the Angebote view:
- *  - `marken`     — only offers that match a list item exactly (EAN or brand+name)
- *  - `produkte`   — only offers whose taxonomy_l3 matches any item.taxonomyL3
- *  - `kategorien` — only offers whose taxonomy_l2 matches any item.taxonomyL2
- *  - `alle`       — all offers in the current week's feed, no item gate */
-export type OffersTier = 'marken' | 'produkte' | 'kategorien' | 'alle';
+ *  - `marken`   — only offers that match a list item exactly (EAN or brand+type)
+ *  - `produkte` — same product type via the managed synonym key
+ *  - `alle`     — all offers in the current week's feed, no item gate
+ *  (A `kategorien` tier existed briefly — whole ShopList category — but was
+ *  too broad to be useful and was removed.) */
+export type OffersTier = 'marken' | 'produkte' | 'alle';
 
 export interface FilterState {
   stores: Set<Store>;
