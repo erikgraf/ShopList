@@ -247,8 +247,9 @@ async function fetchDm(): Promise<Offer[]> {
     .map<Offer | null>((p) => {
       const name = p.title?.trim();
       if (!name) return null;
-      const price = p.tileData?.price?.value ?? p.price?.value;
-      const was_price = p.tileData?.crossedOutPrice?.value;
+      const priceBlock = p.tileData?.price?.price;
+      const price = parseEUR(priceBlock?.current?.value);
+      const was_price = parseEUR(priceBlock?.crossed?.value);
       let discount_pct: number | undefined;
       if (was_price && price && was_price > price) {
         discount_pct = -Math.round((1 - price / was_price) * 100);
@@ -261,25 +262,38 @@ async function fetchDm(): Promise<Offer[]> {
         price,
         was_price,
         discount_pct,
-        unit: p.contentUnit ?? undefined,
-        image: p.tileData?.image?.src,
-        source_url: p.relativeProductUrl ? `https://www.dm.de${p.relativeProductUrl}` : '',
+        unit: p.contentUnit ?? p.tileData?.price?.tileInfos?.[0]?.split(' (')[0] ?? undefined,
+        image: p.tileData?.images?.[0]?.tileSrc ?? p.tileData?.images?.[0]?.src,
+        source_url: (() => {
+          const rel = p.relativeProductUrl ?? p.tileData?.self;
+          return rel ? `https://www.dm.de${rel}` : '';
+        })(),
       };
     })
     .filter((x): x is Offer => x !== null);
 }
 
+// Real shape verified via a debug dump (data/dm-harvest-sample.csv probe):
+// prices are nested STRINGS ("2,35 €") under price.price.current.value, the
+// strikethrough lives in price.price.crossed, and images is an array of
+// objects with per-size urls. relativeProductUrl is tileData.self.
 interface DmProduct {
   gtin?: number;
+  dan?: number;
   brandName?: string;
   title?: string;
   contentUnit?: string;
   relativeProductUrl?: string;
-  price?: { value?: number };
   tileData?: {
-    price?: { value?: number };
-    crossedOutPrice?: { value?: number };
-    image?: { src?: string };
+    self?: string;
+    price?: {
+      price?: {
+        current?: { value?: string };
+        crossed?: { value?: string };
+      };
+      tileInfos?: string[];
+    };
+    images?: Array<{ tileSrc?: string; src?: string; zoomSrc?: string }>;
   };
 }
 

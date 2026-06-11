@@ -155,14 +155,16 @@ def _diverse_pick(group: list[dict], quota: int, rng: random.Random) -> list[dic
 # ─────────────────────────────────────────────────────────────
 
 PROMPT_HEADER = """\
-You normalize German grocery products into a "generic product name" — the name a \
-shopper would use to find the SAME product across different brands and stores \
-(for price comparison and alternatives).
+You normalize German grocery and drugstore products into a "generic product name" — \
+the name a shopper would use to find the SAME product across different brands and \
+stores (for price comparison and alternatives).
 
 Rules for the generic product name:
 - HEAD NOUN FIRST, qualifiers trailing and lowercase. Group variants under the base noun.
   Examples: "Weizenbier alkoholfrei", "Joghurt griechisch laktosefrei", "Bratwurst vegan",
   "Milch laktosefrei", "Hähnchenbrust", "Olivenöl nativ extra", "Haferdrink".
+  Drugstore examples: "Shampoo Anti-Schuppen", "Duschgel", "Zahnpasta sensitiv",
+  "Waschmittel flüssig color", "Deo Roll-on", "Windeln Größe 4", "Toilettenpapier".
 - Keep ONLY distinguishing attributes that matter for finding the same product across brands:
   type/style (griechisch, Weizen, Vollkorn, nativ), dietary (alkoholfrei, laktosefrei,
   vegan, glutenfrei), and defining flavor when it IS the product line (e.g. "Fruchtjoghurt"

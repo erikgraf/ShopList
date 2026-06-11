@@ -65,3 +65,25 @@ eis,tiefkuehl,eis|eiscreme|speiseeis|eis am stiel|magnum|cornetto|familieneis
 toilettenpapier,haushalt,toilettenpapier|klopapier|feuchttuecher
 waschmittel,haushalt,waschmittel|vollwaschmittel|colorwaschmittel|weichspueler|waschpulver
 spuelmittel,haushalt,spuelmittel|geschirrspuelmittel|spuelmaschinentabs|geschirrtabs
+shampoo,koerperpflege,shampoo|haarshampoo|anti-schuppen-shampoo|trockenshampoo
+duschgel,koerperpflege,duschgel|duschbad|duschcreme|showergel|cremedusche
+seife,koerperpflege,seife|handseife|fluessigseife|kernseife|seifenstueck
+zahnpasta,koerperpflege,zahnpasta|zahncreme|zahngel|zahnpflege
+zahnbuerste,koerperpflege,zahnbuerste|zahnbuersten|interdentalbuerste|munddusche
+deo,koerperpflege,deo|deodorant|deospray|deoroller|deo roll-on|antitranspirant
+bodylotion,koerperpflege,bodylotion|koerperlotion|koerpermilch|hautlotion|handcreme|hautcreme|gesichtscreme|tagescreme|nachtcreme
+sonnencreme,koerperpflege,sonnencreme|sonnenmilch|sonnenspray|sonnenschutz|after sun
+rasur,koerperpflege,rasierer|rasierklingen|rasierschaum|rasiergel|rasiercreme
+haarpflege,koerperpflege,spuelung|haarspuelung|conditioner|haarkur|haarspray|haargel|haarfarbe
+damenhygiene,koerperpflege,tampons|binden|slipeinlagen|menstruationstasse
+wattepads,koerperpflege,wattepads|wattestaebchen|watte|abschminkpads
+taschentuecher,haushalt,taschentuecher|tempo|kosmetiktuecher|papiertaschentuecher
+kuechenrolle,haushalt,kuechenrolle|kuechentuecher|haushaltstuecher|zewa
+muellbeutel,haushalt,muellbeutel|muellsaecke|gefrierbeutel|frischhaltefolie|alufolie|backpapier
+reiniger,haushalt,allzweckreiniger|badreiniger|glasreiniger|wc-reiniger|kuechenreiniger|essigreiniger|scheuermilch
+batterie,haushalt,batterie|batterien|akku|akkus|knopfzelle
+gluehbirne,haushalt,gluehbirne|led-lampe|leuchtmittel|energiesparlampe
+windeln,baby,windeln|windel|pampers|feuchttuecher baby|schwimmwindeln
+babynahrung,baby,babynahrung|babybrei|folgemilch|anfangsmilch|pre-nahrung|glaeschen
+babypflege,baby,babycreme|wundschutzcreme|babyoel|babyshampoo|babypuder
+tierfutter,sonstiges,katzenfutter|hundefutter|tiernahrung|katzenstreu

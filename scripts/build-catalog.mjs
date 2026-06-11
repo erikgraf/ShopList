@@ -1,13 +1,20 @@
 #!/usr/bin/env node
-// Streams Open Food Facts' daily JSONL dump, filters to German products,
-// keeps the top-N most "complete" entries, writes a trimmed CSV snapshot.
+// Streams the Open *Facts JSONL dumps (Food + Beauty + Products), filters to
+// German products, keeps the top-N most "complete" entries per source, writes
+// ONE merged CSV snapshot. Food covers groceries; Beauty covers the
+// Körperpflege drugstore shelf; Products covers Haushalt — same hierarchy
+// (category → taxonomy → generic name) across all of them.
 //
 // Output: public/off-de-snapshot.csv
 //
 // Usage:
-//   node scripts/build-catalog.mjs [--limit=20000] [--source=URL_OR_PATH]
+//   node scripts/build-catalog.mjs [--dbs=food,beauty,products] [--limit=20000]
+//                                  [--source=URL_OR_PATH] [--force-download]
 //
-// Source can be an http(s) URL or a local .jsonl.gz path.
+// `--limit` / `--source` override the FOOD source only (back-compat);
+// per-source budgets live in SOURCES below. `--dbs=beauty` rebuilds from a
+// subset (the merged snapshot then only contains those sources — use all
+// three for the shipped artifact).
 
 import { createReadStream, existsSync, statSync, readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -21,27 +28,53 @@ import { tmpdir } from 'node:os';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-const DEFAULT_SOURCE = 'https://static.openfoodfacts.org/data/openfoodfacts-products.jsonl.gz';
-const DEFAULT_LIMIT = 20000;
-const DEFAULT_CACHE_PATH = join(tmpdir(), 'shoplist-off-dump.jsonl.gz');
 const OUTPUT_PATH = join(ROOT, 'public', 'off-de-snapshot.csv');
 // Rich analysis export — all OFF metadata, not shipped (gitignored). For data
 // analysis only; regenerated alongside the lean snapshot on every run.
 const RICH_OUTPUT_PATH = join(ROOT, 'data', 'off-de-full.csv');
 
+/**
+ * One entry per Open *Facts sister database. Each has its own dump, image
+ * CDN host, row budget (German coverage differs by an order of magnitude),
+ * and a category fallback for rows the tag rules don't catch: OBF is
+ * cosmetics by definition → koerperpflege; OPF's German slice is mostly
+ * household/drugstore non-food → haushalt. Food keeps the strict
+ * rules-or-sonstiges behavior.
+ */
+const SOURCES = {
+  food: {
+    url: 'https://static.openfoodfacts.org/data/openfoodfacts-products.jsonl.gz',
+    imageHost: 'images.openfoodfacts.org',
+    limit: 20000,
+    fallbackCategory: null,
+  },
+  beauty: {
+    url: 'https://static.openbeautyfacts.org/data/openbeautyfacts-products.jsonl.gz',
+    imageHost: 'images.openbeautyfacts.org',
+    limit: 6000,
+    fallbackCategory: 'koerperpflege',
+  },
+  products: {
+    url: 'https://static.openproductsfacts.org/data/openproductsfacts-products.jsonl.gz',
+    imageHost: 'images.openproductsfacts.org',
+    limit: 4000,
+    fallbackCategory: 'haushalt',
+  },
+};
+
 function parseArgs() {
   const out = {
-    limit: DEFAULT_LIMIT,
-    source: DEFAULT_SOURCE,
-    cache: DEFAULT_CACHE_PATH,
+    dbs: Object.keys(SOURCES),
+    foodLimit: null,
+    foodSource: null,
     forceDownload: false,
   };
   for (const a of process.argv.slice(2)) {
     const m = /^--([^=]+)(?:=(.*))?$/.exec(a);
     if (!m) continue;
-    if (m[1] === 'limit') out.limit = Number(m[2]);
-    else if (m[1] === 'source') out.source = m[2];
-    else if (m[1] === 'cache') out.cache = m[2];
+    if (m[1] === 'dbs') out.dbs = m[2].split(',').map((s) => s.trim()).filter((s) => s in SOURCES);
+    else if (m[1] === 'limit') out.foodLimit = Number(m[2]);
+    else if (m[1] === 'source') out.foodSource = m[2];
     else if (m[1] === 'force-download') out.forceDownload = true;
   }
   return out;
@@ -127,8 +160,8 @@ const CATEGORY_TAG_RULES = (() => {
   return order.map((c) => [c, byCat.get(c)]);
 })();
 
-function mapCategory(tags) {
-  if (!tags || !tags.length) return 'sonstiges';
+function mapCategory(tags, fallback = null) {
+  if (!tags || !tags.length) return fallback ?? 'sonstiges';
   // Strip locale-prefix variants — we only care about en: taxonomy
   // but other locales (fr:, de:) sometimes carry information too.
   const set = new Set(tags);
@@ -140,7 +173,7 @@ function mapCategory(tags) {
       for (const t of tags) if (t.startsWith(prefix)) return cat;
     }
   }
-  return 'sonstiges';
+  return fallback ?? 'sonstiges';
 }
 
 const CODE_GROUP_RE = /^(\d{3})(\d{3})(\d{3})(\d+)$/;
@@ -181,7 +214,7 @@ function mapStores(rawTags) {
   return [...out];
 }
 
-function pickFrontImage(p) {
+function pickFrontImage(p, imageHost) {
   const code = p.code;
   if (!code) return '';
   const formatted = formatCode(code);
@@ -195,7 +228,7 @@ function pickFrontImage(p) {
   const entry = selected[langKey];
   const rev = entry && (entry.rev || (entry.sizes && Object.keys(entry.sizes)[0]));
   if (!rev) return '';
-  return `https://images.openfoodfacts.org/images/products/${formatted}/front_${langKey}.${rev}.200.jpg`;
+  return `https://${imageHost}/images/products/${formatted}/front_${langKey}.${rev}.200.jpg`;
 }
 
 function scoreProduct(p, name, imageUrl, storesCount) {
@@ -212,10 +245,10 @@ function scoreProduct(p, name, imageUrl, storesCount) {
   return s;
 }
 
-function trim(p, imageUrl) {
+function trim(p, imageUrl, fallbackCategory) {
   const name = p.product_name_de || p.product_name || p.generic_name_de || '';
   const brand = (p.brands || '').split(',')[0]?.trim() || '';
-  const category = mapCategory(p.categories_tags);
+  const category = mapCategory(p.categories_tags, fallbackCategory);
   const stores = mapStores(p.stores_tags);
   return {
     c: p.code || '',
@@ -238,7 +271,7 @@ const RICH_COLUMNS = [
   'allergens', 'additives_n', 'completeness', 'popularity_key', 'image',
 ];
 
-function richRow(p, imageUrl) {
+function richRow(p, imageUrl, fallbackCategory) {
   const nut = p.nutriments || {};
   const num = (v) => (typeof v === 'number' ? v : '');
   const tags = (t) => (Array.isArray(t) ? t.join('|') : '');
@@ -248,7 +281,7 @@ function richRow(p, imageUrl) {
     generic_name: (p.generic_name_de || p.generic_name || '').trim(),
     brand: (p.brands || '').split(',')[0]?.trim() || '',
     brands: p.brands || '',
-    category: mapCategory(p.categories_tags),
+    category: mapCategory(p.categories_tags, fallbackCategory),
     off_categories: tags(p.categories_tags),
     stores: mapStores(p.stores_tags).join('|'),
     countries: tags(p.countries_tags),
@@ -275,19 +308,22 @@ function richRow(p, imageUrl) {
   };
 }
 
-async function main() {
-  const { limit, source, cache, forceDownload } = parseArgs();
-  console.log(`[build-catalog] limit=${limit} source=${source}`);
-
-  await mkdir(dirname(OUTPUT_PATH), { recursive: true });
+/**
+ * Stream one sister-DB dump and return its top-`limit` German entries.
+ * Self-contained per source so the merged build is just a concat + dedup.
+ */
+async function scanSource(dbName, cfg, { forceDownload }) {
+  const { url, imageHost, limit, fallbackCategory } = cfg;
+  const cache = join(tmpdir(), `shoplist-${dbName}-dump.jsonl.gz`);
+  console.log(`[build-catalog:${dbName}] limit=${limit} source=${url}`);
 
   // Resolve to a local file: HTTPS sources go through curl-with-resume into a
   // cache file. Local paths are read directly.
   let localPath;
-  if (source.startsWith('http://') || source.startsWith('https://')) {
-    localPath = await downloadWithResume(source, cache, { force: forceDownload });
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    localPath = await downloadWithResume(url, cache, { force: forceDownload });
   } else {
-    localPath = source;
+    localPath = url;
   }
 
   const gunzip = createGunzip();
@@ -372,7 +408,7 @@ async function main() {
     const name = p.product_name_de || p.product_name;
     if (!name || name.length < 2) continue;
     if (!p.code) continue;
-    const imageUrl = pickFrontImage(p);
+    const imageUrl = pickFrontImage(p, imageHost);
     const isDE = p.countries_tags && p.countries_tags.includes('en:germany');
     if (!imageUrl && !isDE) continue;
     const storeIds = mapStores(p.stores_tags);
@@ -381,7 +417,11 @@ async function main() {
     if (kept.length >= KEEP_THRESHOLD && score <= minKeptScore) continue;
 
     qualified++;
-    kept.push({ score, product: trim(p, imageUrl), rich: richRow(p, imageUrl) });
+    kept.push({
+      score,
+      product: trim(p, imageUrl, fallbackCategory),
+      rich: richRow(p, imageUrl, fallbackCategory),
+    });
 
     if (kept.length >= KEEP_THRESHOLD) {
       kept.sort((a, b) => b.score - a.score);
@@ -393,15 +433,40 @@ async function main() {
   kept.sort((a, b) => b.score - a.score);
   kept = kept.slice(0, limit);
   console.log(
-    `[build-catalog] ${truncated ? 'truncated input,' : 'done.'} lines=${lines} prefilter=${scanned} parsed=${parsed} qualified=${qualified} final=${kept.length}`,
+    `[build-catalog:${dbName}] ${truncated ? 'truncated input,' : 'done.'} lines=${lines} prefilter=${scanned} parsed=${parsed} qualified=${qualified} final=${kept.length}`,
   );
+  return kept;
+}
 
-  // Dedup by normalized name to drop near-duplicates with same brand. Keep the
-  // whole entry (lean product + rich row) so both exports stay aligned.
+async function main() {
+  const args = parseArgs();
+  await mkdir(dirname(OUTPUT_PATH), { recursive: true });
+
+  // Scan the selected sources sequentially (each is its own big download).
+  // Food first — on cross-listed barcodes the food entry wins the dedup.
+  const kept = [];
+  for (const dbName of args.dbs) {
+    const cfg = { ...SOURCES[dbName] };
+    if (dbName === 'food') {
+      if (args.foodLimit) cfg.limit = args.foodLimit;
+      if (args.foodSource) cfg.url = args.foodSource;
+    }
+    kept.push(...(await scanSource(dbName, cfg, { forceDownload: args.forceDownload })));
+  }
+
+  // Dedup across sources: by barcode first (cross-listed products appear in
+  // Food AND Beauty), then by normalized brand|name to drop near-duplicates.
+  // Keep the whole entry (lean product + rich row) so both exports stay
+  // aligned.
+  const seenCode = new Set();
   const seen = new Set();
   const final = [];
   for (const entry of kept) {
     const { product } = entry;
+    if (product.c) {
+      if (seenCode.has(product.c)) continue;
+      seenCode.add(product.c);
+    }
     const key = `${(product.b || '').toLowerCase()}|${product.n.toLowerCase()}`;
     if (seen.has(key)) continue;
     seen.add(key);
