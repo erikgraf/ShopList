@@ -17,6 +17,9 @@ import { ProductImage } from '../icons';
 
 interface Suggestion extends Product {
   source: 'recent' | 'generic' | 'catalog' | 'snapshot' | 'off';
+  /** >1 when this snapshot row represents several brand SKUs collapsed
+   *  under one naming variant (their shared LLM generic name). */
+  variantCount?: number;
 }
 
 /** A generic header plus the variant/SKU rows that roll up to it. `root` is
@@ -87,6 +90,67 @@ export function SearchBar({
     };
   }, [query]);
 
+  // Collapse the snapshot's brand SKUs to their "major naming variants" —
+  // one row per distinct LLM generic name ("Rostbratwurst", "Nürnberger
+  // Rostbratwürste", "Rostbräterle Sojawürstchen"), not ten near-identical
+  // shop SKUs. The representative keeps the best-ranked SKU's image for
+  // recognition but presents the GENERIC name and no brand/barcode — adding
+  // it adds the concept, and the per-store brand machinery takes over.
+  //
+  // With a store chip active the user is browsing THAT shop, so the real
+  // SKUs show un-collapsed instead (the store-relevant variants).
+  const snapshotRows = useMemo<(Product & { variantCount?: number })[]>(() => {
+    if (pinToStore) return snapshotResults;
+    type Slot =
+      | { kind: 'flat'; p: Product }
+      | { kind: 'gen'; key: string };
+    const slots: Slot[] = [];
+    const byGen = new Map<
+      string,
+      { rep: Product; count: number; stores: Set<Store>; brands: Set<string>; image?: string }
+    >();
+    for (const p of snapshotResults) {
+      const key = p.genericName?.trim().toLowerCase();
+      if (!key) {
+        slots.push({ kind: 'flat', p });
+        continue;
+      }
+      const e = byGen.get(key);
+      if (!e) {
+        byGen.set(key, {
+          rep: p,
+          count: 1,
+          stores: new Set(p.stores ?? []),
+          brands: new Set(p.brand ? [p.brand] : []),
+          image: p.image,
+        });
+        slots.push({ kind: 'gen', key });
+      } else {
+        e.count++;
+        for (const s of p.stores ?? []) e.stores.add(s);
+        if (p.brand) e.brands.add(p.brand);
+        if (!e.image && p.image) e.image = p.image;
+      }
+    }
+    return slots.map((slot) => {
+      if (slot.kind === 'flat') return slot.p;
+      const e = byGen.get(slot.key)!;
+      if (e.count === 1) return e.rep;
+      return {
+        ...e.rep,
+        id: `snapgen:${slot.key.replace(/[^a-z0-9äöüß]+/gi, '-')}`,
+        name: e.rep.genericName ?? e.rep.name,
+        // A unanimous brand survives the collapse ("Ecover · 4 Varianten");
+        // mixed brands drop it — the concept is brandless.
+        brand: e.brands.size === 1 ? [...e.brands][0] : undefined,
+        barcode: undefined,
+        image: e.image,
+        stores: [...e.stores],
+        variantCount: e.count,
+      };
+    });
+  }, [snapshotResults, pinToStore]);
+
   const allSuggestions: Suggestion[] = useMemo(() => {
     const q = query.trim().toLowerCase();
     const seen = new Set<string>();
@@ -116,7 +180,7 @@ export function SearchBar({
         out.push({ ...p, source: 'catalog' });
       }
     }
-    for (const p of snapshotResults) {
+    for (const p of snapshotRows) {
       if (!seen.has(p.name.toLowerCase())) {
         seen.add(p.name.toLowerCase());
         out.push({ ...p, source: 'snapshot' });
@@ -129,7 +193,7 @@ export function SearchBar({
       }
     }
     return out;
-  }, [query, offResults, snapshotResults, recent]);
+  }, [query, offResults, snapshotRows, recent]);
 
   const categoryCounts = useMemo(() => {
     const map = new Map<Category, number>();
@@ -378,8 +442,14 @@ export function SearchBar({
                           <ProductImage src={s.image} category={s.category} iconName={s.icon} size={40} eager />
                           <div className="min-w-0 flex-1">
                             <div className="truncate text-base">{s.name}</div>
-                            {s.brand && (
-                              <div className="truncate text-xs text-[var(--color-muted)]">{s.brand}</div>
+                            {(s.brand || (s.variantCount ?? 0) > 1) && (
+                              <div className="truncate text-xs text-[var(--color-muted)]">
+                                {(s.variantCount ?? 0) > 1
+                                  ? s.brand
+                                    ? `${s.brand} · ${s.variantCount} Varianten`
+                                    : `${s.variantCount} Varianten`
+                                  : s.brand}
+                              </div>
                             )}
                           </div>
                         </button>
