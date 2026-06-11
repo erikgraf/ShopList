@@ -23,8 +23,16 @@ interface RawRow {
 
 interface IndexedProduct {
   product: Product;
-  /** Concatenated, normalized "name brand" used for substring/prefix matching. */
-  haystack: string;
+  /** Normalized fields, indexed separately so ranking can distinguish a
+   *  name match from a brand match from a generic-name match. The previous
+   *  single concatenated haystack ranked "Ecover" (brand) below random
+   *  substring hits like "R-ecover-y" because brand matches had no tier. */
+  nameN: string;
+  brandN: string;
+  genericN: string;
+  /** Space-stripped name+brand+generic for compound matching
+   *  ("rostbra" inside "lupinenrostbratwuerstchen"). */
+  joinedN: string;
 }
 
 const SNAPSHOT_URL = '/off-de-snapshot.csv';
@@ -91,10 +99,13 @@ async function load(): Promise<IndexedProduct[]> {
       const rows = parseCSV(await res.text()) as unknown as RawRow[];
       indexed = rows.map((r) => {
         const product = toProduct(r);
-        // Fold the generic name into the index so typing "Weizenbier" surfaces
+        const nameN = norm(r.name);
+        const brandN = norm(r.brand ?? '');
+        // The generic name is indexed so typing "Weizenbier" surfaces
         // "Erdinger Alkoholfrei" — the brand SKU whose generic is Weizenbier.
-        const haystack = norm(`${r.name} ${r.brand} ${r.generic ?? ''}`);
-        return { product, haystack };
+        const genericN = norm(r.generic ?? '');
+        const joinedN = `${nameN} ${brandN} ${genericN}`.replace(/ /g, '');
+        return { product, nameN, brandN, genericN, joinedN };
       });
       return indexed;
     } catch {
@@ -112,6 +123,20 @@ export function warmSnapshot(): void {
   void load();
 }
 
+/**
+ * Field-aware ranked search. Tiers (high → low):
+ *
+ *   name exact > name prefix > name-word prefix
+ *   > brand exact/prefix              ← "ecover" ranks every Ecover SKU here
+ *   > generic-name prefix             ← "weizenbier" → Erdinger Alkoholfrei
+ *   > every query token prefixes some word (multi-word queries)
+ *   > compound substring in the name  ← "rostbra" in Lupinenrostbratwürstchen
+ *   > compound substring in brand/generic
+ *
+ * Small completeness boosts (image, brand) break ties so the visually
+ * richest SKU represents each rank band. Sort is stable, so equal scores
+ * keep snapshot (dump-quality) order.
+ */
 export async function searchSnapshot(query: string, limit = 8): Promise<Product[]> {
   const q = norm(query);
   if (!q) return [];
@@ -122,24 +147,33 @@ export async function searchSnapshot(query: string, limit = 8): Promise<Product[
   const items = await load();
   if (!items.length) return [];
 
-  const exact: Product[] = [];
-  const prefix: Product[] = [];
-  const allTokens: Product[] = [];
-
+  const scored: { score: number; product: Product }[] = [];
   for (const it of items) {
-    const h = it.haystack;
-    const hJoined = h.replace(/ /g, '');
-    if (h === q || hJoined === qJoined) {
-      exact.push(it.product);
-      if (exact.length >= limit) break;
-    } else if (h.startsWith(q) || hJoined.startsWith(qJoined)) {
-      if (prefix.length < limit) prefix.push(it.product);
-    } else if (tokens.every((t) => hJoined.includes(t))) {
-      if (allTokens.length < limit) allTokens.push(it.product);
-    }
+    let s = 0;
+    if (it.nameN === q) s = 1000;
+    else if (it.nameN.startsWith(q)) s = 900;
+    else if (it.nameN.split(' ').some((w) => w.startsWith(q))) s = 800;
+    else if (it.brandN === q) s = 760;
+    else if (it.brandN && it.brandN.split(' ').some((w) => w.startsWith(q))) s = 700;
+    else if (it.genericN && it.genericN.split(' ').some((w) => w.startsWith(q))) s = 620;
+    else if (
+      tokens.length > 1 &&
+      tokens.every((t) =>
+        `${it.nameN} ${it.brandN} ${it.genericN}`.split(' ').some((w) => w.startsWith(t)),
+      )
+    ) {
+      s = 520;
+    } else if (it.nameN.replace(/ /g, '').includes(qJoined)) s = 320;
+    else if (it.joinedN.includes(qJoined)) s = 260;
+    else continue;
+
+    if (it.product.image) s += 6;
+    if (it.product.brand) s += 2;
+    scored.push({ score: s, product: it.product });
   }
 
-  return [...exact, ...prefix, ...allTokens].slice(0, limit);
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map((e) => e.product);
 }
 
 export async function lookupBarcodeInSnapshot(code: string): Promise<Product | null> {
