@@ -1,0 +1,1187 @@
+id,name,parent,category,aliases
+frisches-obst,Frisches Obst,obst-gemuese,obst-gemuese,
+frisches-gemuese,Frisches Gemüse,obst-gemuese,obst-gemuese,
+trockenfruechte,Trockenfrüchte,obst-gemuese,obst-gemuese,Dörrobst
+nuesse-knabbermischungen,Nüsse & Knabbermischungen,obst-gemuese,obst-gemuese,Nüsse
+tomatenkonserven,Tomatenkonserven,obst-gemuese,obst-gemuese,Tomatenprodukte
+gemuesekonserven,Gemüsekonserven,obst-gemuese,obst-gemuese,Gemüse aus der Dose
+obstkonserven,Obstkonserven,obst-gemuese,obst-gemuese,Obst aus der Dose
+eingelegtes-gemuese,Eingelegtes Gemüse,obst-gemuese,obst-gemuese,Pickles|Fermentiertes Gemüse
+fruchtaufstrich-mus,Fruchtaufstrich & Mus,obst-gemuese,obst-gemuese,Konfitüre|Marmelade
+fertigsalate,Fertigsalate,obst-gemuese,obst-gemuese,Feinkostsalate
+suppen-eintoepfe,Suppen & Eintöpfe,obst-gemuese,obst-gemuese,
+saucen-ketchup,Saucen & Ketchup,obst-gemuese,obst-gemuese,Saucen
+aepfel,Äpfel,frisches-obst,obst-gemuese,
+bananen,Bananen,frisches-obst,obst-gemuese,
+mandarinen-frisch,Mandarinen,frisches-obst,obst-gemuese,Clementinen
+himbeeren-frisch,Himbeeren,frisches-obst,obst-gemuese,Himbeeren frisch
+avocado,Avocado,frisches-obst,obst-gemuese,
+tafeltrauben,Tafeltrauben,frisches-obst,obst-gemuese,Weintrauben|Tafeltrauben kernlos
+tomaten,Tomaten,frisches-gemuese,obst-gemuese,
+cherrytomaten,Cherrytomaten,frisches-gemuese,obst-gemuese,Kirschtomaten
+rispentomaten,Rispentomaten,frisches-gemuese,obst-gemuese,
+datteltomaten,Datteltomaten,frisches-gemuese,obst-gemuese,
+romatomaten,Romatomaten,frisches-gemuese,obst-gemuese,Eiertomaten
+champignons,Champignons,frisches-gemuese,obst-gemuese,Champignons geschnitten
+moehren,Möhren,frisches-gemuese,obst-gemuese,Karotten
+knoblauch,Knoblauch,frisches-gemuese,obst-gemuese,
+feldsalat,Feldsalat,frisches-gemuese,obst-gemuese,Rapunzel
+eisbergsalat,Eisbergsalat,frisches-gemuese,obst-gemuese,
+maiskolben,Maiskolben,frisches-gemuese,obst-gemuese,
+rosinen,Rosinen,trockenfruechte,obst-gemuese,Sultaninen|Korinthen
+datteln,Datteln,trockenfruechte,obst-gemuese,Datteln getrocknet|Datteln entsteint|Datteln Deglet Nour
+getrocknete-mango,Getrocknete Mango,trockenfruechte,obst-gemuese,Mango getrocknet
+getrocknete-aprikosen,Getrocknete Aprikosen,trockenfruechte,obst-gemuese,Aprikosen getrocknet|Soft-Aprikosen
+getrocknete-feigen,Getrocknete Feigen,trockenfruechte,obst-gemuese,Feigen getrocknet
+getrocknete-cranberries,Getrocknete Cranberries,trockenfruechte,obst-gemuese,Cranberries getrocknet
+backpflaumen,Backpflaumen,trockenfruechte,obst-gemuese,Pflaumen getrocknet|Trockenpflaumen|Dörrpflaumen
+getrocknete-ananas,Getrocknete Ananas,trockenfruechte,obst-gemuese,Ananas getrocknet
+apfelringe,Apfelringe,trockenfruechte,obst-gemuese,Apfelringe getrocknet
+gojibeeren,Gojibeeren,trockenfruechte,obst-gemuese,Gojibeeren getrocknet
+trockenfruchtmischung,Trockenfruchtmischung,trockenfruechte,obst-gemuese,Trockenfrüchte gemischt
+studentenfutter,Studentenfutter,nuesse-knabbermischungen,obst-gemuese,
+pistazien,Pistazien,nuesse-knabbermischungen,obst-gemuese,Pistazien geröstet gesalzen
+kokosraspeln,Kokosraspeln,nuesse-knabbermischungen,obst-gemuese,Kokosraspel
+kokoschips,Kokoschips,nuesse-knabbermischungen,obst-gemuese,
+kokosmehl,Kokosmehl,nuesse-knabbermischungen,obst-gemuese,
+bananenchips,Bananenchips,nuesse-knabbermischungen,obst-gemuese,
+fruchtriegel,Fruchtriegel,nuesse-knabbermischungen,obst-gemuese,
+tomatenmark,Tomatenmark,tomatenkonserven,obst-gemuese,Tomatenmark zweifach konzentriert|Tomatenmark scharf
+passierte-tomaten,Passierte Tomaten,tomatenkonserven,obst-gemuese,Passata|Tomaten passiert
+gehackte-tomaten,Gehackte Tomaten,tomatenkonserven,obst-gemuese,Tomaten gehackt|Tomaten stückig|Tomatenstücke|Stückige Tomaten
+geschaelte-tomaten,Geschälte Tomaten,tomatenkonserven,obst-gemuese,Tomaten geschält|Pelati
+getrocknete-tomaten,Getrocknete Tomaten,tomatenkonserven,obst-gemuese,Tomaten getrocknet|Tomaten getrocknet in Öl|Getrocknete Tomaten in Öl
+tomatensaft,Tomatensaft,tomatenkonserven,obst-gemuese,
+tomatenpueree,Tomatenpüree,tomatenkonserven,obst-gemuese,
+mais,Mais,gemuesekonserven,obst-gemuese,Mais Konserve|Mais Dose|Zuckermais
+erbsen,Erbsen,gemuesekonserven,obst-gemuese,Erbsen Konserve
+erbsen-und-moehren,Erbsen und Möhren,gemuesekonserven,obst-gemuese,Erbsen Möhren|Erbsen und Möhren Konserve
+gruene-bohnen,Grüne Bohnen,gemuesekonserven,obst-gemuese,Bohnen grün Konserve|Brechbohnen|Schnittbohnen
+kichererbsen,Kichererbsen,gemuesekonserven,obst-gemuese,Kichererbsen Dose
+linsen,Linsen,gemuesekonserven,obst-gemuese,Linsen Konserve|Linsen gegart
+kidneybohnen,Kidneybohnen,gemuesekonserven,obst-gemuese,
+rote-bete,Rote Bete,gemuesekonserven,obst-gemuese,Rote Bete gekocht|Rote Bete Scheiben|Rote Bete eingelegt|Rote Rüben
+artischockenherzen,Artischockenherzen,gemuesekonserven,obst-gemuese,
+weisser-spargel,Weißer Spargel,gemuesekonserven,obst-gemuese,Spargel weiß
+rotkohl,Rotkohl,gemuesekonserven,obst-gemuese,Apfelrotkohl|Blaukraut
+roestzwiebeln,Röstzwiebeln,gemuesekonserven,obst-gemuese,
+ananas-konserve,Ananas,obstkonserven,obst-gemuese,Ananas Konserve|Ananas Dose|Ananas Scheiben Saft
+mandarinen-konserve,Mandarinen,obstkonserven,obst-gemuese,Mandarinen Dose
+pfirsiche-konserve,Pfirsiche,obstkonserven,obst-gemuese,Pfirsiche Konserve
+sauerkirschen-konserve,Sauerkirschen,obstkonserven,obst-gemuese,Schattenmorellen
+gewuerzgurken,Gewürzgurken,eingelegtes-gemuese,obst-gemuese,Gewürzgurken süß-sauer|Gewürzgurken scharf
+cornichons,Cornichons,eingelegtes-gemuese,obst-gemuese,Cornichons Chili
+essiggurken,Essiggurken,eingelegtes-gemuese,obst-gemuese,
+jalapenos-eingelegt,Eingelegte Jalapeños,eingelegtes-gemuese,obst-gemuese,Jalapeños eingelegt|Jalapenos
+sauerkraut,Sauerkraut,eingelegtes-gemuese,obst-gemuese,Sauerkraut bio
+kimchi,Kimchi,eingelegtes-gemuese,obst-gemuese,
+erdbeerkonfituere,Erdbeerkonfitüre,fruchtaufstrich-mus,obst-gemuese,Erdbeermarmelade|Konfitüre Erdbeere|Fruchtaufstrich Erdbeere
+himbeerkonfituere,Himbeerkonfitüre,fruchtaufstrich-mus,obst-gemuese,Himbeermarmelade|Konfitüre Himbeere|Fruchtaufstrich Himbeere
+aprikosenkonfituere,Aprikosenkonfitüre,fruchtaufstrich-mus,obst-gemuese,Aprikosenmarmelade|Konfitüre Aprikose
+heidelbeerkonfituere,Heidelbeerkonfitüre,fruchtaufstrich-mus,obst-gemuese,Blaubeerkonfitüre
+sauerkirschkonfituere,Sauerkirschkonfitüre,fruchtaufstrich-mus,obst-gemuese,Konfitüre Sauerkirsche
+waldfruchtkonfituere,Waldfruchtkonfitüre,fruchtaufstrich-mus,obst-gemuese,Waldbeerkonfitüre
+johannisbeerkonfituere,Schwarze Johannisbeer-Konfitüre,fruchtaufstrich-mus,obst-gemuese,Konfitüre schwarze Johannisbeere
+ananaskonfituere,Ananaskonfitüre,fruchtaufstrich-mus,obst-gemuese,
+apfelmus,Apfelmus,fruchtaufstrich-mus,obst-gemuese,Apfelmark|Apfelmus bio
+pflaumenmus,Pflaumenmus,fruchtaufstrich-mus,obst-gemuese,Powidl
+preiselbeeren,Preiselbeeren,fruchtaufstrich-mus,obst-gemuese,
+thunfischsalat,Thunfischsalat,fertigsalate,obst-gemuese,Thunfischsalat Couscous
+fleischsalat,Fleischsalat,fertigsalate,obst-gemuese,
+kartoffelsalat,Kartoffelsalat,fertigsalate,obst-gemuese,
+krautsalat,Krautsalat,fertigsalate,obst-gemuese,Coleslaw
+heringssalat,Heringssalat,fertigsalate,obst-gemuese,
+selleriesalat,Selleriesalat,fertigsalate,obst-gemuese,
+haehnchensalat,Hähnchensalat,fertigsalate,obst-gemuese,Geflügelsalat
+bulgursalat,Bulgursalat,fertigsalate,obst-gemuese,Taboulé
+tomatensuppe,Tomatensuppe,suppen-eintoepfe,obst-gemuese,Tomatencremesuppe|Instantsuppe Tomate
+kuerbissuppe,Kürbissuppe,suppen-eintoepfe,obst-gemuese,
+spargelcremesuppe,Spargelcremesuppe,suppen-eintoepfe,obst-gemuese,Spargelsuppe
+gemuesebruehe,Gemüsebrühe,suppen-eintoepfe,obst-gemuese,Gemüsefond
+bohneneintopf,Bohneneintopf,suppen-eintoepfe,obst-gemuese,
+linseneintopf,Linseneintopf,suppen-eintoepfe,obst-gemuese,
+erbseneintopf,Erbseneintopf,suppen-eintoepfe,obst-gemuese,Erbsensuppe
+curry-ketchup,Curry-Ketchup,saucen-ketchup,obst-gemuese,Curry Ketchup|Currryketchup|Curry-Ketchup scharf
+tomatensauce,Tomatensauce,saucen-ketchup,obst-gemuese,Tomatensauce Basilikum|Pastasauce
+pizzasauce,Pizzasauce,saucen-ketchup,obst-gemuese,
+toastbrot,Toastbrot,brot-gebaeck,brot-gebaeck,Sandwichtoast|Buttertoast
+toastbrot-weiss,Weißes Toastbrot,toastbrot,brot-gebaeck,Toastbrot American|Butter-Toast
+vollkorntoast,Vollkorntoast,toastbrot,brot-gebaeck,Toastbrot Vollkorn
+mehrkorntoast,Mehrkorntoast,toastbrot,brot-gebaeck,Toastbrot Mehrkorn
+toastbroetchen,Toastbrötchen,toastbrot,brot-gebaeck,Sandwichbrötchen
+brot,Brot,brot-gebaeck,brot-gebaeck,
+roggenvollkornbrot,Roggenvollkornbrot,brot,brot-gebaeck,Pumpernickel
+vollkornbrot,Vollkornbrot,brot,brot-gebaeck,
+weizenmischbrot,Weizenmischbrot,brot,brot-gebaeck,Mischbrot
+roggenmischbrot,Roggenmischbrot,brot,brot-gebaeck,
+roggenbrot,Roggenbrot,brot,brot-gebaeck,
+mehrkornbrot,Mehrkornbrot,brot,brot-gebaeck,
+dinkelbrot,Dinkelbrot,brot,brot-gebaeck,Dinkelvollkornbrot
+haferbrot,Haferbrot,brot,brot-gebaeck,
+eiweissbrot,Eiweißbrot,brot,brot-gebaeck,Proteinbrot
+sonnenblumenbrot,Sonnenblumenbrot,brot,brot-gebaeck,Sonnenblumenkernbrot
+kartoffelbrot,Kartoffelbrot,brot,brot-gebaeck,
+bauernbrot,Bauernbrot,brot,brot-gebaeck,
+kraeuterbrot,Kräuterbrot,brot,brot-gebaeck,
+brot-glutenfrei,Brot glutenfrei,brot,brot-gebaeck,Glutenfreies Brot
+broetchen,Brötchen,brot-gebaeck,brot-gebaeck,Semmeln
+weizenbroetchen,Weizenbrötchen,broetchen,brot-gebaeck,Kaiserbrötchen
+roggenbroetchen,Roggenbrötchen,broetchen,brot-gebaeck,
+dinkelbroetchen,Dinkelbrötchen,broetchen,brot-gebaeck,
+mehrkornbroetchen,Mehrkornbrötchen,broetchen,brot-gebaeck,
+milchbroetchen,Milchbrötchen,broetchen,brot-gebaeck,
+schokobroetchen,Schokobrötchen,broetchen,brot-gebaeck,
+aufbackbroetchen,Aufbackbrötchen,broetchen,brot-gebaeck,Brötchen zum Aufbacken|Steinofenbrötchen
+hamburgerbroetchen,Hamburgerbrötchen,broetchen,brot-gebaeck,Burger Buns|Brioche-Burgerbrötchen
+hot-dog-broetchen,Hot-Dog-Brötchen,broetchen,brot-gebaeck,
+baguettebroetchen,Baguettebrötchen,broetchen,brot-gebaeck,
+baguette-ciabatta,Baguette & Ciabatta,brot-gebaeck,brot-gebaeck,
+baguette,Baguette,baguette-ciabatta,brot-gebaeck,
+kraeuterbaguette,Kräuterbaguette,baguette-ciabatta,brot-gebaeck,Baguette Kräuter|Baguette Kräuterbutter
+ciabatta,Ciabatta,baguette-ciabatta,brot-gebaeck,
+fladenbrot-wraps,Fladenbrot & Wraps,brot-gebaeck,brot-gebaeck,
+fladenbrot,Fladenbrot,fladenbrot-wraps,brot-gebaeck,
+pitabrot,Pitabrot,fladenbrot-wraps,brot-gebaeck,Pita
+tortilla-wraps,Tortilla Wraps,fladenbrot-wraps,brot-gebaeck,Weizentortillas|Wraps
+maistortillas,Maistortillas,fladenbrot-wraps,brot-gebaeck,Tortillas Mais
+taco-shells,Taco Shells,fladenbrot-wraps,brot-gebaeck,
+piadina,Piadina,fladenbrot-wraps,brot-gebaeck,
+duerum,Dürüm,fladenbrot-wraps,brot-gebaeck,
+bagel,Bagel,fladenbrot-wraps,brot-gebaeck,
+knaeckebrot,Knäckebrot,brot-gebaeck,brot-gebaeck,
+knaeckebrot-roggen,Roggenknäckebrot,knaeckebrot,brot-gebaeck,Knäckebrot Roggen
+knaeckebrot-vollkorn,Knäckebrot Vollkorn,knaeckebrot,brot-gebaeck,Knäckebrot Roggenvollkorn
+knaeckebrot-mehrkorn,Knäckebrot Mehrkorn,knaeckebrot,brot-gebaeck,Knäckebrot Saaten
+knaeckebrot-sesam,Knäckebrot Sesam,knaeckebrot,brot-gebaeck,
+knaeckebrot-kraeuter,Knäckebrot Kräuter,knaeckebrot,brot-gebaeck,
+knaeckebrot-protein,Knäckebrot Protein,knaeckebrot,brot-gebaeck,
+knaeckebrot-glutenfrei,Knäckebrot glutenfrei,knaeckebrot,brot-gebaeck,
+zwieback,Zwieback,brot-gebaeck,brot-gebaeck,
+zwieback-weizen,Zwieback,zwieback,brot-gebaeck,
+zwieback-vollkorn,Zwieback Vollkorn,zwieback,brot-gebaeck,
+zwieback-dinkel,Dinkelzwieback,zwieback,brot-gebaeck,Zwieback Dinkel
+suessgebaeck,Süßgebäck,brot-gebaeck,brot-gebaeck,
+brioche,Brioche,suessgebaeck,brot-gebaeck,
+croissant,Croissant,suessgebaeck,brot-gebaeck,Croissants
+schokocroissant,Schokocroissant,suessgebaeck,brot-gebaeck,
+zimtschnecke,Zimtschnecke,suessgebaeck,brot-gebaeck,Zimtschnecken
+laugengebaeck,Laugengebäck,brot-gebaeck,brot-gebaeck,
+laugenbrezel,Laugenbrezel,laugengebaeck,brot-gebaeck,Laugenbrezeln
+laugencracker,Laugencracker,laugengebaeck,brot-gebaeck,
+salzgebaeck,Salzgebäck,brot-gebaeck,brot-gebaeck,Knabbergebäck
+salzstangen,Salzstangen,salzgebaeck,brot-gebaeck,
+salzbrezeln,Salzbrezeln,salzgebaeck,brot-gebaeck,Brezeln
+cracker,Cracker,salzgebaeck,brot-gebaeck,
+grissini,Grissini,salzgebaeck,brot-gebaeck,Dinkelstangen
+kaesegebaeck,Käsegebäck,salzgebaeck,brot-gebaeck,
+erdnussflips,Erdnussflips,salzgebaeck,brot-gebaeck,
+maissnack,Maissnack,salzgebaeck,brot-gebaeck,Maissticks
+kartoffelsnack,Kartoffelsnack,salzgebaeck,brot-gebaeck,
+brotchips,Brotchips,salzgebaeck,brot-gebaeck,
+reiswaffeln,Reiswaffeln,salzgebaeck,brot-gebaeck,
+linsenwaffeln,Linsenwaffeln,salzgebaeck,brot-gebaeck,
+erbsensnack,Erbsensnack,salzgebaeck,brot-gebaeck,
+backzutaten,Backzutaten & Paniermehl,brot-gebaeck,brot-gebaeck,
+paniermehl,Paniermehl,backzutaten,brot-gebaeck,Semmelbrösel
+maismehl,Maismehl,backzutaten,brot-gebaeck,
+milch,Milch,milch-eier,milch-eier,Trinkmilch
+joghurt,Joghurt,milch-eier,milch-eier,
+quark,Quark,milch-eier,milch-eier,
+sahne,Sahne,milch-eier,milch-eier,Rahm
+butter-streichfett,Butter & Streichfett,milch-eier,milch-eier,Butter
+frischkaese,Frischkäse,milch-eier,milch-eier,
+weichkaese,Weichkäse,milch-eier,milch-eier,
+schnittkaese,Schnittkäse,milch-eier,milch-eier,
+hartkaese,Hartkäse,milch-eier,milch-eier,
+pasta-filata-kaese,Pasta-Filata-Käse,milch-eier,milch-eier,Brühkäse
+salzlakenkaese,Salzlakenkäse,milch-eier,milch-eier,
+schmelzkaese,Schmelzkäse,milch-eier,milch-eier,
+spezialkaese,Spezialkäse,milch-eier,milch-eier,Sonstiger Käse
+milchgetraenke,Milchgetränke,milch-eier,milch-eier,
+milchdessert,Milchdessert,milch-eier,milch-eier,Pudding|Dessert
+eier,Eier,milch-eier,milch-eier,Hühnereier
+vollmilch,Vollmilch,milch,milch-eier,Vollmilch frisch
+fettarme-milch,Fettarme Milch,milch,milch-eier,Milch fettarm
+h-milch,H-Milch,milch,milch-eier,Haltbare Milch|UHT-Milch
+laktosefreie-milch,Laktosefreie Milch,milch,milch-eier,Milch laktosefrei
+weidemilch,Weidemilch,milch,milch-eier,
+heumilch,Heumilch,milch,milch-eier,
+frischmilch,Frischmilch,milch,milch-eier,
+kondensmilch,Kondensmilch,milch,milch-eier,Kaffeesahne|Kaffeemilch
+buttermilch,Buttermilch,milch,milch-eier,
+naturjoghurt,Naturjoghurt,joghurt,milch-eier,Joghurt natur|Joghurt mild
+fruchtjoghurt,Fruchtjoghurt,joghurt,milch-eier,
+griechischer-joghurt,Griechischer Joghurt,joghurt,milch-eier,Joghurt griechisch
+skyr,Skyr,joghurt,milch-eier,
+sahnejoghurt,Sahnejoghurt,joghurt,milch-eier,
+joghurtdrink,Joghurtdrink,joghurt,milch-eier,Trinkjoghurt
+speisequark,Speisequark,quark,milch-eier,Quark
+magerquark,Magerquark,quark,milch-eier,
+kraeuterquark,Kräuterquark,quark,milch-eier,
+fruchtquark,Fruchtquark,quark,milch-eier,Quark Vanille
+schlagsahne,Schlagsahne,sahne,milch-eier,
+sprühsahne,Sprühsahne,sahne,milch-eier,
+saure-sahne,Saure Sahne,sahne,milch-eier,Sauerrahm
+schmand,Schmand,sahne,milch-eier,
+creme-fraiche,Crème fraîche,sahne,milch-eier,Creme fraiche
+suessrahmbutter,Süßrahmbutter,butter-streichfett,milch-eier,
+mildgesaeuerte-butter,Mildgesäuerte Butter,butter-streichfett,milch-eier,Butter mildgesäuert
+gesalzene-butter,Gesalzene Butter,butter-streichfett,milch-eier,Butter gesalzen
+kraeuterbutter,Kräuterbutter,butter-streichfett,milch-eier,
+butterschmalz,Butterschmalz,butter-streichfett,milch-eier,
+streichfett,Streichfett,butter-streichfett,milch-eier,Mischstreichfett|Halbfettbutter
+frischkaese-natur,Frischkäse natur,frischkaese,milch-eier,Doppelrahmfrischkäse
+frischkaese-kraeuter,Frischkäse Kräuter,frischkaese,milch-eier,Frischkäse Schnittlauch
+koerniger-frischkaese,Körniger Frischkäse,frischkaese,milch-eier,Hüttenkäse
+ziegenfrischkaese,Ziegenfrischkäse,frischkaese,milch-eier,
+frischkaesezubereitung,Frischkäsezubereitung,frischkaese,milch-eier,Tzatziki
+mascarpone-ricotta,Mascarpone & Ricotta,frischkaese,milch-eier,Ricotta|Mascarpone
+camembert,Camembert,weichkaese,milch-eier,
+brie,Brie,weichkaese,milch-eier,
+blauschimmelkaese,Blauschimmelkäse,weichkaese,milch-eier,Edelpilzkäse
+ofenkaese,Ofenkäse,weichkaese,milch-eier,Backkäse
+rotschmierkaese,Rotschmierkäse,weichkaese,milch-eier,Limburger
+gouda,Gouda,schnittkaese,milch-eier,
+emmentaler,Emmentaler,schnittkaese,milch-eier,
+butterkaese,Butterkäse,schnittkaese,milch-eier,
+tilsiter,Tilsiter,schnittkaese,milch-eier,
+maasdamer,Maasdamer,schnittkaese,milch-eier,
+cheddar,Cheddar,schnittkaese,milch-eier,
+bergkaese,Bergkäse,schnittkaese,milch-eier,
+raclettekaese,Raclettekäse,schnittkaese,milch-eier,
+ziegenschnittkaese,Ziegenschnittkäse,schnittkaese,milch-eier,Ziegenkäse
+kaeseaufschnitt,Käseaufschnitt,schnittkaese,milch-eier,Käse Scheiben
+parmigiano-reggiano,Parmigiano Reggiano,hartkaese,milch-eier,Parmesan
+grana-padano,Grana Padano,hartkaese,milch-eier,
+harzer-kaese,Harzer Käse,hartkaese,milch-eier,Sauermilchkäse
+mozzarella,Mozzarella,pasta-filata-kaese,milch-eier,
+burrata,Burrata,pasta-filata-kaese,milch-eier,
+grillkaese,Grillkäse,pasta-filata-kaese,milch-eier,Halloumi
+feta,Feta,salzlakenkaese,milch-eier,
+hirtenkaese,Hirtenkäse,salzlakenkaese,milch-eier,Schafskäse
+schmelzkaese-becher,Schmelzkäse im Becher,schmelzkaese,milch-eier,Schmelzkäse Kräuter
+schmelzkaesescheiben,Schmelzkäsescheiben,schmelzkaese,milch-eier,Schmelzkäse Scheiben
+reibekaese,Reibekäse,spezialkaese,milch-eier,Käse gerieben
+laktosefreier-kaese,Laktosefreier Käse,spezialkaese,milch-eier,
+ayran,Ayran,milchgetraenke,milch-eier,
+kefir,Kefir,milchgetraenke,milch-eier,
+schokomilch,Schokomilch,milchgetraenke,milch-eier,Kakao
+schokoladenpudding,Schokoladenpudding,milchdessert,milch-eier,Schokopudding
+vanillepudding,Vanillepudding,milchdessert,milch-eier,Sahnepudding Vanille
+griesspudding,Grießpudding,milchdessert,milch-eier,
+proteinpudding,Proteinpudding,milchdessert,milch-eier,
+mousse-au-chocolat,Mousse au Chocolat,milchdessert,milch-eier,
+tiramisu,Tiramisu,milchdessert,milch-eier,
+eier-bodenhaltung,Eier Bodenhaltung,eier,milch-eier,
+eier-freilandhaltung,Eier Freilandhaltung,eier,milch-eier,
+eier-bio,Eier Bio,eier,milch-eier,Bio-Eier
+wurst-aufschnitt,Wurst & Aufschnitt,fleisch-fisch,fleisch-fisch,Aufschnitt|Wurstwaren
+salami,Salami,wurst-aufschnitt,fleisch-fisch,Salamisticks|Mini-Salami
+leberwurst,Leberwurst,wurst-aufschnitt,fleisch-fisch,
+mortadella,Mortadella,wurst-aufschnitt,fleisch-fisch,
+lyoner,Lyoner,wurst-aufschnitt,fleisch-fisch,Fleischwurst|Hähnchenlyoner
+teewurst,Teewurst,wurst-aufschnitt,fleisch-fisch,
+mettwurst,Mettwurst,wurst-aufschnitt,fleisch-fisch,Zwiebelmettwurst
+cervelat,Cervelat,wurst-aufschnitt,fleisch-fisch,Cervelatwurst
+bierschinken,Bierschinken,wurst-aufschnitt,fleisch-fisch,
+schinkenwurst,Schinkenwurst,wurst-aufschnitt,fleisch-fisch,
+leberkaese,Leberkäse,wurst-aufschnitt,fleisch-fisch,Fleischkäse
+chorizo,Chorizo,wurst-aufschnitt,fleisch-fisch,
+fuet,Fuet,wurst-aufschnitt,fleisch-fisch,
+landjaeger,Landjäger,wurst-aufschnitt,fleisch-fisch,
+corned-beef,Corned Beef,wurst-aufschnitt,fleisch-fisch,
+pastrami,Pastrami,wurst-aufschnitt,fleisch-fisch,
+gefluegelwurst,Geflügelwurst,wurst-aufschnitt,fleisch-fisch,Geflügelmortadella|Geflügelfleischwurst|Geflügelsalami
+beef-jerky,Beef Jerky,wurst-aufschnitt,fleisch-fisch,Trockenfleisch
+schinken,Schinken,fleisch-fisch,fleisch-fisch,
+kochschinken,Kochschinken,schinken,fleisch-fisch,Hinterschinken
+rohschinken,Rohschinken,schinken,fleisch-fisch,
+schwarzwaelder-schinken,Schwarzwälder Schinken,schinken,fleisch-fisch,
+serrano-schinken,Serrano-Schinken,schinken,fleisch-fisch,Serranoschinken
+lachsschinken,Lachsschinken,schinken,fleisch-fisch,
+katenschinken,Katenschinken,schinken,fleisch-fisch,Landschinken|Krustenschinken
+schinkenwuerfel,Schinkenwürfel,schinken,fleisch-fisch,
+kasseler,Kasseler,schinken,fleisch-fisch,
+bacon,Bacon,schinken,fleisch-fisch,Frühstücksspeck|Speck
+wuerstchen,Würstchen,fleisch-fisch,fleisch-fisch,Brühwürstchen
+wiener-wuerstchen,Wiener Würstchen,wuerstchen,fleisch-fisch,Wienerli|Mini-Wiener
+frankfurter-wuerstchen,Frankfurter Würstchen,wuerstchen,fleisch-fisch,
+bockwurst,Bockwurst,wuerstchen,fleisch-fisch,
+gefluegelwiener,Geflügelwiener,wuerstchen,fleisch-fisch,Geflügelwürstchen
+weisswurst,Weißwurst,wuerstchen,fleisch-fisch,
+currywurst,Currywurst,wuerstchen,fleisch-fisch,
+sucuk,Sucuk,wuerstchen,fleisch-fisch,
+bratwurst,Bratwurst,fleisch-fisch,fleisch-fisch,
+nuernberger-rostbratwurst,Nürnberger Rostbratwurst,bratwurst,fleisch-fisch,Nürnberger Rostbratwürste
+kalbsbratwurst,Kalbsbratwurst,bratwurst,fleisch-fisch,
+frisches-fleisch,Frisches Fleisch,fleisch-fisch,fleisch-fisch,
+hackfleisch,Hackfleisch,frisches-fleisch,fleisch-fisch,Rinderhackfleisch|Hackfleisch gemischt
+haehnchenbrust,Hähnchenbrust,frisches-fleisch,fleisch-fisch,Hähnchenbrustfilet
+schweinebraten,Schweinebraten,frisches-fleisch,fleisch-fisch,
+entenconfit,Entenconfit,frisches-fleisch,fleisch-fisch,Confit de Canard
+panierte-fleischprodukte,Panierte Fleischprodukte,fleisch-fisch,fleisch-fisch,
+chicken-nuggets,Chicken Nuggets,panierte-fleischprodukte,fleisch-fisch,Hähnchen Nuggets
+haehnchenschnitzel-paniert,Hähnchenschnitzel paniert,panierte-fleischprodukte,fleisch-fisch,
+cordon-bleu,Cordon bleu,panierte-fleischprodukte,fleisch-fisch,Hähnchen Cordon bleu
+frikadellen-buletten,Frikadellen & Buletten,fleisch-fisch,fleisch-fisch,
+frikadellen,Frikadellen,frikadellen-buletten,fleisch-fisch,
+gefluegelfrikadellen,Geflügelfrikadellen,frikadellen-buletten,fleisch-fisch,
+klassischer-fleischsalat,Klassischer Fleischsalat,fleischsalat,fleisch-fisch,
+gefluegelsalat,Geflügelsalat,fleischsalat,fleisch-fisch,
+fertiggerichte-fleisch,Fertiggerichte mit Fleisch,fleisch-fisch,fleisch-fisch,
+chili-con-carne,Chili con Carne,fertiggerichte-fleisch,fleisch-fisch,
+ravioli-fleisch,Ravioli mit Fleisch,fertiggerichte-fleisch,fleisch-fisch,
+bolognese-sauce,Bolognese-Sauce,fertiggerichte-fleisch,fleisch-fisch,Pastasauce Bolognese|Fix Bolognese
+fruehstuecksfleisch,Frühstücksfleisch,fertiggerichte-fleisch,fleisch-fisch,Corned Pork
+paella,Paella,fertiggerichte-fleisch,fleisch-fisch,
+bami-goreng,Bami Goreng,fertiggerichte-fleisch,fleisch-fisch,
+raeucherfisch,Räucherfisch,fleisch-fisch,fleisch-fisch,
+raeucherlachs,Räucherlachs,raeucherfisch,fleisch-fisch,Lachs geräuchert
+stremellachs,Stremellachs,raeucherfisch,fleisch-fisch,
+graved-lachs,Graved Lachs,raeucherfisch,fleisch-fisch,Gravlax
+forellenfilet-geraeuchert,Forellenfilet geräuchert,raeucherfisch,fleisch-fisch,Lachsforelle geräuchert|Lachsforellenfilet
+makrelenfilet-geraeuchert,Makrelenfilet geräuchert,raeucherfisch,fleisch-fisch,Makrelenfilets
+frischer-fisch,Frischer Fisch,fleisch-fisch,fleisch-fisch,
+lachsfilet,Lachsfilet,frischer-fisch,fleisch-fisch,
+garnelen,Garnelen,frischer-fisch,fleisch-fisch,Shrimps
+fischkonserven,Fischkonserven,fleisch-fisch,fleisch-fisch,Fisch in Dose
+thunfisch-konserve,Thunfisch (Konserve),fischkonserven,fleisch-fisch,Thunfisch Dose|Thunfisch in Öl|Thunfisch in Olivenöl|Thunfisch in Sonnenblumenöl|Thunfisch im eigenen Saft|Thunfisch in Wasser
+sardinen-konserve,Sardinen (Konserve),fischkonserven,fleisch-fisch,Sardinen in Öl|Sardinen in Olivenöl|Sardinen in Sonnenblumenöl
+heringsfilet-konserve,Heringsfilet (Konserve),fischkonserven,fleisch-fisch,Heringsfilets in Tomatensauce|Heringsfilets Paprikacreme|Heringsfilets in Sauce
+matjesfilet,Matjesfilet,fischkonserven,fleisch-fisch,
+bratheringe,Bratheringe,fischkonserven,fleisch-fisch,
+panierter-fisch,Panierter Fisch,fleisch-fisch,fleisch-fisch,Tiefkühlfisch paniert
+fischstaebchen,Fischstäbchen,panierter-fisch,fleisch-fisch,
+schlemmerfilet,Schlemmerfilet,panierter-fisch,fleisch-fisch,
+seelachsschnitzel-paniert,Seelachsschnitzel paniert,panierter-fisch,fleisch-fisch,
+fischfrikadellen,Fischfrikadellen,panierter-fisch,fleisch-fisch,
+meeresprodukte,Meeresprodukte,fleisch-fisch,fleisch-fisch,
+noriblaetter,Noriblätter,meeresprodukte,fleisch-fisch,Algenblätter|Sushi-Nori
+fleischalternativen,Fleischalternativen,fleisch-fisch,fleisch-fisch,Vegane Wurst|Vegetarische Wurst
+aufschnitt-vegan,Aufschnitt vegan,fleischalternativen,fleisch-fisch,
+bratwurst-vegan,Bratwurst vegan,fleischalternativen,fleisch-fisch,
+wuerstchen-vegetarisch,Würstchen vegetarisch,fleischalternativen,fleisch-fisch,
+fleischsalat-vegan,Fleischsalat vegan,fleischalternativen,fleisch-fisch,
+bolognese-vegan,Bolognese vegan,fleischalternativen,fleisch-fisch,
+pizza,Pizza,tiefkuehl,tiefkuehl,Tiefkühlpizza|TK-Pizza
+pizza-salami,Pizza Salami,pizza,tiefkuehl,Salamipizza
+pizza-margherita,Pizza Margherita,pizza,tiefkuehl,
+pizza-thunfisch,Pizza Thunfisch,pizza,tiefkuehl,Thunfischpizza
+pizza-diavolo,Pizza Diavolo,pizza,tiefkuehl,Pizza Diavola
+pizza-funghi,Pizza Funghi,pizza,tiefkuehl,Pizza Champignon
+pizza-hawaii,Pizza Hawaii,pizza,tiefkuehl,
+pizza-schinken,Pizza Schinken,pizza,tiefkuehl,Pizza Prosciutto
+pizza-spinat,Pizza Spinat,pizza,tiefkuehl,
+pizza-kaese,Pizza Käse,pizza,tiefkuehl,Pizza Mozzarella|Pizza Quattro Formaggi
+pizza-haehnchen,Pizza Hähnchen,pizza,tiefkuehl,Pizza Chicken
+pizza-lachs,Pizza Lachs,pizza,tiefkuehl,
+pizza-speciale,Pizza Speciale,pizza,tiefkuehl,
+pizza-vegetarisch,Pizza vegetarisch,pizza,tiefkuehl,
+pizza-vegan,Pizza vegan,pizza,tiefkuehl,
+eis,Eis,tiefkuehl,tiefkuehl,Speiseeis|Eiscreme|Glace
+vanilleeis,Vanilleeis,eis,tiefkuehl,Glace Vanille
+schokoladeneis,Schokoladeneis,eis,tiefkuehl,Schokoeis
+stracciatella-eis,Stracciatella-Eis,eis,tiefkuehl,
+karamell-eis,Karamell-Eis,eis,tiefkuehl,Salted Caramel Eis|Caramel Eis
+cookie-dough-eis,Cookie Dough Eis,eis,tiefkuehl,
+erdnussbutter-eis,Erdnussbutter-Eis,eis,tiefkuehl,
+mandeleis,Mandeleis,eis,tiefkuehl,
+eis-am-stiel,Eis am Stiel,eis,tiefkuehl,Stieleis|Milcheis am Stiel
+wassereis,Wassereis,eis,tiefkuehl,
+sorbet,Sorbet,eis,tiefkuehl,Zitronensorbet|Fruchtsorbet
+mochi-eis,Mochi Eis,eis,tiefkuehl,
+proteineis,Proteineis,eis,tiefkuehl,Protein-Eis
+veganes-eis,Veganes Eis,eis,tiefkuehl,Eis vegan
+gemuese,Gemüse,tiefkuehl,tiefkuehl,Tiefkühlgemüse|TK-Gemüse
+spinat,Spinat,gemuese,tiefkuehl,Rahmspinat|Blattspinat
+gemuesepfanne,Gemüsepfanne,gemuese,tiefkuehl,Pfannengemüse
+wokgemuese,Wokgemüse,gemuese,tiefkuehl,Asia-Gemüse|Asiagemüse
+buttergemuese,Buttergemüse,gemuese,tiefkuehl,
+gemuesemischung,Gemüsemischung,gemuese,tiefkuehl,Mischgemüse
+brokkoli,Brokkoli,gemuese,tiefkuehl,
+blumenkohl,Blumenkohl,gemuese,tiefkuehl,
+kartoffelprodukte,Kartoffelprodukte,tiefkuehl,tiefkuehl,
+pommes-frites,Pommes frites,kartoffelprodukte,tiefkuehl,Pommes
+suesskartoffel-pommes,Süßkartoffel-Pommes,kartoffelprodukte,tiefkuehl,Sweet Potato Fries
+kartoffelpuffer,Kartoffelpuffer,kartoffelprodukte,tiefkuehl,Reibekuchen|Reibeplätzchen
+kartoffelkroketten,Kartoffelkroketten,kartoffelprodukte,tiefkuehl,Kroketten
+kartoffeltaschen,Kartoffeltaschen,kartoffelprodukte,tiefkuehl,
+fisch,Fisch,tiefkuehl,tiefkuehl,Tiefkühlfisch|TK-Fisch
+backfischstaebchen,Backfischstäbchen,fisch,tiefkuehl,
+lachsstaebchen,Lachsstäbchen,fisch,tiefkuehl,
+fischfilet-paniert,Fischfilet paniert,fisch,tiefkuehl,Paniertes Fischfilet
+seelachsfilet,Seelachsfilet,fisch,tiefkuehl,
+fleisch-und-gefluegel,Fleisch & Geflügel,tiefkuehl,tiefkuehl,Tiefkühlfleisch|TK-Fleisch
+gyoza,Gyoza,fleisch-und-gefluegel,tiefkuehl,Teigtaschen|Dumplings
+obst,Obst & Beeren,tiefkuehl,tiefkuehl,Tiefkühlobst|TK-Obst|TK-Beeren
+beerenmischung,Beerenmischung,obst,tiefkuehl,Beerenmix
+heidelbeeren,Heidelbeeren,obst,tiefkuehl,Blaubeeren
+himbeeren,Himbeeren,obst,tiefkuehl,
+fertiggerichte,Fertiggerichte,tiefkuehl,tiefkuehl,TK-Fertiggerichte|Tiefkühl-Fertiggerichte
+nasi-goreng,Nasi Goreng,fertiggerichte,tiefkuehl,
+haehnchen-curry,Hähnchen-Curry,fertiggerichte,tiefkuehl,Chicken Curry
+huehnerfrikassee,Hühnerfrikassee,fertiggerichte,tiefkuehl,
+nudelpfanne,Nudelpfanne,fertiggerichte,tiefkuehl,Nudelgericht|Pastapfanne
+bratkartoffelpfanne,Bratkartoffelpfanne,fertiggerichte,tiefkuehl,
+gemuesecurry,Gemüsecurry,fertiggerichte,tiefkuehl,
+chicken-tikka-masala,Chicken Tikka Masala,fertiggerichte,tiefkuehl,
+backwaren,Backwaren,tiefkuehl,tiefkuehl,Tiefkühlbackwaren|TK-Backwaren
+flammkuchen,Flammkuchen,backwaren,tiefkuehl,
+ofenbrot,Ofenbrot,backwaren,tiefkuehl,
+nudeln,Nudeln,vorrat,vorrat,Pasta|Teigwaren
+asia-nudeln,Asia-Nudeln,vorrat,vorrat,Asianudeln|Asiatische Nudeln
+reis,Reis,vorrat,vorrat,
+huelsenfruechte,Hülsenfrüchte,vorrat,vorrat,
+mehl,Mehl,vorrat,vorrat,
+griess-getreide,Grieß & Getreide,vorrat,vorrat,Getreide
+zucker,Zucker,vorrat,vorrat,
+samen,Samen,vorrat,vorrat,Saaten
+tofu-sojaprodukte,Tofu & Sojaprodukte,vorrat,vorrat,Sojaprodukte
+waffeln,Waffeln,vorrat,vorrat,Knabberwaffeln
+konserven-fertiggerichte,Konserven & Fertiggerichte,vorrat,vorrat,Konserven|Fertiggerichte
+teig,Teig,vorrat,vorrat,Frischteig
+spaghetti,Spaghetti,nudeln,vorrat,Spaghettini
+linguine,Linguine,nudeln,vorrat,
+penne,Penne,nudeln,vorrat,Penne Rigate
+rigatoni,Rigatoni,nudeln,vorrat,Tortiglioni
+makkaroni,Makkaroni,nudeln,vorrat,Maccheroni|Hörnli
+fusilli,Fusilli,nudeln,vorrat,Eliche|Spiralnudeln|Casarecce
+farfalle,Farfalle,nudeln,vorrat,Schmetterlingsnudeln
+tagliatelle,Tagliatelle,nudeln,vorrat,Bandnudeln
+orecchiette,Orecchiette,nudeln,vorrat,
+lasagneplatten,Lasagneplatten,nudeln,vorrat,Lasagneblätter
+spaetzle,Spätzle,nudeln,vorrat,Eierspätzle
+eiernudeln,Eiernudeln,nudeln,vorrat,Eierteigwaren
+tortellini,Tortellini,nudeln,vorrat,Tortelloni
+ravioli,Ravioli,nudeln,vorrat,Maultaschen
+instantnudeln,Instantnudeln,nudeln,vorrat,Instant-Nudeln|Instant-Nudelsuppe
+reisnudeln,Reisnudeln,asia-nudeln,vorrat,
+mie-nudeln,Mie-Nudeln,asia-nudeln,vorrat,Mie Nudeln
+udon-nudeln,Udon-Nudeln,asia-nudeln,vorrat,Udon Nudeln
+glasnudeln,Glasnudeln,asia-nudeln,vorrat,
+reispapier,Reispapier,asia-nudeln,vorrat,
+basmatireis,Basmatireis,reis,vorrat,Basmati|Basmatireis Vollkorn
+langkornreis,Langkornreis,reis,vorrat,Langkornreis parboiled|Langkornreis Kochbeutel
+jasminreis,Jasminreis,reis,vorrat,Jasmin Reis
+risottoreis,Risottoreis,reis,vorrat,Arborio|Carnaroli|Risottoreis Carnaroli
+naturreis,Naturreis,reis,vorrat,Vollkornreis|Naturreis Langkorn
+sushireis,Sushireis,reis,vorrat,
+milchreis,Milchreis,reis,vorrat,Rundkornreis
+konjakreis,Konjakreis,reis,vorrat,Shirataki
+rote-linsen,Rote Linsen,huelsenfruechte,vorrat,Linsen rot
+belugalinsen,Belugalinsen,huelsenfruechte,vorrat,Beluga-Linsen
+berglinsen,Berglinsen,huelsenfruechte,vorrat,
+weizenmehl,Weizenmehl,mehl,vorrat,Weizenmehl Type 405|Weizenmehl Type 550
+weizenvollkornmehl,Weizenvollkornmehl,mehl,vorrat,
+dinkelmehl,Dinkelmehl,mehl,vorrat,Dinkelmehl Type 630|Dinkelmehl 630
+dinkelvollkornmehl,Dinkelvollkornmehl,mehl,vorrat,
+roggenvollkornmehl,Roggenvollkornmehl,mehl,vorrat,Roggenmehl
+speisestaerke,Speisestärke,mehl,vorrat,Maisstärke|Speisestärke Mais|Maizena
+couscous,Couscous,griess-getreide,vorrat,Kuskus
+bulgur,Bulgur,griess-getreide,vorrat,Bulgursalat
+quinoa,Quinoa,griess-getreide,vorrat,Quinoa tricolore
+hirse,Hirse,griess-getreide,vorrat,
+polenta,Polenta,griess-getreide,vorrat,Maisgrieß
+buchweizen,Buchweizen,griess-getreide,vorrat,
+hartweizengriess,Hartweizengrieß,griess-getreide,vorrat,
+weichweizengriess,Weichweizengrieß,griess-getreide,vorrat,Weizengrieß
+dinkelgriess,Dinkelgrieß,griess-getreide,vorrat,
+haferkleie,Haferkleie,griess-getreide,vorrat,
+kristallzucker,Kristallzucker,zucker,vorrat,Haushaltszucker|Weißer Zucker
+puderzucker,Puderzucker,zucker,vorrat,Staubzucker
+rohrzucker,Rohrzucker,zucker,vorrat,Rohrzucker braun|Rohrohrzucker|Vollrohrzucker|Brauner Zucker
+vanillezucker,Vanillezucker,zucker,vorrat,Vanillinzucker
+wuerfelzucker,Würfelzucker,zucker,vorrat,
+gelierzucker,Gelierzucker,zucker,vorrat,Gelierzucker 2:1|Gelierzucker 1:1
+leinsamen,Leinsamen,samen,vorrat,Leinsamen geschrotet
+chiasamen,Chiasamen,samen,vorrat,Chia
+sesam,Sesam,samen,vorrat,Sesam ungeschält|Sesamsamen
+tofu-natur,Tofu natur,tofu-sojaprodukte,vorrat,Naturtofu
+raeuchertofu,Räuchertofu,tofu-sojaprodukte,vorrat,Tofu geräuchert
+seidentofu,Seidentofu,tofu-sojaprodukte,vorrat,Silken Tofu
+sojaschnetzel,Sojaschnetzel,tofu-sojaprodukte,vorrat,Sojafleisch
+sojaflocken,Sojaflocken,tofu-sojaprodukte,vorrat,
+sojagranulat,Sojagranulat,tofu-sojaprodukte,vorrat,
+kartoffelpueree,Kartoffelpüree,kartoffelprodukte,vorrat,Kartoffelpüree Pulver|Kartoffelpüree instant|Kartoffelstock|Kartoffelbrei
+gnocchi,Gnocchi,kartoffelprodukte,vorrat,
+roesti,Rösti,kartoffelprodukte,vorrat,
+kartoffelknoedel,Kartoffelknödel,kartoffelprodukte,vorrat,Kartoffelklöße
+reibekuchen,Reibekuchen,kartoffelprodukte,vorrat,Kartoffelpuffer
+schupfnudeln,Schupfnudeln,kartoffelprodukte,vorrat,
+maiswaffeln,Maiswaffeln,waffeln,vorrat,Maiswaffeln gesalzen
+gulaschsuppe,Gulaschsuppe,konserven-fertiggerichte,vorrat,
+chili-sin-carne,Chili sin Carne,konserven-fertiggerichte,vorrat,Chili con Carne
+huehnernudelsuppe,Hühnernudelsuppe,konserven-fertiggerichte,vorrat,Instant-Nudelsuppe Huhn
+baked-beans,Baked Beans,konserven-fertiggerichte,vorrat,Gebackene Bohnen
+pizzateig,Pizzateig,teig,vorrat,
+blaetterteig,Blätterteig,teig,vorrat,
+speiseoel,Speiseöl,gewuerze-saucen,gewuerze-saucen,Öl|Speiseöle
+olivenoel,Olivenöl,speiseoel,gewuerze-saucen,Olivenöl nativ extra|Olivenöl extra vergine
+rapsoel,Rapsöl,speiseoel,gewuerze-saucen,Rapsöl nativ
+sonnenblumenoel,Sonnenblumenöl,speiseoel,gewuerze-saucen,
+kokosoel,Kokosöl,speiseoel,gewuerze-saucen,Kokosfett|Kokosöl nativ
+sesamoel,Sesamöl,speiseoel,gewuerze-saucen,
+leinoel,Leinöl,speiseoel,gewuerze-saucen,Leinöl nativ|Leinöl kaltgepresst
+distelöl,Distelöl,speiseoel,gewuerze-saucen,
+erdnussoel,Erdnussöl,speiseoel,gewuerze-saucen,
+hanfoel,Hanföl,speiseoel,gewuerze-saucen,
+frittieroel,Frittieröl,speiseoel,gewuerze-saucen,Bratöl|Bratöl Olive
+essig,Essig,gewuerze-saucen,gewuerze-saucen,
+apfelessig,Apfelessig,essig,gewuerze-saucen,Apfelessig naturtrüb
+balsamico,Balsamico-Essig,essig,gewuerze-saucen,Aceto Balsamico|Aceto Balsamico di Modena|Balsamicoessig
+balsamico-creme,Balsamico-Creme,essig,gewuerze-saucen,Balsamico Creme|Balsamico Glace
+weissweinessig,Weißweinessig,essig,gewuerze-saucen,
+weinessig,Weinessig,essig,gewuerze-saucen,
+reisessig,Reisessig,essig,gewuerze-saucen,
+tafelessig,Tafelessig,essig,gewuerze-saucen,Branntweinessig
+essigessenz,Essigessenz,essig,gewuerze-saucen,
+salz,Salz,gewuerze-saucen,gewuerze-saucen,Speisesalz
+jodsalz,Jodsalz,salz,gewuerze-saucen,Speisesalz jodiert
+kraeutersalz,Kräutersalz,salz,gewuerze-saucen,
+meersalz,Meersalz,salz,gewuerze-saucen,Meersalz grob|Meersalz jodiert
+speisesalz,Speisesalz,salz,gewuerze-saucen,Tafelsalz
+alpensalz,Alpensalz,salz,gewuerze-saucen,
+fleur-de-sel,Fleur de Sel,salz,gewuerze-saucen,
+gewuerz,Gewürz,gewuerze-saucen,gewuerze-saucen,Gewürze
+kurkuma,Kurkuma,gewuerz,gewuerze-saucen,Kurkuma gemahlen|Gelbwurz
+paprikapulver,Paprikapulver,gewuerz,gewuerze-saucen,Paprikapulver edelsüß|Paprika edelsüß
+currypulver,Currypulver,gewuerz,gewuerze-saucen,Curry|Curry-Gewürz
+pfeffer,Pfeffer,gewuerz,gewuerze-saucen,Pfeffer schwarz|Pfeffer schwarz ganz|Schwarzer Pfeffer
+oregano,Oregano,gewuerz,gewuerze-saucen,Oregano gerebelt
+wuerzmischung,Würzmischung,gewuerz,gewuerze-saucen,Gewürzmischung
+hefeflocken,Hefeflocken,gewuerz,gewuerze-saucen,Edelhefeflocken
+senf,Senf,gewuerze-saucen,gewuerze-saucen,
+mittelscharfer-senf,Mittelscharfer Senf,senf,gewuerze-saucen,Senf mittelscharf
+scharfer-senf,Scharfer Senf,senf,gewuerze-saucen,Senf scharf
+dijon-senf,Dijon-Senf,senf,gewuerze-saucen,Senf Dijon|Dijonsenf
+grobkoerniger-senf,Grobkörniger Senf,senf,gewuerze-saucen,Senf grobkörnig|Körniger Senf
+burgunder-senf,Burgunder-Senf,senf,gewuerze-saucen,Senf Bourgogne|Bourgogne-Senf
+ketchup,Ketchup,gewuerze-saucen,gewuerze-saucen,
+tomatenketchup,Tomatenketchup,ketchup,gewuerze-saucen,
+scharfer-ketchup,Scharfer Ketchup,ketchup,gewuerze-saucen,Ketchup scharf|Hot Ketchup
+mayonnaise-dip,Mayonnaise & Dip,gewuerze-saucen,gewuerze-saucen,Dip|Kalte Sauce
+mayonnaise,Mayonnaise,mayonnaise-dip,gewuerze-saucen,Majonäse
+salatmayonnaise,Salatmayonnaise,mayonnaise-dip,gewuerze-saucen,
+aioli,Aioli,mayonnaise-dip,gewuerze-saucen,Knoblauchmayonnaise
+remoulade,Remoulade,mayonnaise-dip,gewuerze-saucen,Remouladensauce
+tzatziki,Tzatziki,mayonnaise-dip,gewuerze-saucen,Zaziki
+knoblauchsauce,Knoblauchsauce,mayonnaise-dip,gewuerze-saucen,
+cocktailsauce,Cocktailsauce,mayonnaise-dip,gewuerze-saucen,
+burgersauce,Burgersauce,mayonnaise-dip,gewuerze-saucen,Hamburgersauce
+pommes-sauce,Pommes-Sauce,mayonnaise-dip,gewuerze-saucen,Pommessauce
+salatcreme,Salatcreme,mayonnaise-dip,gewuerze-saucen,
+sandwichcreme,Sandwichcreme,mayonnaise-dip,gewuerze-saucen,
+meerrettich,Meerrettich,mayonnaise-dip,gewuerze-saucen,Sahnemeerrettich|Meerrettich scharf|Kren
+pesto,Pesto,gewuerze-saucen,gewuerze-saucen,
+pesto-genovese,Pesto Genovese,pesto,gewuerze-saucen,Pesto alla Genovese
+pesto-rosso,Pesto Rosso,pesto,gewuerze-saucen,Rotes Pesto
+pesto-verde,Pesto Verde,pesto,gewuerze-saucen,Grünes Pesto|Pesto Basilikum|Pesto Basilikum Rucola
+pesto-calabrese,Pesto Calabrese,pesto,gewuerze-saucen,
+pesto-walnuss,Pesto Walnuss,pesto,gewuerze-saucen,Walnusspesto
+pastasauce,Pastasauce,gewuerze-saucen,gewuerze-saucen,Tomatensauce|Pasta-Sauce
+tomatensauce-basilikum,Tomatensauce Basilikum,pastasauce,gewuerze-saucen,Pastasauce Tomate Basilikum
+tomatensauce-kraeuter,Tomatensauce Kräuter,pastasauce,gewuerze-saucen,Pastasauce Kräuter
+arrabbiata,Arrabbiata,pastasauce,gewuerze-saucen,Tomatensauce Arrabbiata
+bolognese,Bolognese,pastasauce,gewuerze-saucen,Sauce Bolognese|Ragù alla Bolognese
+asia-sauce,Asia-Sauce,gewuerze-saucen,gewuerze-saucen,Asiatische Sauce
+sojasauce,Sojasauce,asia-sauce,gewuerze-saucen,Sojasoße|Sojasauce hell|Sojasauce dunkel|Sojasauce süß|Sojasauce Tamari|Tamari
+currypaste,Currypaste,asia-sauce,gewuerze-saucen,Currypaste rot|Currypaste gelb|Currypaste grün|Currypaste japanisch|Thai-Currypaste
+sweet-chili-sauce,Sweet Chili Sauce,asia-sauce,gewuerze-saucen,Sweet-Chili-Sauce|Chilisauce süß|Süße Chilisauce
+hoisinsauce,Hoisinsauce,asia-sauce,gewuerze-saucen,
+austernsauce,Austernsauce,asia-sauce,gewuerze-saucen,
+fischsauce,Fischsauce,asia-sauce,gewuerze-saucen,Nuoc Mam
+sambal-oelek,Sambal Oelek,asia-sauce,gewuerze-saucen,
+gochujang,Gochujang,asia-sauce,gewuerze-saucen,Koreanische Chilipaste
+mirin,Mirin,asia-sauce,gewuerze-saucen,
+wasabipaste,Wasabipaste,asia-sauce,gewuerze-saucen,Wasabi
+sushi-ingwer,Sushi-Ingwer,asia-sauce,gewuerze-saucen,Gari|Eingelegter Ingwer
+salatdressing,Salatdressing,gewuerze-saucen,gewuerze-saucen,Dressing
+french-dressing,French Dressing,salatdressing,gewuerze-saucen,Salatdressing French
+joghurt-dressing,Joghurt-Dressing,salatdressing,gewuerze-saucen,Salatdressing Joghurt-Kräuter|Joghurtdressing
+sylter-dressing,Sylter Dressing,salatdressing,gewuerze-saucen,Salatdressing Sylter Art
+grill-bbq-sauce,Grill- & BBQ-Sauce,gewuerze-saucen,gewuerze-saucen,Grillsauce
+barbecuesauce,Barbecuesauce,grill-bbq-sauce,gewuerze-saucen,BBQ-Sauce|Barbecue-Sauce
+steaksauce,Steaksauce,grill-bbq-sauce,gewuerze-saucen,
+wuerzsauce,Würzsauce,gewuerze-saucen,gewuerze-saucen,Tafelsauce
+worcestersauce,Worcestersauce,wuerzsauce,gewuerze-saucen,Worcestershire-Sauce
+bratensauce,Bratensauce,wuerzsauce,gewuerze-saucen,Bratensoße
+currysauce,Currysauce,wuerzsauce,gewuerze-saucen,Currysauce Mango|Currysauce indisch|Currysauce rot|Curry-Sauce
+suess-sauer-sauce,Süß-Sauer-Sauce,wuerzsauce,gewuerze-saucen,Sauce süß-sauer
+honig-senf-sauce,Honig-Senf-Sauce,wuerzsauce,gewuerze-saucen,
+paprikasauce,Paprikasauce,wuerzsauce,gewuerze-saucen,
+sauce-hollandaise,Sauce Hollandaise,wuerzsauce,gewuerze-saucen,Hollandaise
+scharfe-sauce,Scharfe Sauce,gewuerze-saucen,gewuerze-saucen,Chilisauce|Hot Sauce
+chilisauce,Chilisauce,scharfe-sauce,gewuerze-saucen,Chilisauce scharf
+hot-sauce,Hot Sauce,scharfe-sauce,gewuerze-saucen,
+salsa,Salsa,scharfe-sauce,gewuerze-saucen,Salsa scharf
+harissa,Harissa,scharfe-sauce,gewuerze-saucen,Harissa-Paste
+muesli,Müsli,fruehstueck-aufstrich,fruehstueck-aufstrich,
+knuspermuesli,Knuspermüsli,muesli,fruehstueck-aufstrich,Crunchy Müsli|Müsli Crunchy
+schokomuesli,Schokomüsli,muesli,fruehstueck-aufstrich,Müsli Schoko|Schoko-Müsli|Müsli Schokolade|Knuspermüsli Schoko|Knuspermüsli Schokolade
+fruechtemuesli,Früchtemüsli,muesli,fruehstueck-aufstrich,Müsli Früchte|Müsli Beeren|Müsli mit Früchten|Knuspermüsli Frucht|Knuspermüsli Beeren|Knuspermüsli Himbeere
+nussmuesli,Nussmüsli,muesli,fruehstueck-aufstrich,Müsli Nuss|Knuspermüsli Nuss|Müsli Trauben Nuss|Knuspermüsli Schoko Nuss
+honigmuesli,Honigmüsli,muesli,fruehstueck-aufstrich,Knuspermüsli Honig|Knuspermüsli Honig Nuss
+bircher-muesli,Bircher Müsli,muesli,fruehstueck-aufstrich,Müsli Bircher
+basismuesli,Basismüsli,muesli,fruehstueck-aufstrich,Müsli Basis|Müsli pur
+cerealien,Cerealien,fruehstueck-aufstrich,fruehstueck-aufstrich,Frühstückscerealien|Frühstücksflocken
+cornflakes,Cornflakes,cerealien,fruehstueck-aufstrich,Maisflakes
+schoko-cerealien,Schoko-Cerealien,cerealien,fruehstueck-aufstrich,Schokocerealien|Frühstückscerealien Schoko|Frühstückscerealien Schokolade
+zimt-cerealien,Zimt-Cerealien,cerealien,fruehstueck-aufstrich,Cerealien Zimt|Frühstückscerealien Zimt
+dinkelflakes,Dinkelflakes,cerealien,fruehstueck-aufstrich,
+gepuffte-cerealien,Gepuffte Cerealien,cerealien,fruehstueck-aufstrich,Dinkel gepufft|Amaranth gepufft|Haferpops|Puffreis
+haferflocken-getreideflocken,Haferflocken & Getreideflocken,fruehstueck-aufstrich,fruehstueck-aufstrich,
+haferflocken,Haferflocken,haferflocken-getreideflocken,fruehstueck-aufstrich,
+dinkelflocken,Dinkelflocken,haferflocken-getreideflocken,fruehstueck-aufstrich,
+mehrkornflocken,Mehrkornflocken,haferflocken-getreideflocken,fruehstueck-aufstrich,5-Korn-Flocken|Fünf-Korn-Flocken
+porridge-fruehstuecksbrei,Porridge & Frühstücksbrei,fruehstueck-aufstrich,fruehstueck-aufstrich,
+porridge,Porridge,porridge-fruehstuecksbrei,fruehstueck-aufstrich,Haferbrei
+fruchtporridge,Fruchtporridge,porridge-fruehstuecksbrei,fruehstueck-aufstrich,Porridge Beere|Porridge Beeren|Porridge mit Früchten
+schoko-porridge,Schoko-Porridge,porridge-fruehstuecksbrei,fruehstueck-aufstrich,Porridge Schoko
+fruehstuecksbrei,Frühstücksbrei,porridge-fruehstuecksbrei,fruehstueck-aufstrich,
+honig,Honig,fruehstueck-aufstrich,fruehstueck-aufstrich,
+bluetenhonig,Blütenhonig,honig,fruehstueck-aufstrich,
+waldhonig,Waldhonig,honig,fruehstueck-aufstrich,
+akazienhonig,Akazienhonig,honig,fruehstueck-aufstrich,
+rapshonig,Rapshonig,honig,fruehstueck-aufstrich,
+sirup-dicksaft,Sirup & Dicksaft,fruehstueck-aufstrich,fruehstueck-aufstrich,
+ahornsirup,Ahornsirup,sirup-dicksaft,fruehstueck-aufstrich,
+agavendicksaft,Agavendicksaft,sirup-dicksaft,fruehstueck-aufstrich,Agavensirup
+zuckerruebensirup,Zuckerrübensirup,sirup-dicksaft,fruehstueck-aufstrich,Rübenkraut
+dattelsirup,Dattelsirup,sirup-dicksaft,fruehstueck-aufstrich,
+reissirup,Reissirup,sirup-dicksaft,fruehstueck-aufstrich,
+holunderbluetensirup,Holunderblütensirup,sirup-dicksaft,fruehstueck-aufstrich,
+karamellsirup,Karamellsirup,sirup-dicksaft,fruehstueck-aufstrich,Sirup Karamell
+himbeersirup,Himbeersirup,sirup-dicksaft,fruehstueck-aufstrich,Sirup Himbeere
+konfituere-marmelade-gelee,"Konfitüre, Marmelade & Gelee",fruehstueck-aufstrich,fruehstueck-aufstrich,Fruchtaufstrich
+orangenmarmelade,Orangenmarmelade,konfituere-marmelade-gelee,fruehstueck-aufstrich,
+quittengelee,Quittengelee,konfituere-marmelade-gelee,fruehstueck-aufstrich,
+suesse-brotaufstriche,Süße Brotaufstriche,fruehstueck-aufstrich,fruehstueck-aufstrich,Süße Aufstriche|Schokoaufstrich
+nuss-nougat-creme,Nuss-Nougat-Creme,suesse-brotaufstriche,fruehstueck-aufstrich,Nussnougatcreme|Schoko-Nuss-Creme
+schokocreme,Schokocreme,suesse-brotaufstriche,fruehstueck-aufstrich,Schokoaufstrich|Schokoladenaufstrich
+haselnusscreme,Haselnusscreme,suesse-brotaufstriche,fruehstueck-aufstrich,
+pistaziencreme,Pistaziencreme,suesse-brotaufstriche,fruehstueck-aufstrich,
+maronencreme,Maronencreme,suesse-brotaufstriche,fruehstueck-aufstrich,Esskastaniencreme
+nussmus-saatenmus,Nussmus & Saatenmus,fruehstueck-aufstrich,fruehstueck-aufstrich,
+erdnussmus,Erdnussmus,nussmus-saatenmus,fruehstueck-aufstrich,Erdnussbutter|Peanut Butter
+mandelmus,Mandelmus,nussmus-saatenmus,fruehstueck-aufstrich,
+cashewmus,Cashewmus,nussmus-saatenmus,fruehstueck-aufstrich,
+haselnussmus,Haselnussmus,nussmus-saatenmus,fruehstueck-aufstrich,
+tahin,Tahin,nussmus-saatenmus,fruehstueck-aufstrich,Tahini|Sesammus|Sesampaste
+margarine-streichfett,Margarine & Streichfett,fruehstueck-aufstrich,fruehstueck-aufstrich,
+sonnenblumenmargarine,Sonnenblumenmargarine,margarine-streichfett,fruehstueck-aufstrich,Margarine Sonnenblume
+pflanzenmargarine,Pflanzenmargarine,margarine-streichfett,fruehstueck-aufstrich,Margarine pflanzlich|Margarine vegan|Vegane Margarine
+halbfett-mischstreichfett,Misch-Streichfett,margarine-streichfett,fruehstueck-aufstrich,Margarine mit Butter|Butter-Margarine-Mischung
+herzhafte-brotaufstriche,Herzhafte Brotaufstriche,fruehstueck-aufstrich,fruehstueck-aufstrich,Pikante Brotaufstriche
+hummus,Hummus,herzhafte-brotaufstriche,fruehstueck-aufstrich,Kichererbsenaufstrich
+guacamole,Guacamole,herzhafte-brotaufstriche,fruehstueck-aufstrich,Avocadocreme
+ajvar,Ajvar,herzhafte-brotaufstriche,fruehstueck-aufstrich,Paprikamark
+gemueseaufstrich,Gemüseaufstrich,herzhafte-brotaufstriche,fruehstueck-aufstrich,
+paprikaaufstrich,Paprikaaufstrich,herzhafte-brotaufstriche,fruehstueck-aufstrich,Brotaufstrich Paprika|Gemüseaufstrich Paprika
+tomatenaufstrich,Tomatenaufstrich,herzhafte-brotaufstriche,fruehstueck-aufstrich,Brotaufstrich Tomate Basilikum|Brotaufstrich Tomate-Mozzarella
+linsenaufstrich,Linsenaufstrich,herzhafte-brotaufstriche,fruehstueck-aufstrich,
+rote-bete-aufstrich,Rote-Bete-Aufstrich,herzhafte-brotaufstriche,fruehstueck-aufstrich,Brotaufstrich Rote Bete Meerrettich
+eiersalat,Eiersalat,herzhafte-brotaufstriche,fruehstueck-aufstrich,
+vegane-wurstalternativen,Vegane Wurst- & Fleischalternativen,fruehstueck-aufstrich,fruehstueck-aufstrich,Veganer Brotaufstrich
+vegane-leberwurst,Vegane Leberwurst,vegane-wurstalternativen,fruehstueck-aufstrich,Leberwurst vegan
+vegane-streichwurst,Vegane Streichwurst,vegane-wurstalternativen,fruehstueck-aufstrich,Streichwurst vegan
+veganer-fleischsalat,Veganer Fleischsalat,vegane-wurstalternativen,fruehstueck-aufstrich,Fleischsalat vegan
+veganes-zwiebelschmalz,Veganes Zwiebelschmalz,vegane-wurstalternativen,fruehstueck-aufstrich,Zwiebelschmalz vegan
+vegane-streichcreme,Vegane Streichcreme,vegane-wurstalternativen,fruehstueck-aufstrich,Streichcreme vegan|Streichcreme vegan Paprika
+schokolade,Schokolade,suesses-knabberei,suesses-knabberei,
+zartbitterschokolade,Zartbitterschokolade,schokolade,suesses-knabberei,Bitterschokolade|Edelbitterschokolade|Schokolade zartbitter|Schokolade dunkel|Dunkle Schokolade
+vollmilchschokolade,Vollmilchschokolade,schokolade,suesses-knabberei,Milchschokolade|Schokolade Vollmilch
+weisse-schokolade,Weiße Schokolade,schokolade,suesses-knabberei,Schokolade weiß
+nuss-schokolade,Nussschokolade,schokolade,suesses-knabberei,Schokolade Haselnuss|Schokolade Mandel|Vollmilchschokolade Haselnuss
+vegane-schokolade,Vegane Schokolade,schokolade,suesses-knabberei,Schokolade vegan
+schokoriegel,Schokoriegel,suesses-knabberei,suesses-knabberei,
+schokoriegel-gefuellt,Gefüllter Schokoriegel,schokoriegel,suesses-knabberei,Schokoriegel gefüllt|Schokoriegel Milchcreme|Schokoriegel Karamell
+waffelriegel,Waffelriegel,schokoriegel,suesses-knabberei,Schokoriegel Waffel
+nussriegel-schoko,Nuss-Schokoriegel,schokoriegel,suesses-knabberei,Schokoriegel Haselnuss|Schokoriegel Kokos
+muesliriegel,Müsliriegel,suesses-knabberei,suesses-knabberei,Haferriegel|Fruchtriegel
+proteinriegel,Proteinriegel,muesliriegel,suesses-knabberei,Proteinriegel Schokolade|Proteinriegel Erdnuss
+nuss-muesliriegel,Nuss-Müsliriegel,muesliriegel,suesses-knabberei,Müsliriegel Haselnuss|Müsliriegel Nuss|Müsliriegel Erdnuss
+schoko-muesliriegel,Schoko-Müsliriegel,muesliriegel,suesses-knabberei,Müsliriegel Schoko|Müsliriegel Schokolade
+pralinen-konfekt,Pralinen & Konfekt,suesses-knabberei,suesses-knabberei,
+pralinen,Pralinen,pralinen-konfekt,suesses-knabberei,Pralinenmischung|Pralinen Haselnuss|Pralinen Schokolade
+mozartkugeln,Mozartkugeln,pralinen-konfekt,suesses-knabberei,
+marzipan,Marzipan,pralinen-konfekt,suesses-knabberei,Marzipan Zartbitter
+schokolinsen,Schokolinsen,pralinen-konfekt,suesses-knabberei,Schoko-Bons|Schokolinsen Erdnuss
+schokoladenfiguren,Schokoladenfiguren,pralinen-konfekt,suesses-knabberei,Schokoladenosterhase
+fruchtgummi-suessware,Fruchtgummi & Süßwaren,suesses-knabberei,suesses-knabberei,
+fruchtgummi,Fruchtgummi,fruchtgummi-suessware,suesses-knabberei,Gummibärchen|Weingummi
+saures-fruchtgummi,Saures Fruchtgummi,fruchtgummi-suessware,suesses-knabberei,Fruchtgummi sauer
+veganes-fruchtgummi,Veganes Fruchtgummi,fruchtgummi-suessware,suesses-knabberei,Fruchtgummi vegan
+lakritz,Lakritz,fruchtgummi-suessware,suesses-knabberei,
+karamellbonbons,Karamellbonbons,fruchtgummi-suessware,suesses-knabberei,
+hustenbonbons,Hustenbonbons,fruchtgummi-suessware,suesses-knabberei,
+kaugummi,Kaugummi,fruchtgummi-suessware,suesses-knabberei,Kaugummi zuckerfrei
+kekse-gebaeck,Kekse & Gebäck,suesses-knabberei,suesses-knabberei,
+butterkekse,Butterkekse,kekse-gebaeck,suesses-knabberei,Butterkeks|Butterspritzgebäck|Butterkekse dänisch
+haferkekse,Haferkekse,kekse-gebaeck,suesses-knabberei,Haferkekse Schokolade
+schokoladenkekse,Schokoladenkekse,kekse-gebaeck,suesses-knabberei,Schokokekse|Schokokeks|Cookies Schokolade|Schokoladenkekse gefüllt
+doppelkekse,Doppelkekse,kekse-gebaeck,suesses-knabberei,Doppelkeks|Doppelkekse Kakaocreme
+vollkornkekse,Vollkornkekse,kekse-gebaeck,suesses-knabberei,Dinkelkekse|Butterkeks Dinkel
+loeffelbiskuits,Löffelbiskuits,kekse-gebaeck,suesses-knabberei,
+jaffa-cakes,Jaffa Cakes,kekse-gebaeck,suesses-knabberei,Jaffa Cakes Orange
+spekulatius,Spekulatius,kekse-gebaeck,suesses-knabberei,
+lebkuchen,Lebkuchen,kekse-gebaeck,suesses-knabberei,Lebkuchen Schokolade
+marmorkuchen,Marmorkuchen,kekse-gebaeck,suesses-knabberei,
+gebaeckmischung,Gebäckmischung,kekse-gebaeck,suesses-knabberei,Kekse
+chips-knabbergebaeck,Chips & Knabbergebäck,suesses-knabberei,suesses-knabberei,
+kartoffelchips,Kartoffelchips,chips-knabbergebaeck,suesses-knabberei,Kartoffelchips gesalzen|Kartoffelchips Meersalz
+kartoffelchips-paprika,Kartoffelchips Paprika,chips-knabbergebaeck,suesses-knabberei,
+kartoffelchips-sour-cream,Kartoffelchips Sour Cream,chips-knabbergebaeck,suesses-knabberei,Kartoffelchips Sour Cream Onion
+kartoffelchips-sweet-chili,Kartoffelchips Sweet Chili,chips-knabbergebaeck,suesses-knabberei,
+kartoffelchips-scharf,Kartoffelchips scharf,chips-knabbergebaeck,suesses-knabberei,Kartoffelchips Trüffel
+stapelchips,Stapelchips,chips-knabbergebaeck,suesses-knabberei,Stapelchips Paprika
+tortillachips,Tortillachips,chips-knabbergebaeck,suesses-knabberei,Tortilla Chips|Tortillachips gesalzen|Tortillachips Paprika|Tortilla Chips Paprika|Tortillachips Käse
+gemuesechips,Gemüsechips,chips-knabbergebaeck,suesses-knabberei,
+linsenchips,Linsenchips,chips-knabbergebaeck,suesses-knabberei,Kichererbsenchips
+kaesestangen,Käsestangen,chips-knabbergebaeck,suesses-knabberei,
+popcorn,Popcorn,chips-knabbergebaeck,suesses-knabberei,Popcorn süß
+nuesse-kerne,Nüsse & Kerne,suesses-knabberei,suesses-knabberei,
+erdnuesse,Erdnüsse,nuesse-kerne,suesses-knabberei,Erdnüsse geröstet gesalzen|Erdnüsse geröstet|Erdnüsse gesalzen|Erdnüsse geröstet ungesalzen|Erdnüsse pikant|Erdnüsse Wasabi|Erdnüsse im Teigmantel|Erdnüsse Schokolade
+cashewkerne,Cashewkerne,nuesse-kerne,suesses-knabberei,Cashewkerne geröstet gesalzen|Cashewkerne geröstet ungesalzen
+walnusskerne,Walnusskerne,nuesse-kerne,suesses-knabberei,
+mandeln,Mandeln,nuesse-kerne,suesses-knabberei,Mandeln geröstet
+haselnusskerne,Haselnusskerne,nuesse-kerne,suesses-knabberei,
+paranuesse,Paranüsse,nuesse-kerne,suesses-knabberei,Paranusskerne
+pekannuesse,Pekannüsse,nuesse-kerne,suesses-knabberei,
+pinienkerne,Pinienkerne,nuesse-kerne,suesses-knabberei,
+maronen,Maronen,nuesse-kerne,suesses-knabberei,
+nussmischung,Nussmischung,nuesse-kerne,suesses-knabberei,Nussmischung geröstet gesalzen
+milchdesserts-pudding,Milchdesserts & Pudding,suesses-knabberei,suesses-knabberei,
+schokopudding,Schokopudding,milchdesserts-pudding,suesses-knabberei,Sojadessert Schokolade
+puddingpulver,Puddingpulver,milchdesserts-pudding,suesses-knabberei,Puddingpulver Vanille
+pflanzendrinks-joghurt,Pflanzendrinks & -joghurt,suesses-knabberei,suesses-knabberei,
+mandeldrink,Mandeldrink,pflanzendrinks-joghurt,suesses-knabberei,Mandeldrink ungesüßt
+sojajoghurt,Sojajoghurt,pflanzendrinks-joghurt,suesses-knabberei,Sojajoghurt natur|Sojajoghurt natur ungesüßt
+sojajoghurt-frucht,Sojajoghurt mit Frucht,pflanzendrinks-joghurt,suesses-knabberei,Sojajoghurt Mango|Sojajoghurt Heidelbeere|Sojajoghurt Vanille
+kokosjoghurt,Kokosjoghurt,pflanzendrinks-joghurt,suesses-knabberei,Kokosjoghurt natur
+bier,Bier,getraenke,getraenke,
+wein,Wein,getraenke,getraenke,
+spirituose,Spirituose,getraenke,getraenke,Spirituosen
+likoer,Likör,getraenke,getraenke,Likoer
+saft,Saft,getraenke,getraenke,Fruchtsaft
+nektar,Nektar,getraenke,getraenke,Fruchtnektar
+smoothie,Smoothie,getraenke,getraenke,
+limonade,Limonade,getraenke,getraenke,
+cola,Cola,getraenke,getraenke,
+eistee,Eistee,getraenke,getraenke,Ice Tea
+schorle,Schorle,getraenke,getraenke,
+energy-drink,Energy-Drink,getraenke,getraenke,Energydrink|Energy Drink
+wasser,Wasser,getraenke,getraenke,Mineralwasser
+pflanzendrink,Pflanzendrink,getraenke,getraenke,Pflanzenmilch|Milchalternative
+kaffee,Kaffee,getraenke,getraenke,
+tee,Tee,getraenke,getraenke,
+kakao,Kakao,getraenke,getraenke,Trinkschokolade|Kakaopulver
+pils,Pils,bier,getraenke,Pilsener|Pilsner|Pilsbier
+weizenbier,Weizenbier,bier,getraenke,Weißbier|Hefeweizen
+helles,Helles,bier,getraenke,Helles Bier|Bier hell|Bier blond
+lager,Lager,bier,getraenke,Lagerbier
+schwarzbier,Schwarzbier,bier,getraenke,Dunkelbier
+stout,Stout,bier,getraenke,
+malzbier,Malzbier,bier,getraenke,
+radler,Radler,bier,getraenke,
+alkoholfreies-bier,Alkoholfreies Bier,bier,getraenke,Bier alkoholfrei|Pils alkoholfrei|Weizenbier alkoholfrei|Radler alkoholfrei
+rotwein,Rotwein,wein,getraenke,Rotwein Merlot
+gluehwein,Glühwein,wein,getraenke,Gluehwein
+wermut,Wermut,wein,getraenke,Vermouth
+wodka,Wodka,spirituose,getraenke,Vodka
+whisky,Whisky,spirituose,getraenke,Whiskey|Single Malt|Scotch
+rum,Rum,spirituose,getraenke,Rum weiß|Rum braun
+gin,Gin,spirituose,getraenke,
+kraeuterlikoer,Kräuterlikör,likoer,getraenke,Kraeuterlikoer
+sahnelikoer,Sahnelikör,likoer,getraenke,Sahnelikoer|Cream Liqueur
+orangensaft,Orangensaft,saft,getraenke,Orangensaft Direktsaft|Orangensaft mit Fruchtfleisch|Orangensaft mild|Blutorangensaft
+apfelsaft,Apfelsaft,saft,getraenke,Apfelsaft naturtrüb|Apfelsaft klar
+multivitaminsaft,Multivitaminsaft,saft,getraenke,
+mehrfruchtsaft,Mehrfruchtsaft,saft,getraenke,Multifruchtsaft|Mehrfruchtsaft Direktsaft
+traubensaft,Traubensaft,saft,getraenke,Traubensaft rot
+ananassaft,Ananassaft,saft,getraenke,
+grapefruitsaft,Grapefruitsaft,saft,getraenke,
+granatapfelsaft,Granatapfelsaft,saft,getraenke,
+cranberrysaft,Cranberrysaft,saft,getraenke,
+zitronensaft,Zitronensaft,saft,getraenke,
+limettensaft,Limettensaft,saft,getraenke,
+karottensaft,Karottensaft,saft,getraenke,Möhrensaft
+rote-bete-saft,Rote-Bete-Saft,saft,getraenke,Rote Bete Saft
+sauerkrautsaft,Sauerkrautsaft,saft,getraenke,
+bananennektar,Bananennektar,nektar,getraenke,
+maracujanektar,Maracujanektar,nektar,getraenke,
+pfirsichnektar,Pfirsichnektar,nektar,getraenke,
+mangonektar,Mangonektar,nektar,getraenke,
+apfelnektar,Apfelnektar,nektar,getraenke,
+orangennektar,Orangennektar,nektar,getraenke,
+johannisbeernektar,Johannisbeernektar,nektar,getraenke,Johannisbeernektar schwarz
+sauerkirschnektar,Sauerkirschnektar,nektar,getraenke,Kirschnektar
+fruchtsmoothie,Fruchtsmoothie,smoothie,getraenke,
+gruener-smoothie,Grüner Smoothie,smoothie,getraenke,Smoothie grün
+zitronenlimonade,Zitronenlimonade,limonade,getraenke,Limonade Zitrone|Limonade Zitrone zuckerfrei|Limonade Zitrone Minze
+orangenlimonade,Orangenlimonade,limonade,getraenke,Limonade Orange|Orangenlimonade zuckerfrei
+grapefruitlimonade,Grapefruitlimonade,limonade,getraenke,Limonade Grapefruit zuckerfrei
+rhabarberlimonade,Rhabarberlimonade,limonade,getraenke,Limonade Rhabarber
+matelimonade,Mate-Limonade,limonade,getraenke,Mate Limonade|Mate
+bitter-lemon-tonic,Tonic Water,limonade,getraenke,Tonic
+ginger-ale,Ginger Ale,limonade,getraenke,
+ginger-beer,Ginger Beer,limonade,getraenke,
+spezi,Spezi,limonade,getraenke,Cola-Mix
+rivella,Rivella,limonade,getraenke,
+cola-classic,Cola,cola,getraenke,
+cola-zuckerfrei,Cola zuckerfrei,cola,getraenke,Cola zero|Cola light|Cola zero koffeinfrei
+eistee-pfirsich,Eistee Pfirsich,eistee,getraenke,
+eistee-zitrone,Eistee Zitrone,eistee,getraenke,
+apfelschorle,Apfelschorle,schorle,getraenke,
+energy-drink-classic,Energy-Drink,energy-drink,getraenke,Energydrink|Energy Drink
+energy-drink-zuckerfrei,Energy-Drink zuckerfrei,energy-drink,getraenke,Energydrink zuckerfrei
+mineralwasser-medium,Mineralwasser medium,wasser,getraenke,Mineralwasser classic
+mineralwasser-still,Mineralwasser still,wasser,getraenke,
+mineralwasser-sprudelnd,Mineralwasser sprudelnd,wasser,getraenke,Mineralwasser mit Kohlensäure|Mineralwasser spritzig
+kokoswasser,Kokoswasser,wasser,getraenke,
+wasser-mit-geschmack,Wasser mit Geschmack,wasser,getraenke,Mineralwasser Zitrone
+haferdrink,Haferdrink,pflanzendrink,getraenke,Haferdrink Barista|Haferdrink ungesüßt|Haferdrink bio|Haferdrink Schoko|Haferdrink Vanille|Haferdrink glutenfrei
+sojadrink,Sojadrink,pflanzendrink,getraenke,Sojadrink Vanille|Sojadrink ungesüßt|Sojadrink natur|Sojadrink Schokolade
+reisdrink,Reisdrink,pflanzendrink,getraenke,Reisdrink Kokos
+kokosdrink,Kokosdrink,pflanzendrink,getraenke,Kokosmilch
+dinkeldrink,Dinkeldrink,pflanzendrink,getraenke,
+kaffee-gemahlen,Kaffee gemahlen,kaffee,getraenke,
+kaffeebohnen,Kaffeebohnen,kaffee,getraenke,
+espresso,Espresso,kaffee,getraenke,Espresso gemahlen|Espressobohnen
+kaffeekapseln,Kaffeekapseln,kaffee,getraenke,Kaffeekapseln Espresso
+kaffeepads,Kaffeepads,kaffee,getraenke,
+instantkaffee,Instantkaffee,kaffee,getraenke,Kaffee löslich
+cappuccino-instant,Cappuccino Instant,kaffee,getraenke,Cappuccino Schoko Instant
+latte-macchiato,Latte Macchiato,kaffee,getraenke,
+eiskaffee,Eiskaffee,kaffee,getraenke,
+getreidekaffee,Getreidekaffee,kaffee,getraenke,Malzkaffee
+schwarztee,Schwarztee,tee,getraenke,Schwarztee Earl Grey|Earl Grey
+gruener-tee,Grüner Tee,tee,getraenke,Grüntee
+kraeutertee,Kräutertee,tee,getraenke,Kraeutertee
+pfefferminztee,Pfefferminztee,tee,getraenke,
+kamillentee,Kamillentee,tee,getraenke,
+fruechtetee,Früchtetee,tee,getraenke,Fruechtetee
+hagebuttentee,Hagebuttentee,tee,getraenke,
+chai-tee,Chai-Tee,tee,getraenke,Chai
+kakaopulver,Kakaopulver,kakao,getraenke,Kakaopulver instant|Kakaopulver Instant
+trinkschokolade,Trinkschokolade,kakao,getraenke,Trinkschokoladenpulver
+duschpflege,Duschpflege,koerperpflege,koerperpflege,
+duschgel,Duschgel,duschpflege,koerperpflege,Duschgel sensitiv|Duschgel Männer|Duschgel Herren|Duschgel Sport|Duschgel 3in1
+duschcreme,Duschcreme,duschpflege,koerperpflege,Cremedusche|Pflegedusche
+duschoel,Duschöl,duschpflege,koerperpflege,
+duschschaum,Duschschaum,duschpflege,koerperpflege,
+festes-duschgel,Festes Duschgel,duschpflege,koerperpflege,Duschseife fest|Waschstück seifenfrei
+waschlotion,Waschlotion,duschpflege,koerperpflege,
+badezusatz,Badezusatz,duschpflege,koerperpflege,
+haarpflege,Haarpflege,koerperpflege,koerperpflege,
+shampoo,Shampoo,haarpflege,koerperpflege,Shampoo sensitiv|Shampoo Volumen|Shampoo Repair|Shampoo Feuchtigkeit|Shampoo Color|Shampoo Kräuter
+anti-schuppen-shampoo,Anti-Schuppen-Shampoo,haarpflege,koerperpflege,Shampoo Anti-Schuppen
+trockenshampoo,Trockenshampoo,haarpflege,koerperpflege,
+festes-shampoo,Festes Shampoo,haarpflege,koerperpflege,Shampoo fest
+babyshampoo,Babyshampoo,haarpflege,koerperpflege,Shampoo Kinder|Kindershampoo
+haarspuelung,Haarspülung,haarpflege,koerperpflege,Spülung|Conditioner|Haarspülung Repair
+haarkur,Haarkur,haarpflege,koerperpflege,Haarmaske
+haaroel,Haaröl,haarpflege,koerperpflege,
+haarspray,Haarspray,haarpflege,koerperpflege,Haarspray Volumen
+haargel,Haargel,haarpflege,koerperpflege,
+haarwachs,Haarwachs,haarpflege,koerperpflege,
+schaumfestiger,Schaumfestiger,haarpflege,koerperpflege,
+haarfarbe,Haarfarbe,haarpflege,koerperpflege,
+zahnpflege,Zahnpflege,koerperpflege,koerperpflege,
+zahnpasta,Zahnpasta,zahnpflege,koerperpflege,Zahncreme|Zahnpasta Kräuter
+whitening-zahnpasta,Whitening-Zahnpasta,zahnpflege,koerperpflege,Zahnpasta Whitening
+sensitiv-zahnpasta,Sensitiv-Zahnpasta,zahnpflege,koerperpflege,Zahnpasta sensitiv
+kinderzahnpasta,Kinderzahnpasta,zahnpflege,koerperpflege,Zahnpasta Kinder
+mundspuelung,Mundspülung,zahnpflege,koerperpflege,Mundwasser|Mundspülung Whitening
+zahnbuerste,Zahnbürste,zahnpflege,koerperpflege,
+deo,Deo,koerperpflege,koerperpflege,Deodorant|Deo Herren|Deo Männer
+deospray,Deospray,deo,koerperpflege,Deo Spray
+deo-roll-on,Deo Roll-on,deo,koerperpflege,Deo Roll-on sensitiv
+deo-stick,Deo Stick,deo,koerperpflege,
+deocreme,Deocreme,deo,koerperpflege,
+antitranspirant,Antitranspirant,deo,koerperpflege,Deo Anti-Transpirant|Deo Antitranspirant
+koerperpflege-creme,Körperpflege,koerperpflege,koerperpflege,
+bodylotion,Bodylotion,koerperpflege-creme,koerperpflege,Körperlotion
+koerpercreme,Körpercreme,koerperpflege-creme,koerperpflege,Hautcreme|Pflegecreme
+koerperbutter,Körperbutter,koerperpflege-creme,koerperpflege,
+koerperoel,Körperöl,koerperpflege-creme,koerperpflege,
+koerperpeeling,Körperpeeling,koerperpflege-creme,koerperpflege,
+hand-und-fusspflege,Hand- und Fußpflege,koerperpflege,koerperpflege,
+handcreme,Handcreme,hand-und-fusspflege,koerperpflege,Handcreme Urea|Hand- und Nagelcreme
+fusscreme,Fußcreme,hand-und-fusspflege,koerperpflege,Fußbalsam
+gesichtspflege,Gesichtspflege,koerperpflege,koerperpflege,
+gesichtscreme,Gesichtscreme,gesichtspflege,koerperpflege,Feuchtigkeitscreme|Tagescreme|Gesichtscreme Männer
+gesichtsserum,Gesichtsserum,gesichtspflege,koerperpflege,
+gesichtsmaske,Gesichtsmaske,gesichtspflege,koerperpflege,
+gesichtspeeling,Gesichtspeeling,gesichtspflege,koerperpflege,
+gesichtsreiniger,Gesichtsreiniger,gesichtspflege,koerperpflege,Waschgel Gesicht|Reinigungsmilch
+gesichtswasser,Gesichtswasser,gesichtspflege,koerperpflege,
+mizellenwasser,Mizellenwasser,gesichtspflege,koerperpflege,
+augen-make-up-entferner,Augen-Make-up-Entferner,gesichtspflege,koerperpflege,
+lippenpflege,Lippenpflege,gesichtspflege,koerperpflege,Lippenpflegestift|Lippenbalsam
+sonnenpflege,Sonnenpflege,koerperpflege,koerperpflege,
+sonnencreme,Sonnencreme,sonnenpflege,koerperpflege,Sonnencreme LSF 50|Sonnencreme LSF 50+
+sonnenmilch,Sonnenmilch,sonnenpflege,koerperpflege,Sonnenmilch LSF 30
+sonnenspray,Sonnenspray,sonnenpflege,koerperpflege,
+after-sun,After Sun,sonnenpflege,koerperpflege,After Sun Lotion
+rasur,Rasur,koerperpflege,koerperpflege,
+rasiergel,Rasiergel,rasur,koerperpflege,Rasiergel sensitiv
+rasierschaum,Rasierschaum,rasur,koerperpflege,Rasierschaum sensitiv
+rasiercreme,Rasiercreme,rasur,koerperpflege,
+aftershave,Aftershave,rasur,koerperpflege,After Shave Balsam|Aftershave Balsam sensitiv
+rasierer,Rasierer,rasur,koerperpflege,
+rasierklingen,Rasierklingen,rasur,koerperpflege,
+bartoel,Bartöl,rasur,koerperpflege,
+seife,Seife,koerperpflege,koerperpflege,
+handseife,Handseife,seife,koerperpflege,
+fluessigseife,Flüssigseife,seife,koerperpflege,Flüssigseife sensitiv
+cremeseife,Cremeseife,seife,koerperpflege,Cremeseife sensitiv
+kernseife,Kernseife,seife,koerperpflege,
+stueckseife,Stückseife,seife,koerperpflege,
+dekorative-kosmetik,Dekorative Kosmetik,koerperpflege,koerperpflege,Make-up
+foundation,Foundation,dekorative-kosmetik,koerperpflege,
+concealer,Concealer,dekorative-kosmetik,koerperpflege,
+mascara,Mascara,dekorative-kosmetik,koerperpflege,Wimperntusche
+eyeliner,Eyeliner,dekorative-kosmetik,koerperpflege,
+lippenstift,Lippenstift,dekorative-kosmetik,koerperpflege,
+lipgloss,Lipgloss,dekorative-kosmetik,koerperpflege,
+nagellack,Nagellack,dekorative-kosmetik,koerperpflege,
+nagellackentferner,Nagellackentferner,dekorative-kosmetik,koerperpflege,
+duft,Duft,koerperpflege,koerperpflege,
+parfum,Parfum,duft,koerperpflege,
+eau-de-parfum,Eau de Parfum,duft,koerperpflege,
+eau-de-toilette,Eau de Toilette,duft,koerperpflege,
+damenhygiene,Damenhygiene,koerperpflege,koerperpflege,
+tampons,Tampons,damenhygiene,koerperpflege,Tampons super|Tampons normal
+binden,Binden,damenhygiene,koerperpflege,
+slipeinlagen,Slipeinlagen,damenhygiene,koerperpflege,
+papierhygiene,Papierhygiene,koerperpflege,koerperpflege,
+toilettenpapier,Toilettenpapier,papierhygiene,koerperpflege,Toilettenpapier Recycling
+feuchtes-toilettenpapier,Feuchtes Toilettenpapier,papierhygiene,koerperpflege,Toilettenpapier feucht
+taschentuecher,Taschentücher,papierhygiene,koerperpflege,
+kosmetiktuecher,Kosmetiktücher,papierhygiene,koerperpflege,
+kuechenrolle,Küchenrolle,papierhygiene,koerperpflege,
+feuchttuecher,Feuchttücher,papierhygiene,koerperpflege,Feuchttücher Baby|Reinigungstücher
+watteprodukte,Watteprodukte,koerperpflege,koerperpflege,
+wattestaebchen,Wattestäbchen,watteprodukte,koerperpflege,
+wattepads,Wattepads,watteprodukte,koerperpflege,
+intimpflege,Intimpflege,koerperpflege,koerperpflege,
+gleitgel,Gleitgel,intimpflege,koerperpflege,
+hygiene-desinfektion,Hygiene & Desinfektion,koerperpflege,koerperpflege,
+handdesinfektion,Handdesinfektion,hygiene-desinfektion,koerperpflege,Handdesinfektionsgel
+desinfektionstuecher,Desinfektionstücher,hygiene-desinfektion,koerperpflege,
+wasch-waeschepflege,Wasch- & Wäschepflege,haushalt,haushalt,Waschen|Wäsche
+vollwaschmittel,Vollwaschmittel,wasch-waeschepflege,haushalt,Waschmittel|Waschpulver|Universalwaschmittel
+colorwaschmittel,Colorwaschmittel,wasch-waeschepflege,haushalt,Waschmittel color|Waschpulver color|Waschmittel Pulver color|Waschmittel flüssig color
+fluessigwaschmittel,Flüssigwaschmittel,wasch-waeschepflege,haushalt,Waschmittel flüssig
+waschmittel-pods,Waschmittel-Pods,wasch-waeschepflege,haushalt,Pods|Caps|Waschmittel Pods color
+weichspueler,Weichspüler,wasch-waeschepflege,haushalt,
+fleckenentferner,Fleckenentferner,wasch-waeschepflege,haushalt,Fleckenspray|Fleckensalz
+waescheparfuem,Wäscheparfüm,wasch-waeschepflege,haushalt,Textilerfrischer|Wäscheduft
+waschmaschinenreiniger,Waschmaschinenreiniger,wasch-waeschepflege,haushalt,
+geschirrspuelen,Geschirrspülen,haushalt,haushalt,Spülen
+spuelmittel,Spülmittel,geschirrspuelen,haushalt,Geschirrspülmittel|Handspülmittel
+spuelmaschinentabs,Spülmaschinentabs,geschirrspuelen,haushalt,Geschirrspültabs|Geschirrspülmaschinentabs
+geschirrspuelpulver,Geschirrspülpulver,geschirrspuelen,haushalt,Spülmaschinenpulver
+klarspueler,Klarspüler,geschirrspuelen,haushalt,
+spuelmaschinensalz,Spülmaschinensalz,geschirrspuelen,haushalt,Regeneriersalz
+spuelmaschinenreiniger,Spülmaschinenreiniger,geschirrspuelen,haushalt,Geschirrspülmaschinenreiniger
+spuelbuerste,Spülbürste,geschirrspuelen,haushalt,
+spuelschwamm,Spülschwamm,geschirrspuelen,haushalt,Topfschwamm|Schwamm
+reinigungsmittel,Reinigungsmittel,haushalt,haushalt,Putzmittel
+wc-reiniger,WC-Reiniger,reinigungsmittel,haushalt,WC-Reiniger Gel|Toilettenreiniger
+wc-duftspueler,WC-Duftspüler,reinigungsmittel,haushalt,WC-Stein|WC-Tabs|WC-Frischer
+allzweckreiniger,Allzweckreiniger,reinigungsmittel,haushalt,Universalreiniger
+glasreiniger,Glasreiniger,reinigungsmittel,haushalt,Fensterreiniger
+badreiniger,Badreiniger,reinigungsmittel,haushalt,Badreiniger Spray|Badreiniger Kalk|Kalkreiniger
+kuechenreiniger,Küchenreiniger,reinigungsmittel,haushalt,Fettlöser
+rohrreiniger,Rohrreiniger,reinigungsmittel,haushalt,Rohrreiniger Gel|Abflussreiniger
+backofenreiniger,Backofenreiniger,reinigungsmittel,haushalt,
+essigreiniger,Essigreiniger,reinigungsmittel,haushalt,
+scheuermilch,Scheuermilch,reinigungsmittel,haushalt,
+entkalker,Entkalker,reinigungsmittel,haushalt,
+lufterfrischer,Lufterfrischer,reinigungsmittel,haushalt,Raumduft|Raumspray
+hygienepapier,Hygienepapier,haushalt,haushalt,Papierwaren
+servietten,Servietten,hygienepapier,haushalt,Papierservietten
+kuechenhelfer-aufbewahrung,Küchenhelfer & Aufbewahrung,haushalt,haushalt,
+muellbeutel,Müllbeutel,kuechenhelfer-aufbewahrung,haushalt,Müllbeutel mit Zugband|Müllsack|Abfallsack
+gefrierbeutel,Gefrierbeutel,kuechenhelfer-aufbewahrung,haushalt,Tiefkühlbeutel
+frischhaltefolie,Frischhaltefolie,kuechenhelfer-aufbewahrung,haushalt,
+alufolie,Alufolie,kuechenhelfer-aufbewahrung,haushalt,Aluminiumfolie
+backpapier,Backpapier,kuechenhelfer-aufbewahrung,haushalt,
+aufbewahrungsbox,Aufbewahrungsbox,kuechenhelfer-aufbewahrung,haushalt,Aufbewahrungskiste
+kuehltasche,Kühltasche,kuechenhelfer-aufbewahrung,haushalt,
+kuehlakku,Kühlakku,kuechenhelfer-aufbewahrung,haushalt,Kühlelement
+tragetasche,Tragetasche,kuechenhelfer-aufbewahrung,haushalt,Einkaufstasche
+einmalhandschuhe,Einmalhandschuhe,kuechenhelfer-aufbewahrung,haushalt,Einweghandschuhe
+kaffeefilter,Kaffeefilter,kuechenhelfer-aufbewahrung,haushalt,Filtertüten
+batterien-elektronik,Batterien & Elektronik,haushalt,haushalt,
+aa-batterien,AA-Batterien,batterien-elektronik,haushalt,Batterien AA|Batterie AA|Batterien AA Alkaline|Mignon
+aaa-batterien,AAA-Batterien,batterien-elektronik,haushalt,Batterien AAA|Micro
+9v-batterie,9V-Batterie,batterien-elektronik,haushalt,Batterie 9V|Block-Batterie|E-Block
+knopfzelle,Knopfzelle,batterien-elektronik,haushalt,Knopfzelle CR2032|CR2032|Knopfbatterie
+usb-stick,USB-Stick,batterien-elektronik,haushalt,Speicherstick
+ssd,SSD,batterien-elektronik,haushalt,SSD-Festplatte
+kopfhoerer,Kopfhörer,batterien-elektronik,haushalt,Ohrhörer|Earbuds
+wasserkocher,Wasserkocher,batterien-elektronik,haushalt,
+staubsaugerbeutel,Staubsaugerbeutel,batterien-elektronik,haushalt,
+tabakwaren,Tabakwaren,haushalt,haushalt,Raucherbedarf
+zigaretten,Zigaretten,tabakwaren,haushalt,
+drehtabak,Drehtabak,tabakwaren,haushalt,Tabak|Feinschnitt|Stopftabak
+shisha-tabak,Shisha-Tabak,tabakwaren,haushalt,Wasserpfeifentabak
+tabaksticks,Tabaksticks,tabakwaren,haushalt,Heat-Sticks|Heets
+zigarillos,Zigarillos,tabakwaren,haushalt,Zigarren
+feuerzeuggas,Feuerzeuggas,tabakwaren,haushalt,Butangas
+buecher-medien,Bücher & Medien,haushalt,haushalt,
+buch,Buch,buecher-medien,haushalt,Roman|Buch Roman|Belletristik
+kinderbuch,Kinderbuch,buecher-medien,haushalt,Bilderbuch
+malbuch,Malbuch,buecher-medien,haushalt,Ausmalbuch
+fachbuch,Fachbuch,buecher-medien,haushalt,Sachbuch
+notizbuch,Notizbuch,buecher-medien,haushalt,Notizblock
+pc-spiel,PC-Spiel,buecher-medien,haushalt,Computerspiel
+videospiel,Videospiel,buecher-medien,haushalt,Konsolenspiel
+musik-cd,Musik-CD,buecher-medien,haushalt,CD|Audio-CD
+spielzeug-spiele,Spielzeug & Spiele,haushalt,haushalt,
+klemmbausteine,Klemmbausteine,spielzeug-spiele,haushalt,Lego|Lego Bausatz|Bausteine
+puzzle,Puzzle,spielzeug-spiele,haushalt,
+brettspiel,Brettspiel,spielzeug-spiele,haushalt,Gesellschaftsspiel
+spielkarten,Spielkarten,spielzeug-spiele,haushalt,Kartenspiel
+plueschtier,Plüschtier,spielzeug-spiele,haushalt,Kuscheltier|Stofftier
+seifenblasen,Seifenblasen,spielzeug-spiele,haushalt,
+wasserball,Wasserball,spielzeug-spiele,haushalt,Strandball
+schwimmhilfe,Schwimmhilfe,spielzeug-spiele,haushalt,Schwimmflügel|Schwimmring|Schwimmreittier
+folienballon,Folienballon,spielzeug-spiele,haushalt,Luftballon
+feuerwerk,Feuerwerk,spielzeug-spiele,haushalt,Silvesterfeuerwerk|Böller
+koerperpflege,Körperpflege,haushalt,haushalt,Drogerie
+zahnseide,Zahnseide,koerperpflege,haushalt,
+schuhdeo,Schuhdeo,koerperpflege,haushalt,Schuhspray
+windeln,Windeln,koerperpflege,haushalt,Babywindeln
+kondome,Kondome,koerperpflege,haushalt,
+gesundheit-apotheke,Gesundheit & Apotheke,haushalt,haushalt,
+pflaster,Pflaster,gesundheit-apotheke,haushalt,Wundpflaster|Wundpflaster sensitiv|Heftpflaster
+paracetamol,Paracetamol,gesundheit-apotheke,haushalt,Schmerzmittel
+nahrungsergaenzungsmittel,Nahrungsergänzungsmittel,gesundheit-apotheke,haushalt,Vitamine|NEM
+desinfektionsmittel,Desinfektionsmittel,gesundheit-apotheke,haushalt,Desinfektionsspray|Handdesinfektionsgel|Händedesinfektion
+atemschutzmaske,Atemschutzmaske,gesundheit-apotheke,haushalt,Atemschutzmaske FFP2|FFP2-Maske|Mundschutz
+schreibwaren,Schreibwaren,haushalt,haushalt,Bürobedarf
+klebestift,Klebestift,schreibwaren,haushalt,
+klebstoff,Klebstoff,schreibwaren,haushalt,Alleskleber|Kleber
+heftklammern,Heftklammern,schreibwaren,haushalt,Tackernadeln
+haftnotizen,Haftnotizen,schreibwaren,haushalt,Post-it|Klebezettel
+textmarker,Textmarker,schreibwaren,haushalt,Marker|Leuchtmarker
+kugelschreiber,Kugelschreiber,schreibwaren,haushalt,Kuli
+malerkrepp,Malerkrepp,schreibwaren,haushalt,Kreppband|Malerband|Abklebeband
+bekleidung,Bekleidung,haushalt,haushalt,Kleidung
+socken,Socken,bekleidung,haushalt,Sneaker-Socken|Strümpfe
+jeans,Jeans,bekleidung,haushalt,Jeans Herren|Jeanshose
+t-shirt,T-Shirt,bekleidung,haushalt,T-Shirt Herren|Shirt
+slip,Slip,bekleidung,haushalt,Herren-Slips|Unterhose|Unterwäsche
+bettwaesche,Bettwäsche,bekleidung,haushalt,Bettbezug
+garten-pflanzen,Garten & Pflanzen,haushalt,haushalt,
+blumenerde,Blumenerde,garten-pflanzen,haushalt,Pflanzerde|Erde
+rosen,Rosen,garten-pflanzen,haushalt,Rosenstrauß
+erdbeerpflanzen,Erdbeerpflanzen,garten-pflanzen,haushalt,
+blumentopfuntersetzer,Blumentopfuntersetzer,garten-pflanzen,haushalt,Pflanzuntersetzer|Topfuntersetzer
+grillanzuender,Grillanzünder,garten-pflanzen,haushalt,Kohleanzünder
+tierbedarf-schaedlinge,Tierbedarf & Schädlingsbekämpfung,haushalt,haushalt,
+insektenspray,Insektenspray,tierbedarf-schaedlinge,haushalt,Insektenschutzspray|Mückenspray
+ameisenkoeder,Ameisenköder,tierbedarf-schaedlinge,haushalt,Ameisenfalle
+fliegengitter,Fliegengitter,tierbedarf-schaedlinge,haushalt,Fliegengitter Fenster|Insektenschutzgitter
+katzenstreu,Katzenstreu,tierbedarf-schaedlinge,haushalt,Streu
+bremsenschutz,Bremsenschutz,tierbedarf-schaedlinge,haushalt,Bremsenschutz Pferd|Insektenschutz Pferd|Fliegenspray Pferd
+babymenue,Babymenü,baby,baby,Babygläschen|Menü
+babybrei,Babybrei,baby,baby,Brei
+babynahrung,Babynahrung,baby,baby,Beikost
+babysnacks,Babysnacks,baby,baby,Knabbereien
+babykekse,Babykekse,baby,baby,Kinderkekse
+kindergetraenke,Kindergetränke,baby,baby,Getränke für Kinder
+gemuesemenue,Gemüsemenü,babymenue,baby,Gemüse Menü
+fleischmenue,Fleischmenü,babymenue,baby,Menü mit Fleisch
+fischmenue,Fischmenü,babymenue,baby,Menü mit Fisch
+eintopfmenue,Eintopfmenü,babymenue,baby,Linseneintopf
+getreidebrei,Getreidebrei,babybrei,baby,Milchbrei
+hirsebrei,Hirsebrei,babybrei,baby,
+fruchtbrei,Fruchtbrei,babybrei,baby,Obstbrei
+gemuese-fleisch-brei,Gemüse-Fleisch-Brei,babybrei,baby,Menübrei
+schmelzflocken,Schmelzflocken,babybrei,baby,Mehrkornflocken
+fruchtmus,Fruchtmus,babynahrung,baby,Obstmus|Quetschie
+babysnack-getreide,Getreidesnack,babysnacks,baby,Dinkelsnack
+babybrezeln,Babybrezeln,babysnacks,baby,Brezeln für Babys
+babykekse-bio,Babykekse,babykekse,baby,Zwieback
+keksriegel,Keksriegel,babykekse,baby,Babykeksriegel
+sojadrink-kinder,Sojadrink für Kinder,kindergetraenke,baby,Sojamilch Kinder
+fleischersatz,Fleischersatz,sonstiges,sonstiges,vegane Fleischalternativen|Fleischalternativen
+burger-vegan,Burger vegan,fleischersatz,sonstiges,Veggie-Burger|Burger Patty vegan|Burger-Patty vegan|Chicken Burger vegan
+hackfleisch-vegan,Hackfleisch vegan,fleischersatz,sonstiges,Hack vegan|Hackbällchen vegan
+schnitzel-vegan,Schnitzel vegan,fleischersatz,sonstiges,Schnitzel vegan paniert|Käseschnitzel vegetarisch
+nuggets-vegan,Nuggets vegan,fleischersatz,sonstiges,Chicken Nuggets vegan
+frikadellen-vegan,Frikadellen vegan,fleischersatz,sonstiges,Frikadellen vegetarisch|Cevapcici vegan
+haehnchen-vegan,Hähnchen vegan,fleischersatz,sonstiges,Hähnchenfilet vegan|Geschnetzeltes vegan
+gyros-doener-vegan,Gyros & Döner vegan,fleischersatz,sonstiges,Gyros vegan|Döner vegan|Kebab vegan
+steak-roastbeef-vegan,Steak & Roastbeef vegan,fleischersatz,sonstiges,Steak vegan|Roastbeef vegan
+bacon-vegan,Bacon vegan,fleischersatz,sonstiges,
+fischersatz-vegan,Fischersatz vegan,fleischersatz,sonstiges,Räucherlachs vegan|Fischstäbchen vegan
+wurstaufschnitt-vegan,Wurstaufschnitt vegan,sonstiges,sonstiges,veganer Aufschnitt|vegetarischer Aufschnitt
+salami-vegan,Salami vegan,wurstaufschnitt-vegan,sonstiges,
+schinken-vegan,Schinken vegan,wurstaufschnitt-vegan,sonstiges,Kochschinken vegan|Schinken vegetarisch|Schinkenwurst vegan
+mortadella-vegan,Mortadella vegan,wurstaufschnitt-vegan,sonstiges,
+kaese-alternativen,Käse-Alternativen,sonstiges,sonstiges,veganer Käse|Käsealternative vegan
+kaesescheiben-vegan,Käsescheiben vegan,kaese-alternativen,sonstiges,
+reibekaese-vegan,Reibekäse vegan,kaese-alternativen,sonstiges,
+grillkaese-vegan,Grillkäse vegan,kaese-alternativen,sonstiges,
+hirtenkaese-vegan,Hirtenkäse vegan,kaese-alternativen,sonstiges,
+mozzarella-vegan,Mozzarella vegan,kaese-alternativen,sonstiges,
+pflanzendrinks-sahne,Pflanzendrinks & -sahne,sonstiges,sonstiges,pflanzliche Milchalternativen
+sojasahne,Sojasahne,pflanzendrinks-sahne,sonstiges,Sojacuisine|Sojacreme Cuisine
+haferkochcreme,Haferkochcreme,pflanzendrinks-sahne,sonstiges,
+kokosmilch,Kokosmilch,pflanzendrinks-sahne,sonstiges,
+pflanzencreme,Pflanzencreme,pflanzendrinks-sahne,sonstiges,Kochcreme vegan
+pflanzenfett,Pflanzenfett,pflanzendrinks-sahne,sonstiges,
+maultaschen,Maultaschen,fertiggerichte,sonstiges,Maultaschen vegan
+lasagne,Lasagne,fertiggerichte,sonstiges,Lasagne Bolognese|Gemüselasagne
+tortelloni,Tortelloni,fertiggerichte,sonstiges,Tortelloni Käse|Tortelloni Steinpilz
+rahmspinat,Rahmspinat,fertiggerichte,sonstiges,Rahmspinat tiefgekühlt
+kartoffelgratin,Kartoffelgratin,fertiggerichte,sonstiges,
+falafel,Falafel,fertiggerichte,sonstiges,Falafelmischung
+weinblaetter-gefuellt,Weinblätter gefüllt,fertiggerichte,sonstiges,
+hamburger,Hamburger,fertiggerichte,sonstiges,Veggie Burger
+wrap,Wrap,fertiggerichte,sonstiges,Wrap Hähnchen
+nudelsalat,Nudelsalat,fertigsalate,sonstiges,
+gurkensalat,Gurkensalat,fertigsalate,sonstiges,
+couscoussalat,Couscoussalat,fertigsalate,sonstiges,
+hirtensalat,Hirtensalat,fertigsalate,sonstiges,
+bruehen-fonds,Brühen & Fonds,sonstiges,sonstiges,
+huehnerbruehe,Hühnerbrühe,bruehen-fonds,sonstiges,Geflügelfond
+rinderfond,Rinderfond,bruehen-fonds,sonstiges,
+gemuesefond,Gemüsefond,bruehen-fonds,sonstiges,
+bratensosse,Bratensoße,bruehen-fonds,sonstiges,
+oliven,Oliven,sonstiges,sonstiges,
+oliven-gruen,Oliven grün,oliven,sonstiges,Oliven grün entsteint|Oliven grün gefüllt Paprika
+oliven-schwarz,Oliven schwarz,oliven,sonstiges,Oliven schwarz entsteint|Oliven schwarz entkernt
+kalamata-oliven,Kalamata-Oliven,oliven,sonstiges,
+oliven-entsteint,Oliven entsteint,oliven,sonstiges,
+saaten-kerne,Saaten & Kerne,sonstiges,sonstiges,
+sonnenblumenkerne,Sonnenblumenkerne,saaten-kerne,sonstiges,
+kuerbiskerne,Kürbiskerne,saaten-kerne,sonstiges,
+hanfsamen,Hanfsamen,saaten-kerne,sonstiges,Hanfsamen geschält
+flohsamenschalen,Flohsamenschalen,saaten-kerne,sonstiges,Flohsamenschalen gemahlen
+backpulver,Backpulver,backzutaten,sonstiges,
+natron,Natron,backzutaten,sonstiges,
+trockenhefe,Trockenhefe,backzutaten,sonstiges,Backhefe
+kakaonibs,Kakaonibs,backzutaten,sonstiges,
+brotbackmischung,Brotbackmischung,backzutaten,sonstiges,Brotbackmischung glutenfrei
+mehl-glutenfrei,Mehl glutenfrei,backzutaten,sonstiges,
+suessungsmittel,Süßungsmittel,sonstiges,sonstiges,Zuckerersatz
+suessstoff,Süßstoff,suessungsmittel,sonstiges,Süßstofftabletten|Süßstoff flüssig
+erythrit,Erythrit,suessungsmittel,sonstiges,
+stevia,Stevia,suessungsmittel,sonstiges,Stevia Streusüße
+nahrungsergaenzung,Nahrungsergänzung,sonstiges,sonstiges,Nahrungsergänzungsmittel|Supplements
+proteinpulver,Proteinpulver,nahrungsergaenzung,sonstiges,Proteinpulver vegan|Proteinpulver Vanille|Whey Protein Vanille
+magnesium,Magnesium,nahrungsergaenzung,sonstiges,Magnesium Nahrungsergänzung
+multivitamin,Multivitamin,nahrungsergaenzung,sonstiges,Multivitamin Brausetabletten|Nahrungsergänzung Zink Vitamin C
+brot-gebaeck,Brot & Gebäck,sonstiges,sonstiges,
+knoblauchbaguette,Knoblauchbaguette,brot-gebaeck,sonstiges,
+backerbsen,Backerbsen,brot-gebaeck,sonstiges,
+konfitueren-gruetzen,Konfitüren & Grützen,sonstiges,sonstiges,
+preiselbeerkonfituere,Preiselbeerkonfitüre,konfitueren-gruetzen,sonstiges,
+kirschgruetze,Kirschgrütze,konfitueren-gruetzen,sonstiges,
+saefte,Säfte,sonstiges,sonstiges,

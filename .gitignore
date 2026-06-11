@@ -45,3 +45,5 @@ data/llm-sample-comparison.csv
 
 # Python bytecode
 scripts/__pycache__/
+data/.taxonomy-cache/
+data/dm-harvest-sample.csv
