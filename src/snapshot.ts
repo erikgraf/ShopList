@@ -163,8 +163,12 @@ export async function searchSnapshot(query: string, limit = 8): Promise<Product[
       )
     ) {
       s = 520;
-    } else if (it.nameN.replace(/ /g, '').includes(qJoined)) s = 320;
-    else if (it.joinedN.includes(qJoined)) s = 260;
+    } else if (qJoined.length >= 5 && it.nameN.replace(/ /g, '').includes(qJoined)) {
+      // German-compound exception: substantial fragments may sit inside a
+      // Kompositum ("rostbra" in "lupinenrostbratwuerstchen"). Length-gated
+      // so short inputs only ever match from the beginning of words.
+      s = 320;
+    } else if (qJoined.length >= 5 && it.joinedN.includes(qJoined)) s = 260;
     else continue;
 
     if (it.product.image) s += 6;

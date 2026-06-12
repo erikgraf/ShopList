@@ -240,7 +240,10 @@ export function searchGenerics(query: string, limit = 8): Generic[] {
     if (seen.has(g.id)) continue;
     if (m.spaced === q || m.joined === qJoined) push(exact, g);
     else if (m.spaced.startsWith(q) || m.joined.startsWith(qJoined)) push(prefix, g);
-    else if (qTokens.every((t) => m.joined.includes(t))) push(token, g);
+    // Word-prefix per token — "grie jog" finds "griechischer joghurt", but a
+    // short fragment never matches mid- or end-of-word ("l" ∉ "apfel").
+    else if (qTokens.every((t) => m.spaced.split(' ').some((w) => w.startsWith(t))))
+      push(token, g);
   }
 
   return [...exact, ...prefix, ...token].slice(0, limit);
