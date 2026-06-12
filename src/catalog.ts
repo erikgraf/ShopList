@@ -48,9 +48,13 @@ export function searchCatalog(query: string, limit = 8): Product[] {
       exact.push(p);
     } else if (n.startsWith(qNorm) || nJoined.startsWith(qJoined)) {
       prefix.push(p);
-    } else if (qTokens.every((t) => nJoined.includes(t))) {
+    } else if (qTokens.every((t) => n.split(' ').some((w) => w.startsWith(t)))) {
+      // Word-prefix per token — fragments never match mid- or end-of-word.
       allTokens.push(p);
-    } else if (nJoined.includes(qJoined)) {
+    } else if (qJoined.length >= 5 && nJoined.includes(qJoined)) {
+      // German-compound exception: a substantial fragment may sit inside a
+      // Kompositum ("rostbra" in "lupinenrostbratwuerstchen"). Length-gated
+      // so "la" can't match word-middles.
       contains.push(p);
     }
   }

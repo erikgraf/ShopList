@@ -158,7 +158,10 @@ export function SearchBar({
 
     if (q.length >= 1) {
       for (const r of recent) {
-        if (r.name.toLowerCase().includes(q) && !seen.has(r.name.toLowerCase())) {
+        // Word-prefix only: typing "l" must suggest "Lauch", not "Apfel"
+        // (whose trailing l a bare includes() would match).
+        const words = r.name.toLowerCase().split(/[^a-z0-9äöüß]+/i);
+        if (words.some((w) => w.startsWith(q)) && !seen.has(r.name.toLowerCase())) {
           seen.add(r.name.toLowerCase());
           out.push({ ...r, source: 'recent' });
         }
